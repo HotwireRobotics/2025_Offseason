@@ -1,0 +1,43 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Square Path 0"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Square Path 1"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Square Path 2"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Square Path 3"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Square Path 4"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": null,
+  "choreoAuto": false
+}
