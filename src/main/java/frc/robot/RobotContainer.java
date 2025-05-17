@@ -11,6 +11,7 @@ import com.ctre.phoenix6.Orchestra;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -36,6 +37,12 @@ public class RobotContainer {
     private final CommandXboxController joystick = new CommandXboxController(0);
 
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
+
+    // TODO
+    // Non-functional; Implement later
+    Orchestra music = new Orchestra(
+        Filesystem.getDeployDirectory() + "/orchestra/output.chirp"
+    );
 
     public RobotContainer() {
         configureBindings();
