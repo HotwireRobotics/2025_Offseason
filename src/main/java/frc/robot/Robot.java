@@ -77,7 +77,7 @@ public class Robot extends TimedRobot {
 
   // Command pfc = AutoBuilder.pathfindToPose(new Pose2d(0, 0, new Rotation2d(0, 0)), constraints);
 
-  public double getClosestTag(int[] IDs) {
+  // public double getClosestTag(int[] IDs) {
     // Translation2d end = new Translation2d(0, 0); // None Pose
 
     // // red = 6 - 11
@@ -98,7 +98,7 @@ public class Robot extends TimedRobot {
     //   tag_poses = tag.pose;
     // }
     // return m_robotContainer.drivetrain.getState().Pose.nearest(apriltags);
-  }
+  // }
 
   @Override
   public void disabledInit() {}

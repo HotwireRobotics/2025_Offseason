@@ -95,7 +95,19 @@ public class RobotContainer {
             System.out.println(error);
         }
 
-
+        // TODO May 30th
+        // In RobotContainer because we want to bind to a trigger like the pathfinding command
+        // Might want a Constants class for this:
+        // 1. Create an AprilTagFieldLayout object
+        // 2. Create two subsets of AprilTag Ids for each color reef (will need to be of type Set<Integer>)
+        // Now we can create a method to return the Pose2d of the nearest reef AprilTag
+        // 1. Get the current robot pose
+        // 2. Get the current alliance color from FMS
+        // 3. Get the AprilTagFieldLayout object and the correct reef Ids
+        // 4. Build a Pose2d list for just the AprilTags in the current alliance color reef
+        // 5. Find the closest AprilTag to the current robot pose
+        // 6. Return the Pose2d of the closest AprilTag
+        // Finally, we can bind this method to a button press on the joystick
 
        
 
