@@ -9,10 +9,15 @@ import static edu.wpi.first.units.Units.*;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.PathPlannerAuto;
+import com.pathplanner.lib.path.PathConstraints;
+import com.pathplanner.lib.path.PathPlannerPath;
 import com.ctre.phoenix6.Orchestra;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -57,6 +62,9 @@ public class RobotContainer {
     }
         
     private void configureBindings() {
+        PathConstraints constraints = new PathConstraints(
+                    3.0, 4.0,
+                    Units.degreesToRadians(540), Units.degreesToRadians(720));
         // Note that X is defined as forward according to WPILib convention,
         // and Y is defined as to the left according to WPILib convention.
         drivetrain.setDefaultCommand(
@@ -67,6 +75,31 @@ public class RobotContainer {
                     .withRotationalRate(-joystick.getRightX() * MaxAngularRate) // Drive counterclockwise with negative X (left)
             )
         );
+
+        try {
+            // Load the path we want to pathfind to and follow
+            PathPlannerPath path = PathPlannerPath.fromPathFile("Score");
+
+            // Create the constraints to use while pathfinding. The constraints defined in the path will only be used for the path.
+            
+
+            // Since AutoBuilder is configured, we can use it to build pathfinding commands
+            Command pathfindingCommand = AutoBuilder.pathfindThenFollowPath(
+                    path,
+                    constraints);
+
+            
+            
+            joystick.x().onTrue(pathfindingCommand);
+        } catch (Exception error) {
+            System.out.println(error);
+        }
+
+
+
+       
+
+
 
         // Idle while the robot is disabled. This ensures the configured
         // neutral mode is applied to the drive motors while disabled.
