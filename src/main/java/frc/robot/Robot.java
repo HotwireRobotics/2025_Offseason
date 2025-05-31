@@ -6,6 +6,7 @@ package frc.robot;
 
 import java.lang.reflect.Field;
 
+import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.PathfindingCommand;
 
 import edu.wpi.first.apriltag.AprilTag;
@@ -30,15 +31,14 @@ public class Robot extends TimedRobot {
 
   Field2d llestamation = new Field2d();
 
-  AprilTagFieldLayout taglayout = AprilTagFields.k2025ReefscapeWelded.loadAprilTagLayoutField();
-
-  
+  Field2d nearest_tag = new Field2d();
 
   private final RobotContainer m_robotContainer;
 
   public Robot() {
     m_robotContainer = new RobotContainer();
     SmartDashboard.putData("Limelight Pose", llestamation);
+    SmartDashboard.putData("Nearest Tag", nearest_tag);
   }
 
   @Override
@@ -48,66 +48,72 @@ public class Robot extends TimedRobot {
 
   @Override
   public void robotPeriodic() {
-    CommandScheduler.getInstance().run(); 
+    CommandScheduler.getInstance().run();
 
     if (utilizeLimelight) {
       var driveState = m_robotContainer.drivetrain.getState();
       var headingDeg = driveState.Pose.getRotation().getDegrees();
       var omegaRPS = Units.radiansToRotations(driveState.Speeds.omegaRadiansPerSecond);
-      LimelightHelpers.SetRobotOrientation("limelight", headingDeg, 
-                                            0, 0, 
-                                            0, 0, 
-                                            0);
+      LimelightHelpers.SetRobotOrientation("limelight", headingDeg, 0, 0, 0, 0, 0);
       var limelightMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue("");
 
-      // m_robotContainer.drivetrain.addVisionMeasurement(limelightMeasurement.pose, limelightMeasurement.timestampSeconds);
-      if ((limelightMeasurement != null) && (limelightMeasurement.tagCount > 0) && (Math.abs(omegaRPS) < 2))
-      {
-        m_robotContainer.drivetrain.addVisionMeasurement(limelightMeasurement.pose, limelightMeasurement.timestampSeconds);
+      // m_robotContainer.drivetrain.addVisionMeasurement(limelightMeasurement.pose,
+      // limelightMeasurement.timestampSeconds);
+      if ((limelightMeasurement != null) && (limelightMeasurement.tagCount > 0) && (Math.abs(omegaRPS) < 2)) {
+        m_robotContainer.drivetrain.addVisionMeasurement(limelightMeasurement.pose,
+            limelightMeasurement.timestampSeconds);
         llestamation.setRobotPose(limelightMeasurement.pose);
       }
     }
 
     Translation2d end = new Translation2d(0, 0);
 
-    SmartDashboard.putNumber("Distance to Score", end.getDistance(m_robotContainer.drivetrain.getState().Pose.getTranslation()));
+    SmartDashboard.putNumber("Distance to Score",
+        end.getDistance(m_robotContainer.drivetrain.getState().Pose.getTranslation()));
 
-    
+    nearest_tag.setRobotPose(Constants.nearestTagPose(m_robotContainer.drivetrain.getState().Pose).get());
   }
 
-  // Command pfc = AutoBuilder.pathfindToPose(new Pose2d(0, 0, new Rotation2d(0, 0)), constraints);
+  
+
+  // Command pfc = AutoBuilder.pathfindToPose(new Pose2d(0, 0, new Rotation2d(0,
+  // 0)), constraints);
 
   // public double getClosestTag(int[] IDs) {
-    // Translation2d end = new Translation2d(0, 0); // None Pose
+  // Translation2d end = new Translation2d(0, 0); // None Pose
 
-    // // red = 6 - 11
-    // // blue = 
+  // // red = 6 - 11
+  // // blue =
 
-    // for (int ID = 0; ID < IDs.length; ID++) {
-    //   int id = IDs[ID];
+  // for (int ID = 0; ID < IDs.length; ID++) {
+  // int id = IDs[ID];
 
-    //   Translation2d tag = taglayout.getTagPose(id).orElse(new Pose3d(end.getX(), end.getY(), 0, new Rotation3d(0, 0, 0))).getTranslation().toTranslation2d();
-    // }
+  // Translation2d tag = taglayout.getTagPose(id).orElse(new Pose3d(end.getX(),
+  // end.getY(), 0, new Rotation3d(0, 0, 0))).getTranslation().toTranslation2d();
+  // }
 
-    
-    // TODO
-    // return tag.getDistance(m_robotContainer.drivetrain.getState().Pose.getTranslation());
-    // var apriltags = taglayout.getTags();
-    // Pose2d[] tag_poses = new Pose2d[apriltags.size()];
-    // for (var tag : apriltags) {
-    //   tag_poses = tag.pose;
-    // }
-    // return m_robotContainer.drivetrain.getState().Pose.nearest(apriltags);
+  // TODO
+  // return
+  // tag.getDistance(m_robotContainer.drivetrain.getState().Pose.getTranslation());
+  // var apriltags = taglayout.getTags();
+  // Pose2d[] tag_poses = new Pose2d[apriltags.size()];
+  // for (var tag : apriltags) {
+  // tag_poses = tag.pose;
+  // }
+  // return m_robotContainer.drivetrain.getState().Pose.nearest(apriltags);
   // }
 
   @Override
-  public void disabledInit() {}
+  public void disabledInit() {
+  }
 
   @Override
-  public void disabledPeriodic() {}
+  public void disabledPeriodic() {
+  }
 
   @Override
-  public void disabledExit() {}
+  public void disabledExit() {
+  }
 
   @Override
   public void autonomousInit() {
@@ -119,10 +125,12 @@ public class Robot extends TimedRobot {
   }
 
   @Override
-  public void autonomousPeriodic() {}
+  public void autonomousPeriodic() {
+  }
 
   @Override
-  public void autonomousExit() {}
+  public void autonomousExit() {
+  }
 
   @Override
   public void teleopInit() {
@@ -132,10 +140,12 @@ public class Robot extends TimedRobot {
   }
 
   @Override
-  public void teleopPeriodic() {}
+  public void teleopPeriodic() {
+  }
 
   @Override
-  public void teleopExit() {}
+  public void teleopExit() {
+  }
 
   @Override
   public void testInit() {
@@ -143,11 +153,14 @@ public class Robot extends TimedRobot {
   }
 
   @Override
-  public void testPeriodic() {}
+  public void testPeriodic() {
+  }
 
   @Override
-  public void testExit() {}
+  public void testExit() {
+  }
 
   @Override
-  public void simulationPeriodic() {}
+  public void simulationPeriodic() {
+  }
 }

@@ -60,7 +60,9 @@
   "java.format.settings.url": ".vscode/java-formatter.xml",
   "[java]": {
     "editor.defaultFormatter": "redhat.java",
-    "editor.formatOnSave": false, // TODO: Configure java formatter then turn this on
-    "editor.formatOnSaveMode": "modifications"
-  }
+    "editor.formatOnSave": false,
+    // "editor.formatOnSaveMode": "modifications",
+    "editor.insertSpaces": false
+  },
+  "editor.fontSize": 16
 }
