@@ -6,20 +6,21 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.Constants.Tracks;
 
-public class GoToNearest extends Command {
+public class GoToNearestPole extends Command {
 
 	public CommandSwerveDrivetrain drivetrain;
 
-	public GoToNearest(CommandSwerveDrivetrain drivetrain) {
+	public GoToNearestPole(CommandSwerveDrivetrain drivetrain) {
 		this.drivetrain = drivetrain;
 	}
 
 	public void initialize() {
-		Pose2d nearestPose = Constants.nearestTagPose(drivetrain.getState().Pose).get();
-
+		Pose2d nearestPose = Constants.nearestPolePose(drivetrain.getState().Pose, Tracks.all).get();
 		Command command = AutoBuilder.pathfindToPose(nearestPose, Constants.constraints);
-
+		System.out.println("Function Start!");
+		
 		command.schedule();
 	}
 
@@ -28,7 +29,7 @@ public class GoToNearest extends Command {
 	}
 
 	public void end(boolean interrupted) {
-
+		System.out.println("Function End!");
 	}
 
 	public boolean isFinished() {

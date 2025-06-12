@@ -26,11 +26,15 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
-
-import frc.robot.commands.GoToNearest;
+import frc.robot.commands.CommandGenerator;
+import frc.robot.commands.GoToNearestPole;
+import frc.robot.commands.GoToNearestTag;
+import frc.robot.commands.CommandGenerator;
 
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+
+import frc.robot.Constants.Tracks;
 
 public class RobotContainer {
     private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
@@ -93,7 +97,9 @@ public class RobotContainer {
             System.out.println(error);
         }
 
-        joystick.y().onTrue(new GoToNearest(drivetrain));
+        // joystick.y().onTrue(new GoToNearestTag(drivetrain));
+        joystick.leftBumper().onTrue(CommandGenerator.goToNearestPole(drivetrain, Tracks.left));
+        joystick.rightBumper().onTrue(CommandGenerator.goToNearestPole(drivetrain, Tracks.right));
         
 
         final var idle = new SwerveRequest.Idle();
@@ -111,7 +117,7 @@ public class RobotContainer {
         joystick.start().and(joystick.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
 
         // reset the field-centric heading on left bumper press
-        joystick.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
+        joystick.povDown().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
 
         drivetrain.registerTelemetry(logger::telemeterize);
     }

@@ -23,6 +23,7 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.Constants.Tracks;
 
 public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
@@ -33,12 +34,15 @@ public class Robot extends TimedRobot {
 
   Field2d nearest_tag = new Field2d();
 
+  Field2d nearest_pole = new Field2d();
+
   private final RobotContainer m_robotContainer;
 
   public Robot() {
     m_robotContainer = new RobotContainer();
     SmartDashboard.putData("Limelight Pose", llestamation);
     SmartDashboard.putData("Nearest Tag", nearest_tag);
+    SmartDashboard.putData("Nearest Pole", nearest_pole);
   }
 
   @Override
@@ -72,6 +76,7 @@ public class Robot extends TimedRobot {
         end.getDistance(m_robotContainer.drivetrain.getState().Pose.getTranslation()));
 
     nearest_tag.setRobotPose(Constants.nearestTagPose(m_robotContainer.drivetrain.getState().Pose).get());
+    nearest_pole.setRobotPose(Constants.nearestPolePose(m_robotContainer.drivetrain.getState().Pose, Tracks.right).get());
   }
 
   
