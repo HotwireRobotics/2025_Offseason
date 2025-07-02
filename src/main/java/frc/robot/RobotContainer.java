@@ -32,7 +32,7 @@ import frc.robot.commands.GoToNearestTag;
 import frc.robot.commands.CommandGenerator;
 
 import frc.robot.generated.TunerConstants;
-import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.DriveTrain;
 
 import frc.robot.Constants.Tracks;
 
@@ -52,7 +52,7 @@ public class RobotContainer {
 
     private final CommandXboxController joystick = new CommandXboxController(0);
 
-    public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
+    public final DriveTrain drivetrain = TunerConstants.createDrivetrain();
 
     private final SendableChooser<Command> autoChooser;
 
@@ -96,6 +96,11 @@ public class RobotContainer {
         } catch (Exception error) {
             System.out.println(error);
         }
+
+        
+
+        joystick.povRight().onTrue(CommandGenerator.goRightTwoPoleLengths(drivetrain));
+        joystick.povLeft().onTrue(CommandGenerator.goLeftTwoPoleLengths(drivetrain));
 
         // joystick.y().onTrue(new GoToNearestTag(drivetrain));
         joystick.leftBumper().onTrue(CommandGenerator.goToNearestPole(drivetrain, Tracks.left));

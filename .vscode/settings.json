@@ -62,7 +62,8 @@
     "editor.defaultFormatter": "redhat.java",
     "editor.formatOnSave": false,
     // "editor.formatOnSaveMode": "modifications",
-    "editor.insertSpaces": false
+    "editor.insertSpaces": false,
+    "editor.tabSize": 4
   },
   "editor.fontSize": 16
 }

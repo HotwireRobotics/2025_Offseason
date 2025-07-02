@@ -32,38 +32,40 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.Tracks;
 
-public class Robot extends LoggedRobot {
-  private Command m_autonomousCommand;
+public class Robot extends TimedRobot {
 
+  private Command m_autonomousCommand;
   public boolean utilizeLimelight = true;
 
   Field2d llestamation = new Field2d();
-
   Field2d nearest_tag = new Field2d();
-
   Field2d nearest_pole = new Field2d();
 
   private final RobotContainer m_robotContainer;
 
   public Robot() {
-    Logger.recordMetadata("ProjectName", "MyProject"); // Set a metadata value
-
-    if (isReal()) {
-        Logger.addDataReceiver(new WPILOGWriter()); // Log to a USB stick ("/U/logs")
-        Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
-    } else {
-        setUseTiming(false); // Run as fast as possible
-        String logPath = LogFileUtil.findReplayLog(); // Pull the replay log from AdvantageScope (or prompt the user)
-        Logger.setReplaySource(new WPILOGReader(logPath)); // Read replay log
-        Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim"))); // Save outputs to a new log
-    }
-
-    Logger.start(); // Start logging! No more data receivers, replay sources, or metadata values may be added.
-
     m_robotContainer = new RobotContainer();
     SmartDashboard.putData("Limelight Pose", llestamation);
     SmartDashboard.putData("Nearest Tag", nearest_tag);
     SmartDashboard.putData("Nearest Pole", nearest_pole);
+
+    // ! Memory Error; implement when ur system doesn't suck.
+    // Logger.recordMetadata("Hotwire Project", "2026"); // Set a metadata value
+
+    // if (isReal()) {
+    // Logger.addDataReceiver(new WPILOGWriter()); // Log to a USB stick ("/U/logs")
+    // Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
+    // } else {
+    // setUseTiming(false); // Run as fast as possible
+    // String logPath = LogFileUtil.findReplayLog(); // Pull the replay log from
+    // AdvantageScope (or prompt the user)
+    // Logger.setReplaySource(new WPILOGReader(logPath)); // Read replay log
+    // Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath,
+    // "_sim"))); // Save outputs to a new log
+    // }
+
+    // Logger.start(); // Start logging! No more data receivers, replay sources, or
+    // metadata values may be added.
   }
 
   @Override
@@ -97,10 +99,9 @@ public class Robot extends LoggedRobot {
         end.getDistance(m_robotContainer.drivetrain.getState().Pose.getTranslation()));
 
     nearest_tag.setRobotPose(Constants.nearestTagPose(m_robotContainer.drivetrain.getState().Pose).get());
-    nearest_pole.setRobotPose(Constants.nearestPolePose(m_robotContainer.drivetrain.getState().Pose, Tracks.right).get());
+    nearest_pole
+        .setRobotPose(Constants.nearestPolePose(m_robotContainer.drivetrain.getState().Pose, Tracks.right).get());
   }
-
-  
 
   // Command pfc = AutoBuilder.pathfindToPose(new Pose2d(0, 0, new Rotation2d(0,
   // 0)), constraints);

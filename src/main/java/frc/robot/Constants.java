@@ -67,9 +67,33 @@ public class Constants {
 		return Optional.of(pose);
 	}
 
+	public static Optional<Pose2d> rightTwoPoleLengths(Pose2d robotPose) {
+		Transform2d offset = new Transform2d(
+			new Translation2d(poleOffset.magnitude() * 2, new Rotation2d(Math.PI / 2)), 
+			Rotation2d.k180deg
+		);
+
+		Pose2d offsetPose = robotPose.plus(offset);
+
+		return Optional.of(offsetPose);
+	}
+
+	public static Optional<Pose2d> leftTwoPoleLengths(Pose2d robotPose) {
+		Transform2d offset = new Transform2d(
+			new Translation2d( -poleOffset.magnitude() * 2, new Rotation2d(Math.PI / 2)), 
+			Rotation2d.k180deg
+		);
+
+		Pose2d offsetPose = robotPose.plus(offset);
+
+		return Optional.of(offsetPose);
+	}
+
 	public enum Tracks {
 		right, left, all
 	}
+
+
 
 	public static Optional<Pose2d> nearestPolePose(Pose2d robotPose, Tracks types) {
 
@@ -99,20 +123,20 @@ public class Constants {
 
 		Pose2d pose = robotPose.nearest(lefts);
 		switch (types) {
-		case all:
-			rights.addAll(lefts);
-			pose = robotPose.nearest(rights);
-			break;
-		case right:
-			pose = robotPose.nearest(rights);
-			break;
-		case left:
-			pose = robotPose.nearest(lefts);
-			break;
-		default:
-			System.out.println("Did not select a valid tracking type.");
-			rights.addAll(lefts);
-			pose = robotPose.nearest(rights);
+			case all:
+				rights.addAll(lefts);
+				pose = robotPose.nearest(rights);
+				break;
+			case right:
+				pose = robotPose.nearest(rights);
+				break;
+			case left:
+				pose = robotPose.nearest(lefts);
+				break;
+			default:
+				System.out.println("Did not select a valid tracking type.");
+				rights.addAll(lefts);
+				pose = robotPose.nearest(rights);
 		}
 
 		Transform2d offset = new Transform2d(
@@ -121,5 +145,4 @@ public class Constants {
 
 		return Optional.of(pose);
 	}
-
 }
