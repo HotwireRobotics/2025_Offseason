@@ -10,8 +10,10 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.Constants;
+import frc.robot.RobotContainer;
 import frc.robot.Constants.Tracks;
 import frc.robot.subsystems.DriveTrain;
+import frc.robot.subsystems.Superstructure;
 
 public class CommandGenerator {
 	public static Command goToNearestPole(DriveTrain drivetrain, Tracks types) {
@@ -19,15 +21,15 @@ public class CommandGenerator {
 			Pose2d nearestPose = Constants.nearestPolePose(drivetrain.getState().Pose, types).get();
 			Command command = AutoBuilder.pathfindToPose(nearestPose, Constants.constraints);
 
-			Dictionary<Tracks, DriveTrain.State> tracksToState = new Hashtable<>();
-			tracksToState.put(Tracks.right, DriveTrain.State.at_right_pole);
-			tracksToState.put(Tracks.left, DriveTrain.State.at_left_pole);
+			Dictionary<Tracks, Superstructure.SystemState> tracksToState = new Hashtable<>();
+			tracksToState.put(Tracks.right, Superstructure.SystemState.SCORING_CORAL_RIGHT);
+			tracksToState.put(Tracks.left, Superstructure.SystemState.SCORING_CORAL_LEFT);
 			
-			DriveTrain.State state = tracksToState.get(types);
+			Superstructure.SystemState state = tracksToState.get(types);
 
-			command = new CommandWrapper(command, () -> {
-				drivetrain.state = state;
-			});
+			// command = new CommandWrapper(command, () -> {
+			// 	superstructure.currentSuperState = state;
+			// }, () -> {});
 
 			return command;
 		}, Set.of(drivetrain));
@@ -47,9 +49,9 @@ public class CommandGenerator {
 			Pose2d pose = Constants.rightTwoPoleLengths(drivetrain.getState().Pose).get();
 			Command command = AutoBuilder.pathfindToPose(pose, Constants.constraints);
 
-			command = new CommandWrapper(command, () -> {
-				drivetrain.state = DriveTrain.State.at_right_pole;
-			});
+			// command = new CommandWrapper(command, () -> {
+			// 	drivetrain.state = DriveTrain.SystemState.at_right_pole;
+			// }, () -> {});
 
 			return command;
 		}, Set.of(drivetrain));
@@ -60,9 +62,9 @@ public class CommandGenerator {
 			Pose2d pose = Constants.leftTwoPoleLengths(drivetrain.getState().Pose).get();
 			Command command = AutoBuilder.pathfindToPose(pose, Constants.constraints);
 
-			command = new CommandWrapper(command, () -> {
-				drivetrain.state = DriveTrain.State.at_left_pole;
-			});
+			// command = new CommandWrapper(command, () -> {
+			// 	drivetrain.state = DriveTrain.SystemState.at_left_pole;
+			// }, () -> {});
 
 			return command;
 		}, Set.of(drivetrain));		

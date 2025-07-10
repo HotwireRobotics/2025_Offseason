@@ -33,7 +33,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-
+import frc.robot.Constants;
 import frc.robot.generated.TunerConstants.TunerSwerveDrivetrain;
 
 /**
@@ -60,6 +60,18 @@ public class DriveTrain extends TunerSwerveDrivetrain implements Subsystem {
     private final SwerveRequest.SysIdSwerveRotation m_rotationCharacterization = new SwerveRequest.SysIdSwerveRotation();
 
     private final SwerveRequest.ApplyRobotSpeeds m_pathApplyRobotSpeeds = new SwerveRequest.ApplyRobotSpeeds();
+
+    public enum TargetState {
+		TELEOP_DRIVE, FOLLOW_PATH, IDLE
+	}
+
+    public enum SystemState {
+		TELEOP_DRIVE, FOLLOW_PATH, IDLE
+	}
+
+    public TargetState targetState = TargetState.TELEOP_DRIVE;
+
+    public SystemState currentSystemState = SystemState.TELEOP_DRIVE;
 
     /* SysId routine for characterizing translation. This is used to find PID gains for the drive motors. */
     private final SysIdRoutine m_sysIdRoutineTranslation = new SysIdRoutine(
@@ -266,6 +278,8 @@ public class DriveTrain extends TunerSwerveDrivetrain implements Subsystem {
     @Override
     public void periodic() {
 
+
+
         m_field.setRobotPose(getState().Pose);
         
         /*
@@ -284,6 +298,33 @@ public class DriveTrain extends TunerSwerveDrivetrain implements Subsystem {
                 );
                 m_hasAppliedOperatorPerspective = true;
             });
+        }
+    }
+
+    private void applyStates() {
+        switch (currentSystemState) {
+            case TELEOP_DRIVE:
+                Command command = applyRequest(() -> Constants.drive.withVelocityX(-Constants.joystick.getLeftY() * Constants.MaxSpeed) // Drive forward with
+                            // negative Y
+                            // (forward)
+                .withVelocityY(-Constants.joystick.getLeftX() * Constants.MaxSpeed) // Drive left with negative X (left)
+                .withRotationalRate(-Constants.joystick.getRightX() * Constants.MaxAngularRate) // Drive counterclockwise with
+                // negative X (left)
+                );
+        }
+    }
+
+    private void handleStateTransitions() {
+        switch (targetState) {
+            case TELEOP_DRIVE:
+                currentSystemState = SystemState.TELEOP_DRIVE;
+                break;
+            case FOLLOW_PATH:
+                currentSystemState = SystemState.FOLLOW_PATH;
+                break;
+            default:
+                currentSystemState = SystemState.IDLE;
+                break;
         }
     }
 
@@ -336,10 +377,5 @@ public class DriveTrain extends TunerSwerveDrivetrain implements Subsystem {
         super.addVisionMeasurement(visionRobotPoseMeters, Utils.fpgaToCurrentTime(timestampSeconds), visionMeasurementStdDevs);
     }
 
-    public enum State {
-		in_motion, stopped, pickup,
-		at_right_pole, at_left_pole
-	}
-
-    public State state = State.stopped;
+    
 }
