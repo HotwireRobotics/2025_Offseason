@@ -55,26 +55,13 @@ public class RobotContainer {
 
     private void configureBindings() {
 
-        // Note that X is defined as forward according to WPILib convention,
-        // and Y is defined as to the left according to WPILib convention.
-        // drivetrain.setDefaultCommand(
-        //         // Drivetrain will execute this command periodically
-                // drivetrain.applyRequest(() -> drive.withVelocityX(-Constants.joystick.getLeftY() * MaxSpeed) // Drive forward with
-                //                                                                                    // negative Y
-                //                                                                                    // (forward)
-                //         .withVelocityY(-Constants.joystick.getLeftX() * MaxSpeed) // Drive left with negative X (left)
-                //         .withRotationalRate(-Constants.joystick.getRightX() * MaxAngularRate) // Drive counterclockwise with
-                //                                                                     // negative X (left)
-                // ));
+        // This is required for `periodic()` to function.
+        drivetrain.setDefaultCommand(drivetrain.applyRequest(() -> brake));
 
         try {
             // Load the path we want to pathfind to and follow
             PathPlannerPath path = PathPlannerPath.fromPathFile("Score");
 
-            // Create the constraints to use while pathfinding. The constraints defined in
-            // the path will only be used for the path.
-
-            // Since AutoBuilder is configured, we can use it to build pathfinding commands
             Command pathfindingCommand = AutoBuilder.pathfindThenFollowPath(path, Constants.constraints);
 
             Constants.joystick.x().onTrue(pathfindingCommand);

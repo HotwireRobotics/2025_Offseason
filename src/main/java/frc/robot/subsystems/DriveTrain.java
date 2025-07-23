@@ -277,9 +277,6 @@ public class DriveTrain extends TunerSwerveDrivetrain implements Subsystem {
 
     @Override
     public void periodic() {
-
-
-
         m_field.setRobotPose(getState().Pose);
         
         /*
@@ -299,18 +296,30 @@ public class DriveTrain extends TunerSwerveDrivetrain implements Subsystem {
                 m_hasAppliedOperatorPerspective = true;
             });
         }
+
+        handleStateTransitions(); 
+        applyStates();
     }
+
+    Command drive_command = applyRequest(() -> Constants.drive.withVelocityX(-Constants.joystick.getLeftY() * Constants.MaxSpeed) 
+                // Drive forward with
+                // negative Y
+                // (forward)
+        .withVelocityY(-Constants.joystick.getLeftX() * Constants.MaxSpeed) // Drive left with negative X (left)
+        .withRotationalRate(-Constants.joystick.getRightX() * Constants.MaxAngularRate) // Drive counterclockwise with negative X (left)
+    );
 
     private void applyStates() {
         switch (currentSystemState) {
             case TELEOP_DRIVE:
-                Command command = applyRequest(() -> Constants.drive.withVelocityX(-Constants.joystick.getLeftY() * Constants.MaxSpeed) // Drive forward with
-                            // negative Y
-                            // (forward)
-                .withVelocityY(-Constants.joystick.getLeftX() * Constants.MaxSpeed) // Drive left with negative X (left)
-                .withRotationalRate(-Constants.joystick.getRightX() * Constants.MaxAngularRate) // Drive counterclockwise with
-                // negative X (left)
-                );
+                drive_command.schedule();
+                break;
+            case FOLLOW_PATH:
+                break;
+            case IDLE:
+                break;
+            default:
+                break;
         }
     }
 
