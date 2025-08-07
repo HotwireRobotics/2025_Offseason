@@ -7,32 +7,37 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
 import frc.robot.subsystems.DriveTrain;
 
-public class GoToNearestTag extends Command {
+public class GoToNearestTag implements Command {
 
-	public DriveTrain drivetrain;
+        public DriveTrain drivetrain;
+        private Command command;
 
 	public GoToNearestTag(DriveTrain drivetrain) {
 		this.drivetrain = drivetrain;
 	}
 
-	public void initialize() {
-		Pose2d nearestPose = Constants.nearestTagPose(drivetrain.getState().Pose).get();
-		Command command = AutoBuilder.pathfindToPose(nearestPose, Constants.constraints);
+        @Override
+        public void initialize() {
+                Pose2d nearestPose = Constants.nearestTagPose(drivetrain.getState().Pose).get();
+                command = AutoBuilder.pathfindToPose(nearestPose, Constants.constraints);
 
-		command.schedule();
+                command.schedule();
+        }
+
+        @Override
+        public void execute() {
+
+        }
+
+        @Override
+        public void end(boolean interrupted) {
+
 	}
 
-	public void execute() {
-
-	}
-
-	public void end(boolean interrupted) {
-
-	}
-
-	public boolean isFinished() {
-		return false;
-	}
+        @Override
+        public boolean isFinished() {
+                return command == null || !command.isScheduled();
+        }
 }
 
 
