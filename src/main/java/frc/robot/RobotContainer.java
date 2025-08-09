@@ -16,11 +16,13 @@ import static edu.wpi.first.units.Units.RotationsPerSecond;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.Constants.Tracks;
 import frc.robot.commands.CommandGenerator;
+import frc.robot.commands.SetTargetPose;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.DriveTrain;
 import frc.robot.subsystems.Superstructure;
@@ -58,25 +60,42 @@ public class RobotContainer {
         // This is required for `periodic()` to function.
         drivetrain.setDefaultCommand(drivetrain.applyRequest(() -> brake));
 
-        try {
-            // Load the path we want to pathfind to and follow
-            PathPlannerPath path = PathPlannerPath.fromPathFile("Score");
+        // try {
+        //     // Load the path we want to pathfind to and follow
+        //     PathPlannerPath path = PathPlannerPath.fromPathFile("Score");
 
-            Command pathfindingCommand = AutoBuilder.pathfindThenFollowPath(path, Constants.constraints);
+        //     Command pathfindingCommand = AutoBuilder.pathfindThenFollowPath(path, Constants.constraints);
 
-            Constants.joystick.x().onTrue(pathfindingCommand);
-        } catch (Exception error) {
-            System.out.println(error);
-        }
-
-        
-
-        Constants.joystick.povRight().onTrue(CommandGenerator.goRightTwoPoleLengths(drivetrain));
-        Constants.joystick.povLeft().onTrue(CommandGenerator.goLeftTwoPoleLengths(drivetrain));
+        //     Constants.joystick.x().onTrue(pathfindingCommand);
+        // } catch (Exception error) {
+        //     System.out.println(error);
+        // }
 
         // Constants.joystick.y().onTrue(new GoToNearestTag(drivetrain));
-        Constants.joystick.leftBumper().onTrue(CommandGenerator.goToNearestPole(drivetrain, Tracks.left));
-        Constants.joystick.rightBumper().onTrue(CommandGenerator.goToNearestPole(drivetrain, Tracks.right));
+        // Constants.joystick.leftBumper().onTrue(CommandGenerator.goToNearestPole(drivetrain, Tracks.left));
+        // Constants.joystick.rightBumper().onTrue(CommandGenerator.goToNearestPole(drivetrain, Tracks.right));
+
+        Constants.joystick.povRight().onTrue(
+            CommandGenerator.goRightTwoPoleLengths(drivetrain)
+        );
+
+        Constants.joystick.povLeft().onTrue(
+            CommandGenerator.goLeftTwoPoleLengths(drivetrain)
+        );
+
+        Constants.joystick.leftBumper().onTrue(
+            new SetTargetPose(
+                superstructure, drivetrain, Constants.nearestPolePose(drivetrain.getState().Pose, Tracks.left).get(),
+                Superstructure.TargetState.SCORE_LEFT
+            )
+        );
+
+        Constants.joystick.rightBumper().onTrue(
+            new SetTargetPose(
+                superstructure, drivetrain, Constants.nearestPolePose(drivetrain.getState().Pose, Tracks.right).get(),
+                Superstructure.TargetState.SCORE_RIGHT
+            )
+        );
         
 
         final var idle = new SwerveRequest.Idle();

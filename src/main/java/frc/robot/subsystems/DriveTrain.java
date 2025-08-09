@@ -34,6 +34,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
+import frc.robot.commands.CommandWrapper;
 import frc.robot.generated.TunerConstants.TunerSwerveDrivetrain;
 
 /**
@@ -68,6 +69,8 @@ public class DriveTrain extends TunerSwerveDrivetrain implements Subsystem {
     public enum SystemState {
 		TELEOP_DRIVE, FOLLOW_PATH, IDLE
 	}
+
+    public Pose2d wantedPose;
 
     public TargetState targetState = TargetState.TELEOP_DRIVE;
 
@@ -301,13 +304,20 @@ public class DriveTrain extends TunerSwerveDrivetrain implements Subsystem {
         applyStates();
     }
 
-    Command drive_command = applyRequest(() -> Constants.drive.withVelocityX(-Constants.joystick.getLeftY() * Constants.MaxSpeed) 
+    Command drive_command = applyRequest(() -> Constants.drive.withVelocityX(-(Constants.joystick.getLeftY()) * (Constants.joystick.x().getAsBoolean() ? Constants.MaxSpeed / 2 : Constants.MaxSpeed)) 
                 // Drive forward with
                 // negative Y
                 // (forward)
-        .withVelocityY(-Constants.joystick.getLeftX() * Constants.MaxSpeed) // Drive left with negative X (left)
+        .withVelocityY(-(Constants.joystick.getLeftX()) * (Constants.joystick.x().getAsBoolean() ? Constants.MaxSpeed / 2 : Constants.MaxSpeed)) // Drive left with negative X (left)
         .withRotationalRate(-Constants.joystick.getRightX() * Constants.MaxAngularRate) // Drive counterclockwise with negative X (left)
     );
+
+    private double lerp(double val, double k /* 2 factor */, double m /* 0.1 starting */) {
+        double sign = Math.signum(val);
+        val = Math.abs(val);
+        double i = Math.min(1, Math.max(0, Math.pow(val, k) + m));
+        return i * sign;
+    }
 
     private void applyStates() {
         switch (currentSystemState) {
@@ -315,10 +325,10 @@ public class DriveTrain extends TunerSwerveDrivetrain implements Subsystem {
                 drive_command.schedule();
                 break;
             case FOLLOW_PATH:
+                // Create command to navigate to `wantedPose` and schedule command.
+                
                 break;
             case IDLE:
-                break;
-            default:
                 break;
         }
     }
@@ -385,6 +395,4 @@ public class DriveTrain extends TunerSwerveDrivetrain implements Subsystem {
     ) {
         super.addVisionMeasurement(visionRobotPoseMeters, Utils.fpgaToCurrentTime(timestampSeconds), visionMeasurementStdDevs);
     }
-
-    
 }
