@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.Constants.Tracks;
+import frc.robot.subsystems.Superstructure;
 
 public class Robot extends TimedRobot {
 
@@ -144,6 +145,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopInit() {
+    m_robotContainer.superstructure.targetSuperState = Superstructure.TargetState.DEFAULT;
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
@@ -151,6 +153,12 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopPeriodic() {
+    SmartDashboard.putString("Drivetrain State", 
+      m_robotContainer.drivetrain.currentSystemState.toString()
+    );
+    SmartDashboard.putString("Superstructure State", 
+      m_robotContainer.superstructure.currentSuperState.toString()
+    );
   }
 
   @Override

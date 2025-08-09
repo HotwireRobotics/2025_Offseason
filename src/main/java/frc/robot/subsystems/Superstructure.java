@@ -1,6 +1,11 @@
 package frc.robot.subsystems;
 
+import java.lang.annotation.Target;
+
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+
+import edu.wpi.first.wpilibj2.command.Command;
 
 public class Superstructure extends SubsystemBase {
 
@@ -40,11 +45,28 @@ public class Superstructure extends SubsystemBase {
 	private void applyStates() {
 
 		switch (currentSuperState) {
+			case STOPPED:
+				drivetrain.targetState = DriveTrain.TargetState.IDLE;
+				break;
 			case NO_CORAL:
-				// drivetrain.state = DriveTrain.TargetState.;
+				drivetrain.targetState = DriveTrain.TargetState.TELEOP_DRIVE;
+				break;
+			case HOLDING_CORAL:
+				drivetrain.targetState = DriveTrain.TargetState.TELEOP_DRIVE;
+				break;
+			case SCORING_CORAL_LEFT:
+				drivetrain.targetState = DriveTrain.TargetState.FOLLOW_PATH;
+				break;
+			case SCORING_CORAL_RIGHT:
+				drivetrain.targetState = DriveTrain.TargetState.FOLLOW_PATH;
+				break;
+			default:
 				break;
 		}
+	}
 
+	public Command setTargetState(TargetState state) {
+		return new InstantCommand(() -> {targetSuperState = state;});
 	}
 
 	private void handleStateTransitions() {
