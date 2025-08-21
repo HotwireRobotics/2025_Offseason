@@ -8,33 +8,38 @@ import frc.robot.Constants;
 import frc.robot.Constants.Tracks;
 import frc.robot.subsystems.DriveTrain;
 
-public class GoToNearestPole extends Command {
+public class GoToNearestPole implements Command {
 
-	public DriveTrain drivetrain;
+        public DriveTrain drivetrain;
+        private Command command;
 
 	public GoToNearestPole(DriveTrain drivetrain) {
 		this.drivetrain = drivetrain;
 	}
 
-	public void initialize() {
-		Pose2d nearestPose = Constants.nearestPolePose(drivetrain.getState().Pose, Tracks.all).get();
-		Command command = AutoBuilder.pathfindToPose(nearestPose, Constants.constraints);
-		System.out.println("Function Start!");
-		
-		command.schedule();
+        @Override
+        public void initialize() {
+                Pose2d nearestPose = Constants.nearestPolePose(drivetrain.getState().Pose, Tracks.all).get();
+                command = AutoBuilder.pathfindToPose(nearestPose, Constants.constraints);
+                System.out.println("Function Start!");
+
+                command.schedule();
+        }
+
+        @Override
+        public void execute() {
+
 	}
 
-	public void execute() {
-
-	}
-
-	public void end(boolean interrupted) {
+        @Override
+        public void end(boolean interrupted) {
 		System.out.println("Function End!");
 	}
 
-	public boolean isFinished() {
-		return false;
-	}
+        @Override
+        public boolean isFinished() {
+                return command == null || !command.isScheduled();
+        }
 }
 
 
