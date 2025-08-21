@@ -59,6 +59,9 @@ public class Constants {
             .withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
 
+	/**
+	 * <strong>Driver Controller</strong>
+	 */
     public static final CommandXboxController joystick = new CommandXboxController(0);
 
 	public static final AprilTagFieldLayout taglayout = AprilTagFields.k2025ReefscapeWelded.loadAprilTagLayoutField();
@@ -80,6 +83,23 @@ public class Constants {
 		// Bumpers
 		public static Distance bumperWidth = Meters.of(0.864);
 		public static Distance bumperLength = Meters.of(0.864);
+	}
+
+	public class MotorIDs {
+		public static final Integer arm_base_id = 17;
+		public static final Integer arm_wrist_id = 12;
+
+		public static final Integer right_intake_id = 14;
+		public static final Integer left_intake_id = 13;
+
+		public static final Integer rollers_id = 11;
+	}
+
+	public class CANrangeIDs {
+		public static final Integer right = 0;
+		public static final Integer left = 1;
+		public static final Integer front = 2;
+		public static final Integer stop = 3;
 	}
 
 	public static Optional<Pose2d> nearestTagPose(Pose2d robotPose) {

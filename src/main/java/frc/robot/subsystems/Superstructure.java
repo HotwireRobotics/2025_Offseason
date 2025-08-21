@@ -29,11 +29,12 @@ public class Superstructure extends SubsystemBase {
 	}
 
 	public SystemState currentSuperState = SystemState.STOPPED;
+
 	public SystemState previousSuperState;
 
 	private DriveTrain drivetrain;
 	
-	public Superstructure(DriveTrain drivetrain /* Include all subsystems. */) {
+	public Superstructure(DriveTrain drivetrain, Intake intake /* Include all subsystems. */) {
 
 		this.drivetrain = drivetrain; // This is a drivetrain
 

@@ -25,6 +25,7 @@ import frc.robot.commands.CommandGenerator;
 import frc.robot.commands.SetTargetPose;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.DriveTrain;
+import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Superstructure;
 
 public class RobotContainer {
@@ -36,10 +37,18 @@ public class RobotContainer {
     private final Telemetry logger = new Telemetry(Constants.MaxSpeed);
 
     
-
+    /**
+	 * <strong>Drivetrain Subsystem</strong>
+	 */
     public final DriveTrain drivetrain = TunerConstants.createDrivetrain();
-
-    public final Superstructure superstructure = new Superstructure(drivetrain);
+    /**
+	 * <strong>Intake Subsystem</strong>
+	 */
+    public final Intake intake = new Intake();
+    /**
+	 * <strong>State Superstructure</strong>
+	 */
+    public final Superstructure superstructure = new Superstructure(drivetrain, intake);
 
     private final SendableChooser<Command> autoChooser;
 
