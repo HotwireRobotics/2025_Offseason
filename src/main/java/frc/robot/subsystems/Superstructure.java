@@ -4,13 +4,19 @@ import java.lang.annotation.Target;
 
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-
+import frc.robot.RobotContainer;
 import edu.wpi.first.wpilibj2.command.Command;
 
 public class Superstructure extends SubsystemBase {
 
 	public enum TargetState {
+		/**
+		 * Robot is offline, move to starting positons.
+		 */
 		STOPPED, 
+		/**
+		 * Transition to the subsequent state based on current conditions. (This is only a <strong>TARGET</strong> state.)
+		 */
 		DEFAULT, 
 		SCORE_LEFT, 
 		SCORE_RIGHT, 
@@ -33,10 +39,14 @@ public class Superstructure extends SubsystemBase {
 	public SystemState previousSuperState;
 
 	private DriveTrain drivetrain;
+	private Intake intake;
+	private Arm arm;
 	
-	public Superstructure(DriveTrain drivetrain, Intake intake /* Include all subsystems. */) {
+	public Superstructure(RobotContainer container) {
 
-		this.drivetrain = drivetrain; // This is a drivetrain
+		this.drivetrain = container.drivetrain;
+		this.intake = container.intake;
+		this.arm = container.arm;
 
 	}
 
@@ -48,6 +58,8 @@ public class Superstructure extends SubsystemBase {
 		switch (currentSuperState) {
 			case STOPPED:
 				drivetrain.targetState = DriveTrain.TargetState.IDLE;
+				intake.targetState = Intake.TargetState.STOPPED;
+				arm.targetState = Arm.TargetState.STOPPED;
 				break;
 			case NO_CORAL:
 				drivetrain.targetState = DriveTrain.TargetState.TELEOP_DRIVE;

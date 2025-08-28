@@ -27,8 +27,10 @@ import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.Units.*;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.DutyCycleEncoder;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.RobotController;
@@ -45,26 +47,27 @@ import frc.robot.generated.TunerConstants.TunerSwerveDrivetrain;
 public class Arm extends SubsystemBase {
 	
 	public enum TargetState {
-		STOPPED, 
-		DEFAULT, 
-		SCORE_LEFT, 
-		SCORE_RIGHT, 
-		GET_CORAL
+		STOPPED,
+		HOME,
+		IDLE,
+		MOVE_TO_POSTION,
 	}
 
 	public TargetState targetState = TargetState.STOPPED;
 
 	public enum SystemState {
 		STOPPED,
-		NO_CORAL, 
-		SCORING_CORAL_LEFT,
-		SCORING_CORAL_RIGHT, 
-		INTAKING_CORAL, 
-		HOLDING_CORAL
+		HOMING_SHOULDER,
+		HOMING_WRIST,
+		IDLING,
+		MOVING_TO_POSITION
 	}
 
 	public SystemState currentState = SystemState.STOPPED;
 	public SystemState previousSuperState;
+
+	public final DutyCycleEncoder encoder;
+	public final DigitalInput sensor;
 
 	private final TalonFX m_arm_base;
 	private final TalonFX m_arm_wrist;
@@ -72,6 +75,35 @@ public class Arm extends SubsystemBase {
 	public Arm() {
 		m_arm_base = new TalonFX(Constants.MotorIDs.arm_base_id);
 		m_arm_wrist = new TalonFX(Constants.MotorIDs.arm_wrist_id);
+
+		sensor = new DigitalInput(1);
+		encoder = new DutyCycleEncoder(sensor);
+	}
+	
+	public void periodic() {
+		handleStateTransitions(); applyStates();
+	}
+
+	private void handleStateTransitions() {
+
+		switch (targetState) {
+			case STOPPED:
+				currentState = SystemState.STOPPED;
+				break;
+			default:
+				currentState = SystemState.STOPPED;
+				break;
+		}
+	}
+
+	private void applyStates() {
+
+		switch (targetState) {
+			case STOPPED:
+				break;
+			default:
+				break;
+		}
 	}
 
 	/**
@@ -98,13 +130,23 @@ public class Arm extends SubsystemBase {
 		m_arm_base.set(speed);
 	}
 
-	/**
-     * Takes a factor from <strong>-1 to 1</strong> and runs 
-	 * the wrist motor at the appropriate speed.
-     *
-     * @param speed Factor from -1 to 1
-     */
-	public void runWristMotor(double speed) {
-		m_arm_wrist.set(speed);
-	}
+	// /**
+    //  * Takes a factor from <strong>-1 to 1</strong> and runs 
+	//  * the wrist motor at the appropriate speed.
+    //  *
+    //  * @param speed Factor from -1 to 1
+    //  */
+	// public void setWristMotor(double speed) {
+	// 	m_arm_wrist.set(speed);
+	// }
+
+	// /**
+    //  * Takes a factor from <strong>-1 to 1</strong> and runs 
+	//  * the wrist motor at the appropriate speed.
+    //  *
+    //  * @param speed Factor from -1 to 1
+    //  */
+	// public void setArmMotor(double speed) {
+	// 	m_arm_wrist.set(speed);
+	// }
 }

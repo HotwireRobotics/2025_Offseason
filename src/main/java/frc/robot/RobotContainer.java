@@ -24,9 +24,7 @@ import frc.robot.Constants.Tracks;
 import frc.robot.commands.CommandGenerator;
 import frc.robot.commands.SetTargetPose;
 import frc.robot.generated.TunerConstants;
-import frc.robot.subsystems.DriveTrain;
-import frc.robot.subsystems.Intake;
-import frc.robot.subsystems.Superstructure;
+import frc.robot.subsystems.*;
 
 public class RobotContainer {
     
@@ -37,6 +35,7 @@ public class RobotContainer {
     private final Telemetry logger = new Telemetry(Constants.MaxSpeed);
 
     
+    
     /**
 	 * <strong>Drivetrain Subsystem</strong>
 	 */
@@ -46,9 +45,13 @@ public class RobotContainer {
 	 */
     public final Intake intake = new Intake();
     /**
+	 * <strong>Arm Subsystem</strong>
+	 */
+    public final Arm arm = new Arm();
+    /**
 	 * <strong>State Superstructure</strong>
 	 */
-    public final Superstructure superstructure = new Superstructure(drivetrain, intake);
+    public final Superstructure superstructure = new Superstructure(this);
 
     private final SendableChooser<Command> autoChooser;
 
@@ -81,8 +84,8 @@ public class RobotContainer {
         // }
 
         // Constants.joystick.y().onTrue(new GoToNearestTag(drivetrain));
-        // Constants.joystick.leftBumper().onTrue(CommandGenerator.goToNearestPole(drivetrain, Tracks.left));
-        // Constants.joystick.rightBumper().onTrue(CommandGenerator.goToNearestPole(drivetrain, Tracks.right));
+        Constants.joystick.leftBumper().onTrue(CommandGenerator.goToNearestPole(this, Tracks.left));
+        Constants.joystick.rightBumper().onTrue(CommandGenerator.goToNearestPole(this, Tracks.right));
 
         Constants.joystick.povRight().onTrue(
             CommandGenerator.goRightTwoPoleLengths(drivetrain)

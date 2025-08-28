@@ -10,15 +10,16 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.Constants;
+import frc.robot.Robot;
 import frc.robot.RobotContainer;
 import frc.robot.Constants.Tracks;
 import frc.robot.subsystems.DriveTrain;
 import frc.robot.subsystems.Superstructure;
 
 public class CommandGenerator {
-	public static Command goToNearestPole(DriveTrain drivetrain, Tracks types) {
+	public static Command goToNearestPole(RobotContainer container, Tracks types) {
 		return Commands.defer(() -> {
-			Pose2d nearestPose = Constants.nearestPolePose(drivetrain.getState().Pose, types).get();
+			Pose2d nearestPose = Constants.nearestPolePose(container.drivetrain.getState().Pose, types).get();
 			Command command = AutoBuilder.pathfindToPose(nearestPose, Constants.constraints);
 
 			Dictionary<Tracks, Superstructure.SystemState> tracksToState = new Hashtable<>();
@@ -27,12 +28,14 @@ public class CommandGenerator {
 			
 			Superstructure.SystemState state = tracksToState.get(types);
 
-			// command = new CommandWrapper(command, () -> {
-			// 	superstructure.currentSuperState = state;
-			// }, () -> {});
+			command = new CommandWrapper(command, () -> {
+				container.superstructure.targetSuperState = Superstructure.TargetState.DEFAULT;
+			}, () -> {
+				container.superstructure.currentSuperState = state;
+			});
 
 			return command;
-		}, Set.of(drivetrain));
+		}, Set.of(container.drivetrain));
 	}
 
 	public static Command goToNearestTag(DriveTrain drivetrain) {

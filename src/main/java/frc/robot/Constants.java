@@ -1,5 +1,6 @@
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Kilogram;
 import static edu.wpi.first.units.Units.Kilograms;
@@ -100,6 +101,10 @@ public class Constants {
 		public static final Integer left = 1;
 		public static final Integer front = 2;
 		public static final Integer stop = 3;
+	}
+
+	public class ArmPositions {
+		public static final Angle starting_position = Degrees.of(90); //! Incorrect
 	}
 
 	public static Optional<Pose2d> nearestTagPose(Pose2d robotPose) {

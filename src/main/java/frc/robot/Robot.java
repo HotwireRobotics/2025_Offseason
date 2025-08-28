@@ -33,6 +33,9 @@ public class Robot extends TimedRobot {
     SmartDashboard.putData("Nearest Tag", nearest_tag);
     SmartDashboard.putData("Nearest Pole", nearest_pole);
 
+    SmartDashboard.putString("Superstructure Current State", m_robotContainer.superstructure.currentSuperState.toString());
+    SmartDashboard.putString("Superstructure Target State", m_robotContainer.superstructure.targetSuperState.toString());
+
     // ! Memory Error; implement when ur system doesn't suck.
     // Logger.recordMetadata("Hotwire Project", "2026"); // Set a metadata value
 
@@ -61,12 +64,17 @@ public class Robot extends TimedRobot {
   public void robotPeriodic() {
     CommandScheduler.getInstance().run();
 
+    double value = m_robotContainer.arm.encoder.get();
+    SmartDashboard.putNumber("Sensor Reading", value);
+
     if (utilizeLimelight) {
       var driveState = m_robotContainer.drivetrain.getState();
       var headingDeg = driveState.Pose.getRotation().getDegrees();
       var omegaRPS = Units.radiansToRotations(driveState.Speeds.omegaRadiansPerSecond);
       LimelightHelpers.SetRobotOrientation("limelight", headingDeg, 0, 0, 0, 0, 0);
       var limelightMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue("");
+
+      
 
       // m_robotContainer.drivetrain.addVisionMeasurement(limelightMeasurement.pose,
       // limelightMeasurement.timestampSeconds);
