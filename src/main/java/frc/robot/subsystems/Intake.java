@@ -11,7 +11,10 @@ import frc.robot.Constants;
 public class Intake extends SubsystemBase {
 	
 	public enum TargetState {
-		STOPPED,
+		/**
+		 * Robot is offline, move to starting positons.
+		 */
+		STOPPED, 
 		COLLECT,
 		HOLD,
 		EJECT,
@@ -21,8 +24,11 @@ public class Intake extends SubsystemBase {
 	public TargetState targetState = TargetState.STOPPED;
 
 	public enum SystemState {
-		STOPPED,
-		INTAKING_CORAL, 
+		/**
+		 * Robot is offline, move to starting positons.
+		 */
+		STOPPED, 
+		INTAKING_CORAL,
 		HOLDING_CORAL
 	}
 
@@ -64,9 +70,7 @@ public class Intake extends SubsystemBase {
 		d_rollers = new TalonFXS(Constants.MotorIDs.rollers_id);
 	}
 
-	public void periodic() {
-		handleStateTransitions(); applyStates();
-	}
+	public void periodic() {handleStateTransitions(); applyStates();}
 
 	private void handleStateTransitions() {
 

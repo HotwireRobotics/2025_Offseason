@@ -8,6 +8,9 @@ import com.ctre.phoenix6.Orchestra;
 import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.controls.MusicTone;
+import com.ctre.phoenix6.controls.PositionVoltage;
+import com.ctre.phoenix6.controls.VelocityVoltage;
+import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.CANrange;
 import com.ctre.phoenix6.hardware.ParentDevice;
 import com.ctre.phoenix6.hardware.TalonFX;
@@ -47,7 +50,10 @@ import frc.robot.generated.TunerConstants.TunerSwerveDrivetrain;
 public class Arm extends SubsystemBase {
 	
 	public enum TargetState {
-		STOPPED,
+		/**
+		 * Robot is offline, move to starting positons.
+		 */
+		STOPPED, 
 		HOME,
 		IDLE,
 		MOVE_TO_POSTION,
@@ -56,7 +62,10 @@ public class Arm extends SubsystemBase {
 	public TargetState targetState = TargetState.STOPPED;
 
 	public enum SystemState {
-		STOPPED,
+		/**
+		 * Robot is offline, move to starting positons.
+		 */
+		STOPPED, 
 		HOMING_SHOULDER,
 		HOMING_WRIST,
 		IDLING,
@@ -66,23 +75,19 @@ public class Arm extends SubsystemBase {
 	public SystemState currentState = SystemState.STOPPED;
 	public SystemState previousSuperState;
 
-	public final DutyCycleEncoder encoder;
-	public final DigitalInput sensor;
-
 	private final TalonFX m_arm_base;
 	private final TalonFX m_arm_wrist;
+
+	public final CANcoder arm_encoder;
 
 	public Arm() {
 		m_arm_base = new TalonFX(Constants.MotorIDs.arm_base_id);
 		m_arm_wrist = new TalonFX(Constants.MotorIDs.arm_wrist_id);
 
-		sensor = new DigitalInput(1);
-		encoder = new DutyCycleEncoder(sensor);
+		arm_encoder = new CANcoder(Constants.CANcoderIDs.arm_base_encoder_id);
 	}
 	
-	public void periodic() {
-		handleStateTransitions(); applyStates();
-	}
+	public void periodic() {handleStateTransitions(); applyStates();}
 
 	private void handleStateTransitions() {
 
@@ -120,33 +125,34 @@ public class Arm extends SubsystemBase {
 		return m_arm_wrist;
 	}
 
-    /**
-     * Takes a factor from <strong>-1 to 1</strong> and runs 
-	 * the base motor at the appropriate speed.
+	/**
+     * Takes a factor from <strong>-1 to 1</strong> and moves 
+	 * the base motor at the correct speed.
      *
      * @param speed Factor from -1 to 1
      */
-	public void runBaseMotor(double speed) {
+	public void setBaseMotor(double speed) {
 		m_arm_base.set(speed);
 	}
 
-	// /**
-    //  * Takes a factor from <strong>-1 to 1</strong> and runs 
-	//  * the wrist motor at the appropriate speed.
-    //  *
-    //  * @param speed Factor from -1 to 1
-    //  */
-	// public void setWristMotor(double speed) {
-	// 	m_arm_wrist.set(speed);
-	// }
+	/**
+     * Takes a factor from <strong>-1 to 1</strong> and moves 
+	 * the wrist motor at the correct speed.
+     *
+     * @param speed Factor from -1 to 1
+     */
+	public void setWristMotor(double speed) {
+		m_arm_wrist.set(speed);
+	}
 
-	// /**
-    //  * Takes a factor from <strong>-1 to 1</strong> and runs 
-	//  * the wrist motor at the appropriate speed.
-    //  *
-    //  * @param speed Factor from -1 to 1
-    //  */
-	// public void setArmMotor(double speed) {
-	// 	m_arm_wrist.set(speed);
-	// }
+	/**
+     * Takes a factor from <strong>-1 to 1</strong> and moves 
+	 * the shoulder to the appropriate angle.
+     *
+     * @param position Factor from -1 to 1
+     */
+	public void setArmMotorPosition(double position) {
+		final PositionVoltage request = new PositionVoltage(0).withSlot(0);
+		m_arm_base.setControl(request.withPosition(position));
+	}
 }

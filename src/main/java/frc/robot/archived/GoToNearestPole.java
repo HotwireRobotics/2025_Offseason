@@ -18,7 +18,7 @@ public class GoToNearestPole extends Command {
 
 	@Override
 	public void initialize() {
-		Pose2d nearestPose = Constants.nearestPolePose(drivetrain.getState().Pose, Tracks.all).get();
+		Pose2d nearestPose = Constants.nearestBranchPose(drivetrain.getState().Pose, Tracks.all).get();
 		Command command = AutoBuilder.pathfindToPose(nearestPose, Constants.constraints);
 		System.out.println("Function Start!");
 		

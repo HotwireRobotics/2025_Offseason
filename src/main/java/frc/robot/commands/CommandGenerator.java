@@ -17,9 +17,9 @@ import frc.robot.subsystems.DriveTrain;
 import frc.robot.subsystems.Superstructure;
 
 public class CommandGenerator {
-	public static Command goToNearestPole(RobotContainer container, Tracks types) {
+	public static Command goToNearestBranch(RobotContainer container, Tracks types) {
 		return Commands.defer(() -> {
-			Pose2d nearestPose = Constants.nearestPolePose(container.drivetrain.getState().Pose, types).get();
+			Pose2d nearestPose = Constants.nearestBranchPose(container.drivetrain.getState().Pose, types).get();
 			Command command = AutoBuilder.pathfindToPose(nearestPose, Constants.constraints);
 
 			Dictionary<Tracks, Superstructure.SystemState> tracksToState = new Hashtable<>();
@@ -47,7 +47,7 @@ public class CommandGenerator {
 		}, Set.of(drivetrain));
 	}
 
-	public static Command goRightTwoPoleLengths(DriveTrain drivetrain) {
+	public static Command goRightTwoBranchWidths(DriveTrain drivetrain) {
 		return Commands.defer(() -> {
 			Pose2d pose = Constants.rightTwoPoleLengths(drivetrain.getState().Pose).get();
 			Command command = AutoBuilder.pathfindToPose(pose, Constants.constraints);
@@ -60,7 +60,7 @@ public class CommandGenerator {
 		}, Set.of(drivetrain));
 	}
 
-	public static Command goLeftTwoPoleLengths(DriveTrain drivetrain) {
+	public static Command goLeftTwoBranchWidths(DriveTrain drivetrain) {
 		return Commands.defer(() -> {
 			Pose2d pose = Constants.leftTwoPoleLengths(drivetrain.getState().Pose).get();
 			Command command = AutoBuilder.pathfindToPose(pose, Constants.constraints);

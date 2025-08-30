@@ -103,6 +103,10 @@ public class Constants {
 		public static final Integer stop = 3;
 	}
 
+	public class CANcoderIDs {
+		public static final Integer arm_base_encoder_id = 0;
+	}
+
 	public class ArmPositions {
 		public static final Angle starting_position = Degrees.of(90); //! Incorrect
 	}
@@ -154,7 +158,7 @@ public class Constants {
 
 
 
-	public static Optional<Pose2d> nearestPolePose(Pose2d robotPose, Tracks types) {
+	public static Optional<Pose2d> nearestBranchPose(Pose2d robotPose, Tracks types) {
 
 		Set<Integer> tags = (DriverStation.getAlliance().get() == DriverStation.Alliance.Red) ? redtags : bluetags;
 

@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import com.ctre.phoenix6.Orchestra;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -13,6 +14,8 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
+
+import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -25,17 +28,16 @@ import frc.robot.commands.CommandGenerator;
 import frc.robot.commands.SetTargetPose;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.*;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 public class RobotContainer {
-    
 
     private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
     private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
 
     private final Telemetry logger = new Telemetry(Constants.MaxSpeed);
 
-    
-    
     /**
 	 * <strong>Drivetrain Subsystem</strong>
 	 */
@@ -58,7 +60,7 @@ public class RobotContainer {
     // TODO
     // Non-functional; Implement later
     // Orchestra music = new Orchestra(
-    // Filesystem.getDeployDirectory() + "/orchestra/output.chirp"
+    //     Filesystem.getDeployDirectory() + "/orchestra/output.chrp"
     // );
 
     public RobotContainer() {
@@ -69,44 +71,44 @@ public class RobotContainer {
 
     private void configureBindings() {
 
-        // This is required for `periodic()` to function.
+        // music.play(); // TODO Make orchestra function.
+
         drivetrain.setDefaultCommand(drivetrain.applyRequest(() -> brake));
 
-        // try {
-        //     // Load the path we want to pathfind to and follow
-        //     PathPlannerPath path = PathPlannerPath.fromPathFile("Score");
+        // Constants.joystick.leftBumper().onTrue(CommandGenerator.goToNearestBranch(this, Tracks.left));
+        // Constants.joystick.rightBumper().onTrue(CommandGenerator.goToNearestBranch(this, Tracks.right));
 
-        //     Command pathfindingCommand = AutoBuilder.pathfindThenFollowPath(path, Constants.constraints);
-
-        //     Constants.joystick.x().onTrue(pathfindingCommand);
-        // } catch (Exception error) {
-        //     System.out.println(error);
-        // }
-
-        // Constants.joystick.y().onTrue(new GoToNearestTag(drivetrain));
-        Constants.joystick.leftBumper().onTrue(CommandGenerator.goToNearestPole(this, Tracks.left));
-        Constants.joystick.rightBumper().onTrue(CommandGenerator.goToNearestPole(this, Tracks.right));
-
+        // Left POV button navigates right to the righthand branch.
         Constants.joystick.povRight().onTrue(
-            CommandGenerator.goRightTwoPoleLengths(drivetrain)
+            CommandGenerator.goRightTwoBranchWidths(drivetrain)
         );
 
+        // Left POV button navigates left to the lefthand branch.
         Constants.joystick.povLeft().onTrue(
-            CommandGenerator.goLeftTwoPoleLengths(drivetrain)
+            CommandGenerator.goLeftTwoBranchWidths(drivetrain)
         );
 
-        Constants.joystick.leftBumper().onTrue(
-            new SetTargetPose(
-                superstructure, drivetrain, Constants.nearestPolePose(drivetrain.getState().Pose, Tracks.left).get(),
-                Superstructure.TargetState.SCORE_LEFT
-            )
-        );
+        // Right bumper navigates to the nearest lefthand branch.
+        // Constants.joystick.leftBumper().onTrue(
+        //     new SetTargetPose(
+        //         superstructure, drivetrain, Constants.nearestBranchPose(drivetrain.getState().Pose, Tracks.left).get(),
+        //         Superstructure.TargetState.SCORE_LEFT
+        //     )
+        // );
 
-        Constants.joystick.rightBumper().onTrue(
-            new SetTargetPose(
-                superstructure, drivetrain, Constants.nearestPolePose(drivetrain.getState().Pose, Tracks.right).get(),
-                Superstructure.TargetState.SCORE_RIGHT
-            )
+        // Right bumper navigates to the nearest righthand branch.
+        // Constants.joystick.rightBumper().onTrue(
+        //     new SetTargetPose(
+        //         superstructure, drivetrain, Constants.nearestBranchPose(drivetrain.getState().Pose, Tracks.right).get(),
+        //         Superstructure.TargetState.SCORE_RIGHT
+        //     )
+        // );
+
+        // Right trigger controls percentage motor voltage.
+        Constants.joystick.rightTrigger().onTrue(
+            new InstantCommand(() -> {
+                arm.setBaseMotor(Constants.joystick.getRightTriggerAxis());
+            })
         );
         
 
@@ -117,14 +119,13 @@ public class RobotContainer {
         Constants.joystick.b().whileTrue(drivetrain.applyRequest(
                 () -> point.withModuleDirection(new Rotation2d(-Constants.joystick.getLeftY(), -Constants.joystick.getLeftX()))));
 
-        // Run SysId routines when holding back/start and X/Y.
-        // Note that each routine should be run exactly once in a single log.
+        // Run SysId routines when holding back/start and X/Y. Note that each routine should be run exactly once in a single log.
         Constants.joystick.back().and(Constants.joystick.y()).whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
         Constants.joystick.back().and(Constants.joystick.x()).whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
         Constants.joystick.start().and(Constants.joystick.y()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
         Constants.joystick.start().and(Constants.joystick.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
 
-        // reset the field-centric heading on left bumper press
+        // reset the field-centric heading on down POV press.
         Constants.joystick.povDown().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
 
         drivetrain.registerTelemetry(logger::telemeterize);

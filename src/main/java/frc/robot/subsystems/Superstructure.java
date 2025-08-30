@@ -26,7 +26,10 @@ public class Superstructure extends SubsystemBase {
 	public TargetState targetSuperState = TargetState.STOPPED;
 
 	public enum SystemState {
-		STOPPED,
+		/**
+		 * Robot is offline, move to starting positons.
+		 */
+		STOPPED, 
 		NO_CORAL, 
 		SCORING_CORAL_LEFT,
 		SCORING_CORAL_RIGHT, 
@@ -50,7 +53,6 @@ public class Superstructure extends SubsystemBase {
 
 	}
 
-	@Override
 	public void periodic() {handleStateTransitions(); applyStates();}
 
 	private void applyStates() {
