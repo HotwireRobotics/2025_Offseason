@@ -44,6 +44,7 @@ import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
+import frc.robot.Constants.WristPositions;
 import frc.robot.commands.CommandWrapper;
 import frc.robot.generated.TunerConstants.TunerSwerveDrivetrain;
 
@@ -57,6 +58,7 @@ public class Arm extends SubsystemBase {
 		HOME,
 		IDLE,
 		MOVE_TO_POSTION,
+		PRACTICE,
 	}
 
 	public TargetState targetState = TargetState.STOPPED;
@@ -69,7 +71,8 @@ public class Arm extends SubsystemBase {
 		HOMING_SHOULDER,
 		HOMING_WRIST,
 		IDLING,
-		MOVING_TO_POSITION
+		MOVING_TO_POSITION,
+		PRACTICE
 	}
 
 	public SystemState currentState = SystemState.STOPPED;
@@ -95,6 +98,9 @@ public class Arm extends SubsystemBase {
 			case STOPPED:
 				currentState = SystemState.STOPPED;
 				break;
+			case PRACTICE:
+				currentState = SystemState.PRACTICE;
+				break;
 			default:
 				currentState = SystemState.STOPPED;
 				break;
@@ -105,6 +111,9 @@ public class Arm extends SubsystemBase {
 
 		switch (targetState) {
 			case STOPPED:
+				break;
+			case PRACTICE:
+				setWristMotorPosition(WristPositions.stow);
 				break;
 			default:
 				break;
@@ -154,5 +163,16 @@ public class Arm extends SubsystemBase {
 	public void setArmMotorPosition(double position) {
 		final PositionVoltage request = new PositionVoltage(0).withSlot(0);
 		m_arm_base.setControl(request.withPosition(position));
+	}
+
+	/**
+     * Takes a factor from <strong>-1 to 1</strong> and moves 
+	 * the wrist to the appropriate angle.
+     *
+     * @param position Factor from -1 to 1
+     */
+	public void setWristMotorPosition(double position) {
+		final PositionVoltage request = new PositionVoltage(0).withSlot(0);
+		m_arm_wrist.setControl(request.withPosition(position));
 	}
 }

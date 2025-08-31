@@ -78,6 +78,12 @@ public class Constants {
 
 	public static final Distance poleOffset = Inches.of(6.5);
 
+	public class WristPositions {
+		public static double starting_position = 0;
+		public static double score_L2 = 0.222;
+		public static double stow = 0.3;
+	}
+
 	public class Dimensions {
 		public static Mass mass = Kilograms.of(35.153); // Kilograms
 
