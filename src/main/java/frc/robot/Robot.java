@@ -4,18 +4,26 @@
 
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Celsius;
+import static edu.wpi.first.units.Units.Fahrenheit;
+
 import com.pathplanner.lib.commands.PathfindingCommand;
 
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.Constants.Tracks;
+import edu.wpi.first.units.BaseUnits.*;
 import frc.robot.subsystems.*;
+
+// https://prod.liveshare.vsengsaas.visualstudio.com/join?A272BB5848034C8CE6F916D34B585613FF9F
 
 public class Robot extends TimedRobot {
 
@@ -65,11 +73,20 @@ public class Robot extends TimedRobot {
     public void robotPeriodic() {
         CommandScheduler.getInstance().run();
 
-        m_robotContainer.arm.targetState = Arm.TargetState.PRACTICE; //! BE WARY, THIS SETS THE STATE CONSTANTLY
+        // m_robotContainer.arm.targetState = Arm.TargetState.PRACTICE; //! BE WARY, THIS SETS THE STATE CONSTANTLY
 
-        Angle value = m_robotContainer.arm.arm_encoder.getPosition().getValue();
-        SmartDashboard.putString("Arm Position", value.toString());
+        // Angle value = m_robotContainer.arm.arm_encoder.getPosition().getValue();
+        // SmartDashboard.putString("Arm Position", value.toString());
 
+        // Temperature temp = m_robotContainer.arm.getBaseMotor().getDeviceTemp().getValue();
+        // SmartDashboard.putNumber("Arm base Motor Temperature", (temp.in(Fahrenheit)));
+
+        
+        for (Intake.Range range : Intake.Range.values()) {
+          Distance measurement = m_robotContainer.intake.getMeasurement(range);
+          SmartDashboard.putNumber(range.toString() + " CANrange", measurement.magnitude());
+        }
+        
         if (utilizeLimelight) {
             var driveState = m_robotContainer.drivetrain.getState();
             var headingDeg = driveState.Pose.getRotation().getDegrees();
@@ -77,7 +94,6 @@ public class Robot extends TimedRobot {
             LimelightHelpers.SetRobotOrientation("limelight", headingDeg, 0, 0, 0, 0, 0);
             var limelightMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue("");
 
-            
 
             // m_robotContainer.drivetrain.addVisionMeasurement(limelightMeasurement.pose,
             // limelightMeasurement.timestampSeconds);
@@ -90,8 +106,8 @@ public class Robot extends TimedRobot {
 
       Translation2d end = new Translation2d(0, 0);
 
-      SmartDashboard.putNumber("Distance to Score",
-          end.getDistance(m_robotContainer.drivetrain.getState().Pose.getTranslation()));
+      // SmartDashboard.putNumber("Distance to Score",
+      //     end.getDistance(m_robotContainer.drivetrain.getState().Pose.getTranslation()));
 
       nearest_tag.setRobotPose(Constants.nearestTagPose(m_robotContainer.drivetrain.getState().Pose).get());
       nearest_pole

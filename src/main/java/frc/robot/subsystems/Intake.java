@@ -15,10 +15,10 @@ public class Intake extends SubsystemBase {
 		 * Robot is offline, move to starting positons.
 		 */
 		STOPPED, 
-		COLLECT,
 		HOLD,
-		EJECT,
-		INDEX
+		COLLECT,
+		EJECT_FORWARD,
+		EJECT_BACKWARD
 	}
 
 	public TargetState targetState = TargetState.STOPPED;
@@ -29,7 +29,13 @@ public class Intake extends SubsystemBase {
 		 */
 		STOPPED, 
 		INTAKING_CORAL,
-		HOLDING_CORAL
+		HOLDING_CORAL,
+		INDEXING_CORAL,
+		INDEX_FORWARD,
+		INDEX_BACKWARD,
+		EJECTING_FORWARD,
+		EJECTING_BACKWARD,
+		NO_CORAL
 	}
 
 	public SystemState currentState = SystemState.STOPPED;
@@ -70,13 +76,73 @@ public class Intake extends SubsystemBase {
 		d_rollers = new TalonFXS(Constants.MotorIDs.rollers_id);
 	}
 
-	public void periodic() {handleStateTransitions(); applyStates();}
+	private Distance left;
+	private Distance right;
+	private Distance stop;
+	private Distance front;
+
+	private Boolean is_left;
+	private Boolean is_right;
+	private Boolean is_stop;
+	private Boolean is_front;
+	public void periodic() {
+		left = getMeasurement(Range.LEFT);
+		right = getMeasurement(Range.RIGHT);
+		stop = getMeasurement(Range.STOP);
+		front = getMeasurement(Range.FRONT);
+
+		is_left  = left.magnitude() <=  Constants.Ranges.horizontal_range.magnitude();
+		is_right = right.magnitude() <= Constants.Ranges.horizontal_range.magnitude();
+		is_stop  = stop.magnitude() <=  Constants.Ranges.normal_range.magnitude();
+		is_front = front.magnitude() <= Constants.Ranges.normal_range.magnitude();
+
+		handleStateTransitions(); applyStates();
+	}
 
 	private void handleStateTransitions() {
-
 		switch (targetState) {
 			case STOPPED:
 				currentState = SystemState.STOPPED;
+				break;
+			case COLLECT:
+				currentState = SystemState.INTAKING_CORAL;
+
+				if (is_stop) {
+					currentState = SystemState.HOLDING_CORAL;
+				} else if (is_left && is_right) {
+					currentState = SystemState.INDEXING_CORAL;
+				} else {
+					currentState = SystemState.INTAKING_CORAL;
+				}
+				break;
+			case HOLD:
+				if (is_front && is_stop) {
+					currentState = SystemState.HOLDING_CORAL;
+					break;
+				}
+				if (is_stop) {
+					currentState = SystemState.INDEX_FORWARD;
+					break;
+				}
+				if (is_front) {
+					currentState = SystemState.INDEX_BACKWARD;
+					break;
+				}
+				currentState = SystemState.NO_CORAL;
+				break;
+			case EJECT_FORWARD:
+				if (!(is_front || is_stop)) {
+					currentState = SystemState.EJECTING_FORWARD; 
+				} else {
+					currentState = SystemState.NO_CORAL;
+				}
+				break;
+			case EJECT_BACKWARD:
+				if (!(is_front || is_stop)) {
+					currentState = SystemState.EJECTING_BACKWARD; 
+				} else {
+					currentState = SystemState.NO_CORAL;
+				}
 				break;
 			default:
 				currentState = SystemState.STOPPED;
@@ -90,6 +156,47 @@ public class Intake extends SubsystemBase {
 			case STOPPED:
 				// Todo: Move to starting position.
 				break;
+			case INTAKING_CORAL:
+				setLeftIntake(Constants.IntakeSpeeds.eject);
+				setRightIntake(Constants.IntakeSpeeds.eject);
+				setRollers(0.4);
+
+				break;
+			case INDEXING_CORAL:
+				setLeftIntake(Constants.IntakeSpeeds.eject);
+				setRightIntake(-Constants.IntakeSpeeds.eject);
+				setRollers(0.4);
+
+				break;
+			case HOLDING_CORAL: case NO_CORAL:
+				setLeftIntake(0);
+				setRightIntake(0);
+				setRollers(0);
+
+				break;
+			case INDEX_FORWARD:
+				setLeftIntake(-Constants.IntakeSpeeds.index);
+				setRightIntake(-Constants.IntakeSpeeds.index);
+				setRollers(0);
+
+				break;
+			case INDEX_BACKWARD:
+				setLeftIntake(Constants.IntakeSpeeds.index);
+				setRightIntake(Constants.IntakeSpeeds.index);
+				setRollers(0);
+
+				break;
+			case EJECTING_BACKWARD:
+				setLeftIntake(Constants.IntakeSpeeds.eject);
+				setRightIntake(Constants.IntakeSpeeds.eject);
+				setRollers(0);
+
+				break;
+			case EJECTING_FORWARD:
+				setLeftIntake(Constants.IntakeSpeeds.eject);
+				setRightIntake(Constants.IntakeSpeeds.eject);
+				setRollers(0);
+				break;
 			default:
 				break;
 		}
@@ -98,7 +205,8 @@ public class Intake extends SubsystemBase {
 	/**
      * Get the meaurement from one of the CANranges.
      *
-     * @param range Get from the <code>Range</code> enum.
+     * @param range 
+	 * Get from the <code>Range</code> enum.
      */
 	public Distance getMeasurement(Range range) {
 		CANrange range_obj;
@@ -112,13 +220,25 @@ public class Intake extends SubsystemBase {
 		return range_obj.getDistance().getValue();
 	}
 
+	public TalonFXS getRollers() {
+		return d_rollers;
+	}
+
+	public TalonFXS getLeftIntake() {
+		return d_left_intake;
+	}
+
+	public TalonFXS getRightIntake() {
+		return d_right_intake;
+	}
+
 	/**
      * Takes a factor from <strong>-1 to 1</strong> and runs 
 	 * the rollers at the appropriate speed.
      *
      * @param speed Factor from -1 to 1
      */
-	public void runRollers(double speed) {
+	public void setRollers(double speed) {
 		d_rollers.set(speed);
 	}
 
@@ -128,7 +248,7 @@ public class Intake extends SubsystemBase {
      *
      * @param speed Factor from -1 to 1
      */
-	public void runRightIntake(double speed) {
+	public void setRightIntake(double speed) {
 		d_right_intake.set(speed);
 	}
 
@@ -138,7 +258,7 @@ public class Intake extends SubsystemBase {
      *
      * @param speed Factor from -1 to 1
      */
-	public void runLeftIntake(double speed) {
+	public void setLeftIntake(double speed) {
 		d_left_intake.set(speed);
 	}
 }

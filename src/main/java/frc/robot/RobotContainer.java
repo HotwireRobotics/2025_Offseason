@@ -11,6 +11,8 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.PathPlannerPath;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.units.measure.Distance;
+
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
@@ -28,6 +30,7 @@ import frc.robot.commands.CommandGenerator;
 import frc.robot.commands.SetTargetPose;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.*;
+import frc.robot.subsystems.Intake;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -43,13 +46,13 @@ public class RobotContainer {
 	 */
     public final DriveTrain drivetrain = TunerConstants.createDrivetrain();
     /**
-	 * <strong>Intake Subsystem</strong>
-	 */
-    public final Intake intake = new Intake();
-    /**
 	 * <strong>Arm Subsystem</strong>
 	 */
     public final Arm arm = new Arm();
+    /**
+	 * <strong>Intake Subsystem</strong>
+	 */
+    public final Intake intake = new Intake();
     /**
 	 * <strong>State Superstructure</strong>
 	 */
@@ -104,10 +107,21 @@ public class RobotContainer {
         //     )
         // );
 
-        // Right trigger controls percentage motor voltage.
-        Constants.joystick.rightTrigger().onTrue(
+        // // Right trigger controls percentage motor voltage.
+        // Constants.joystick.rightTrigger().onTrue(
+        //     new InstantCommand(() -> {
+        //         arm.setBaseMotor(Constants.joystick.getRightTriggerAxis());
+        //     })
+        // );
+
+        //! Temporary
+        Constants.joystick.x().whileTrue(
             new InstantCommand(() -> {
-                arm.setBaseMotor(Constants.joystick.getRightTriggerAxis());
+                intake.targetState = Intake.TargetState.COLLECT;
+            })
+        ).onFalse(
+            new InstantCommand(() -> {
+                intake.targetState = Intake.TargetState.HOLD;
             })
         );
         

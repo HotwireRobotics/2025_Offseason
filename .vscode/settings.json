@@ -59,7 +59,7 @@
   ],
   "java.format.settings.url": ".vscode/java-formatter.xml",
   "[java]": {
-    "editor.defaultFormatter": "redhat.java",
+    "editor.defaultFormatter": "ms-vsliveshare.vsliveshare",
     "editor.formatOnSave": false,
     // "editor.formatOnSaveMode": "modifications",
     "editor.insertSpaces": false,
