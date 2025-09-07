@@ -7,6 +7,10 @@ package frc.robot;
 import static edu.wpi.first.units.Units.Celsius;
 import static edu.wpi.first.units.Units.Fahrenheit;
 
+import java.util.Dictionary;
+import java.util.HashMap;
+import java.util.Hashtable;
+
 import com.pathplanner.lib.commands.PathfindingCommand;
 
 import edu.wpi.first.math.geometry.Translation2d;
@@ -19,6 +23,7 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.Subsystem;
 import frc.robot.Constants.Tracks;
 import edu.wpi.first.units.BaseUnits.*;
 import frc.robot.subsystems.*;
@@ -81,6 +86,11 @@ public class Robot extends TimedRobot {
         // Temperature temp = m_robotContainer.arm.getBaseMotor().getDeviceTemp().getValue();
         // SmartDashboard.putNumber("Arm base Motor Temperature", (temp.in(Fahrenheit)));
 
+        Intake.TargetState target = m_robotContainer.intake.targetState;
+        Intake.SystemState current = m_robotContainer.intake.currentState;
+
+        SmartDashboard.putString("Intake TargetState", target.toString());
+        SmartDashboard.putString("Intake SystemState", current.toString());
         
         for (Intake.Range range : Intake.Range.values()) {
           Distance measurement = m_robotContainer.intake.getMeasurement(range);
@@ -91,16 +101,16 @@ public class Robot extends TimedRobot {
             var driveState = m_robotContainer.drivetrain.getState();
             var headingDeg = driveState.Pose.getRotation().getDegrees();
             var omegaRPS = Units.radiansToRotations(driveState.Speeds.omegaRadiansPerSecond);
+            LimelightHelpers.setPipelineIndex("limelight", 0);
             LimelightHelpers.SetRobotOrientation("limelight", headingDeg, 0, 0, 0, 0, 0);
-            var limelightMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue("");
+            var limelightMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight");
+            System.out.println(limelightMeasurement);
 
-
-            // m_robotContainer.drivetrain.addVisionMeasurement(limelightMeasurement.pose,
-            // limelightMeasurement.timestampSeconds);
             if ((limelightMeasurement != null) && (limelightMeasurement.tagCount > 0) && (Math.abs(omegaRPS) < 2)) {
                 m_robotContainer.drivetrain.addVisionMeasurement(limelightMeasurement.pose,
                     limelightMeasurement.timestampSeconds);
                 llestamation.setRobotPose(limelightMeasurement.pose);
+                System.out.println("Updated Pose!!!!!!!!!!");
             }
       }
 
@@ -181,7 +191,7 @@ public class Robot extends TimedRobot {
     @Override
     public void teleopPeriodic() {
       SmartDashboard.putString("Drivetrain State", 
-        m_robotContainer.drivetrain.currentSystemState.toString()
+        m_robotContainer.drivetrain.currentState.toString()
       );
       SmartDashboard.putString("Superstructure State", 
         m_robotContainer.superstructure.currentSuperState.toString()

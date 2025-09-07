@@ -74,7 +74,10 @@ public class DriveTrain extends TunerSwerveDrivetrain implements Subsystem {
 
     public TargetState targetState = TargetState.TELEOP_DRIVE;
 
-    public SystemState currentSystemState = SystemState.TELEOP_DRIVE;
+    public SystemState currentState = SystemState.TELEOP_DRIVE;
+	public SystemState getSystemState() {
+		return currentState;
+	}
 
     /* SysId routine for characterizing translation. This is used to find PID gains for the drive motors. */
     private final SysIdRoutine m_sysIdRoutineTranslation = new SysIdRoutine(
@@ -304,12 +307,12 @@ public class DriveTrain extends TunerSwerveDrivetrain implements Subsystem {
         applyStates();
     }
 
-    Command drive_command = applyRequest(() -> Constants.drive.withVelocityX(-(Constants.joystick.getLeftY()) * (Constants.joystick.x().getAsBoolean() ? Constants.MaxSpeed / 2 : Constants.MaxSpeed)) 
+    Command drive_command = applyRequest(() -> Constants.drive.withVelocityX(-(Constants.driver.getLeftY()) * (Constants.driver.x().getAsBoolean() ? Constants.MaxSpeed / 2 : Constants.MaxSpeed)) 
                 // Drive forward with
                 // negative Y
                 // (forward)
-        .withVelocityY(-(Constants.joystick.getLeftX()) * (Constants.joystick.x().getAsBoolean() ? Constants.MaxSpeed / 2 : Constants.MaxSpeed)) // Drive left with negative X (left)
-        .withRotationalRate(-Constants.joystick.getRightX() * Constants.MaxAngularRate) // Drive counterclockwise with negative X (left)
+        .withVelocityY(-(Constants.driver.getLeftX()) * (Constants.driver.x().getAsBoolean() ? Constants.MaxSpeed / 2 : Constants.MaxSpeed)) // Drive left with negative X (left)
+        .withRotationalRate(-Constants.driver.getRightX() * Constants.MaxAngularRate) // Drive counterclockwise with negative X (left)
     );
 
     private double lerp(double val, double k /* 2 factor */, double m /* 0.1 starting */) {
@@ -320,7 +323,7 @@ public class DriveTrain extends TunerSwerveDrivetrain implements Subsystem {
     }
 
     private void applyStates() {
-        switch (currentSystemState) {
+        switch (currentState) {
             case TELEOP_DRIVE:
                 drive_command.schedule();
                 break;
@@ -336,13 +339,13 @@ public class DriveTrain extends TunerSwerveDrivetrain implements Subsystem {
     private void handleStateTransitions() {
         switch (targetState) {
             case TELEOP_DRIVE:
-                currentSystemState = SystemState.TELEOP_DRIVE;
+                currentState = SystemState.TELEOP_DRIVE;
                 break;
             case FOLLOW_PATH:
-                currentSystemState = SystemState.FOLLOW_PATH;
+                currentState = SystemState.FOLLOW_PATH;
                 break;
             default:
-                currentSystemState = SystemState.IDLE;
+                currentState = SystemState.IDLE;
                 break;
         }
     }

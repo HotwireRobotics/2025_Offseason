@@ -18,9 +18,14 @@ public class Superstructure extends SubsystemBase {
 		 * Transition to the subsequent state based on current conditions. (This is only a <strong>TARGET</strong> state.)
 		 */
 		DEFAULT, 
-		SCORE_LEFT, 
-		SCORE_RIGHT, 
-		GET_CORAL
+		SCORE_DOWN_LEFT,
+		SCORE_UP_LEFT,
+		SCORE_DOWN_RIGHT,
+		SCORE_UP_RIGHT,
+		/**
+		 * Intake coral gamepiece.
+		 */
+		INTAKE
 	}
 
 	public TargetState targetSuperState = TargetState.STOPPED;
@@ -29,12 +34,19 @@ public class Superstructure extends SubsystemBase {
 		/**
 		 * Robot is offline, move to starting positons.
 		 */
-		STOPPED, 
-		NO_CORAL, 
-		SCORING_CORAL_LEFT,
-		SCORING_CORAL_RIGHT, 
-		INTAKING_CORAL, 
-		HOLDING_CORAL
+		STOPPED,
+		/**
+		 * Robot is in teleop; the driver is in control.
+		 */
+		HOME,
+		SCORING_DOWN_LEFT,
+		SCORING_UP_LEFT,
+		SCORING_DOWN_RIGHT,
+		SCORING_UP_RIGHT,
+		/**
+		 * Robot is intaking a coral gamepiece.
+		 */
+		INTAKING
 	}
 
 	public SystemState currentSuperState = SystemState.STOPPED;
@@ -55,6 +67,28 @@ public class Superstructure extends SubsystemBase {
 
 	public void periodic() {handleStateTransitions(); applyStates();}
 
+	private void handleStateTransitions() {
+
+		previousSuperState = currentSuperState;
+
+		switch (targetSuperState) {
+			case STOPPED:
+				break;
+			case DEFAULT:
+				currentSuperState = SystemState.HOME;
+				break;
+			case INTAKE:
+				intake.targetState = Intake.TargetState.COLLECT;
+				break;
+			case SCORE_DOWN_RIGHT:
+				
+				break;
+			default:
+				currentSuperState = SystemState.STOPPED;
+				break;
+		}
+	}
+
 	private void applyStates() {
 
 		switch (currentSuperState) {
@@ -63,52 +97,10 @@ public class Superstructure extends SubsystemBase {
 				intake.targetState = Intake.TargetState.STOPPED;
 				arm.targetState = Arm.TargetState.STOPPED;
 				break;
-			case NO_CORAL:
+			case HOME:
 				drivetrain.targetState = DriveTrain.TargetState.TELEOP_DRIVE;
 				break;
-			case HOLDING_CORAL:
-				drivetrain.targetState = DriveTrain.TargetState.TELEOP_DRIVE;
-				break;
-			case SCORING_CORAL_LEFT:
-				drivetrain.targetState = DriveTrain.TargetState.FOLLOW_PATH;
-				break;
-			case SCORING_CORAL_RIGHT:
-				drivetrain.targetState = DriveTrain.TargetState.FOLLOW_PATH;
-				break;
 			default:
-				break;
-		}
-	}
-
-	public Command setTargetState(TargetState state) {
-		return new InstantCommand(() -> {targetSuperState = state;});
-	}
-
-	private void handleStateTransitions() {
-
-		previousSuperState = currentSuperState;
-
-		switch (targetSuperState) {
-			default:
-				currentSuperState = SystemState.STOPPED;
-				break;
-			case STOPPED:
-				break;
-			case DEFAULT:
-				// Handle open-ended states.
-				currentSuperState = SystemState.NO_CORAL;
-				break;
-			case SCORE_RIGHT:
-				// Begin moving towards nearest right pole.
-				currentSuperState = SystemState.SCORING_CORAL_RIGHT;
-				break;
-			case SCORE_LEFT:
-				// Begin moving towards nearest left pole.
-				currentSuperState = SystemState.SCORING_CORAL_LEFT;
-				break;
-			case GET_CORAL:
-				//! Fake intake present BEWARE
-				currentSuperState = SystemState.HOLDING_CORAL;
 				break;
 		}
 	}

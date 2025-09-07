@@ -23,8 +23,8 @@ public class CommandGenerator {
 			Command command = AutoBuilder.pathfindToPose(nearestPose, Constants.constraints);
 
 			Dictionary<Tracks, Superstructure.SystemState> tracksToState = new Hashtable<>();
-			tracksToState.put(Tracks.right, Superstructure.SystemState.SCORING_CORAL_RIGHT);
-			tracksToState.put(Tracks.left, Superstructure.SystemState.SCORING_CORAL_LEFT);
+			tracksToState.put(Tracks.right, Superstructure.SystemState.SCORING_DOWN_RIGHT);
+			tracksToState.put(Tracks.left, Superstructure.SystemState.SCORING_DOWN_LEFT);
 			
 			Superstructure.SystemState state = tracksToState.get(types);
 

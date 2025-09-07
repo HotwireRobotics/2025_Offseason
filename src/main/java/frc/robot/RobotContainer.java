@@ -11,6 +11,7 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.PathPlannerPath;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Distance;
 
 import static edu.wpi.first.units.Units.MetersPerSecond;
@@ -30,7 +31,7 @@ import frc.robot.commands.CommandGenerator;
 import frc.robot.commands.SetTargetPose;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.*;
-import frc.robot.subsystems.Intake;
+
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -72,27 +73,34 @@ public class RobotContainer {
         SmartDashboard.putData("Selected Auto", autoChooser);
     }
 
+    // Cycle between positions
+    Angle[] positions = {
+        Constants.WristPositions.INTAKE, 
+        Constants.WristPositions.STOW,
+    };
+    int position_index = 0;
+
     private void configureBindings() {
 
         // music.play(); // TODO Make orchestra function.
 
         drivetrain.setDefaultCommand(drivetrain.applyRequest(() -> brake));
 
-        // Constants.joystick.leftBumper().onTrue(CommandGenerator.goToNearestBranch(this, Tracks.left));
-        // Constants.joystick.rightBumper().onTrue(CommandGenerator.goToNearestBranch(this, Tracks.right));
+        Constants.driver.leftBumper().onTrue(CommandGenerator.goToNearestBranch(this, Tracks.left));
+        Constants.driver.rightBumper().onTrue(CommandGenerator.goToNearestBranch(this, Tracks.right));
 
         // Left POV button navigates right to the righthand branch.
-        Constants.joystick.povRight().onTrue(
+        Constants.driver.povRight().onTrue(
             CommandGenerator.goRightTwoBranchWidths(drivetrain)
         );
 
         // Left POV button navigates left to the lefthand branch.
-        Constants.joystick.povLeft().onTrue(
+        Constants.driver.povLeft().onTrue(
             CommandGenerator.goLeftTwoBranchWidths(drivetrain)
         );
 
         // Right bumper navigates to the nearest lefthand branch.
-        // Constants.joystick.leftBumper().onTrue(
+        // Constants.driver.leftBumper().onTrue(
         //     new SetTargetPose(
         //         superstructure, drivetrain, Constants.nearestBranchPose(drivetrain.getState().Pose, Tracks.left).get(),
         //         Superstructure.TargetState.SCORE_LEFT
@@ -100,7 +108,7 @@ public class RobotContainer {
         // );
 
         // Right bumper navigates to the nearest righthand branch.
-        // Constants.joystick.rightBumper().onTrue(
+        // Constants.driver.rightBumper().onTrue(
         //     new SetTargetPose(
         //         superstructure, drivetrain, Constants.nearestBranchPose(drivetrain.getState().Pose, Tracks.right).get(),
         //         Superstructure.TargetState.SCORE_RIGHT
@@ -108,14 +116,14 @@ public class RobotContainer {
         // );
 
         // // Right trigger controls percentage motor voltage.
-        // Constants.joystick.rightTrigger().onTrue(
+        // Constants.driver.rightTrigger().onTrue(
         //     new InstantCommand(() -> {
-        //         arm.setBaseMotor(Constants.joystick.getRightTriggerAxis());
+        //         arm.setBaseMotor(Constants.driver.getRightTriggerAxis());
         //     })
         // );
 
-        //! Temporary
-        Constants.joystick.x().whileTrue(
+        //! ==== Temporary ====
+        Constants.driver.x().whileTrue(
             new InstantCommand(() -> {
                 intake.targetState = Intake.TargetState.COLLECT;
             })
@@ -124,23 +132,60 @@ public class RobotContainer {
                 intake.targetState = Intake.TargetState.HOLD;
             })
         );
+
+        Constants.driver.povUp().whileTrue(
+            new InstantCommand(() -> {
+                intake.targetState = Intake.TargetState.EJECT_BACKWARD;
+            })
+        );
+
+        Constants.driver.y().onTrue(
+            new InstantCommand(() -> {
+                position_index ++;
+                if (position_index >= positions.length) {position_index = 0;}
+                arm.setWristMotorPosition(positions[position_index].magnitude());
+            })
+        );
+
+        Constants.operator.y().onTrue(
+            new InstantCommand(() -> {
+                arm.setArmMotorPosition(Constants.ArmPositions.LVL2.magnitude());
+            })
+        );
+        Constants.operator.b().onTrue(
+            new InstantCommand(() -> {
+                arm.setWristMotorPosition(Constants.WristPositions.LVL2.magnitude());
+            })
+        );
+        Constants.operator.a().onTrue(
+            new InstantCommand(() -> {
+                arm.pauseArmMotor();
+            })
+        );
+        Constants.operator.x().onTrue(
+            new InstantCommand(() -> {
+                arm.setWristMotorPosition(Constants.WristPositions.INTAKE.magnitude());
+            })
+        );
+        //! ==== Temporary ====
+
         
 
         final var idle = new SwerveRequest.Idle();
         RobotModeTriggers.disabled().whileTrue(drivetrain.applyRequest(() -> idle).ignoringDisable(true));
 
-        Constants.joystick.a().whileTrue(drivetrain.applyRequest(() -> brake));
-        Constants.joystick.b().whileTrue(drivetrain.applyRequest(
-                () -> point.withModuleDirection(new Rotation2d(-Constants.joystick.getLeftY(), -Constants.joystick.getLeftX()))));
+        Constants.driver.a().whileTrue(drivetrain.applyRequest(() -> brake));
+        Constants.driver.b().whileTrue(drivetrain.applyRequest(
+                () -> point.withModuleDirection(new Rotation2d(-Constants.driver.getLeftY(), -Constants.driver.getLeftX()))));
 
         // Run SysId routines when holding back/start and X/Y. Note that each routine should be run exactly once in a single log.
-        Constants.joystick.back().and(Constants.joystick.y()).whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
-        Constants.joystick.back().and(Constants.joystick.x()).whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
-        Constants.joystick.start().and(Constants.joystick.y()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
-        Constants.joystick.start().and(Constants.joystick.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
+        Constants.driver.back().and(Constants.driver.y()).whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
+        Constants.driver.back().and(Constants.driver.x()).whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
+        Constants.driver.start().and(Constants.driver.y()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
+        Constants.driver.start().and(Constants.driver.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
 
         // reset the field-centric heading on down POV press.
-        Constants.joystick.povDown().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
+        Constants.driver.povDown().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
 
         drivetrain.registerTelemetry(logger::telemeterize);
     }

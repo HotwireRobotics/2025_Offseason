@@ -36,6 +36,7 @@ import com.pathplanner.lib.path.PathPlannerPath;
 import edu.wpi.first.math.geometry.Rotation2d;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -63,7 +64,12 @@ public class Constants {
 	/**
 	 * <strong>Driver Controller</strong>
 	 */
-    public static final CommandXboxController joystick = new CommandXboxController(0);
+	public static class Joysticks {
+		
+	}
+
+	public static final CommandXboxController driver   = new CommandXboxController(0);
+	public static final CommandXboxController operator = new CommandXboxController(1);
 
 	public static final AprilTagFieldLayout taglayout = AprilTagFields.k2025ReefscapeWelded.loadAprilTagLayoutField();
 
@@ -79,14 +85,22 @@ public class Constants {
 	public static final Distance poleOffset = Inches.of(6.5);
 
 	public class WristPositions {
-		public static double starting_position = 0;
-		public static double score_L2 = 0.222;
-		public static double stow = 0.3;
+		public static final Angle INTAKE = Rotations.of(0.002);
+		public static final Angle START = Rotations.of(0.002);
+		public static final Angle LVL2 = Rotations.of(0.3);
+		public static final Angle LVL3 = Rotations.of(0.245);
+		public static final Angle STOW = Rotations.of(0.3);
+	}
+
+	public class ArmPositions {
+		public static final Angle LVL2 = Rotations.of(0.03);
+		public static final Angle START = Rotations.of(0);
+		public static final Angle FLOOR = Rotations.of(-0.082);
 	}
 
 	public class IntakeSpeeds {
 		public static double eject = 1.0;
-		public static double index = 0.15;
+		public static double index = 0.25;
 	}
 
 	public class Ranges {
@@ -123,9 +137,7 @@ public class Constants {
 		public static final Integer arm_base_encoder_id = 0;
 	}
 
-	public class ArmPositions {
-		public static final Angle starting_position = Degrees.of(90); //! Incorrect
-	}
+
 
 	public static Optional<Pose2d> nearestTagPose(Pose2d robotPose) {
 

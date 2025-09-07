@@ -1378,9 +1378,6 @@ public class LimelightHelpers {
         return new IMUData(imuData);
     }
 
-    /////
-    /////
-
     public static void setPipelineIndex(String limelightName, int pipelineIndex) {
         setLimelightNTDouble(limelightName, "pipeline", pipelineIndex);
     }

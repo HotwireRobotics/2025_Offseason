@@ -22,6 +22,7 @@ public class Intake extends SubsystemBase {
 	}
 
 	public TargetState targetState = TargetState.STOPPED;
+	
 
 	public enum SystemState {
 		/**
@@ -39,6 +40,9 @@ public class Intake extends SubsystemBase {
 	}
 
 	public SystemState currentState = SystemState.STOPPED;
+	public SystemState getSystemState() {
+		return currentState;
+	}
 	public SystemState previousSuperState;
 
 	private final CANrange r_right;
@@ -131,14 +135,14 @@ public class Intake extends SubsystemBase {
 				currentState = SystemState.NO_CORAL;
 				break;
 			case EJECT_FORWARD:
-				if (!(is_front || is_stop)) {
+				if (is_front || is_stop) {
 					currentState = SystemState.EJECTING_FORWARD; 
 				} else {
 					currentState = SystemState.NO_CORAL;
 				}
 				break;
 			case EJECT_BACKWARD:
-				if (!(is_front || is_stop)) {
+				if (is_front || is_stop) {
 					currentState = SystemState.EJECTING_BACKWARD; 
 				} else {
 					currentState = SystemState.NO_CORAL;
@@ -193,8 +197,8 @@ public class Intake extends SubsystemBase {
 
 				break;
 			case EJECTING_FORWARD:
-				setLeftIntake(Constants.IntakeSpeeds.eject);
-				setRightIntake(Constants.IntakeSpeeds.eject);
+				setLeftIntake(-Constants.IntakeSpeeds.eject);
+				setRightIntake(-Constants.IntakeSpeeds.eject);
 				setRollers(0);
 				break;
 			default:

@@ -7,9 +7,12 @@ import java.util.function.Supplier;
 import com.ctre.phoenix6.Orchestra;
 import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.Utils;
+import com.ctre.phoenix6.controls.MotionMagicDutyCycle;
+import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.MusicTone;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.controls.VelocityVoltage;
+import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.CANrange;
 import com.ctre.phoenix6.hardware.ParentDevice;
@@ -76,6 +79,9 @@ public class Arm extends SubsystemBase {
 	}
 
 	public SystemState currentState = SystemState.STOPPED;
+	public SystemState getSystemState() {
+		return currentState;
+	}
 	public SystemState previousSuperState;
 
 	private final TalonFX m_arm_base;
@@ -113,7 +119,7 @@ public class Arm extends SubsystemBase {
 			case STOPPED:
 				break;
 			case PRACTICE:
-				setWristMotorPosition(WristPositions.stow);
+				setWristMotorPosition(WristPositions.STOW.magnitude());
 				break;
 			default:
 				break;
@@ -161,7 +167,7 @@ public class Arm extends SubsystemBase {
      * @param position Factor from -1 to 1
      */
 	public void setArmMotorPosition(double position) {
-		final PositionVoltage request = new PositionVoltage(0).withSlot(0);
+		final MotionMagicVoltage request = new MotionMagicVoltage(0).withSlot(0);
 		m_arm_base.setControl(request.withPosition(position));
 	}
 
@@ -172,7 +178,17 @@ public class Arm extends SubsystemBase {
      * @param position Factor from -1 to 1
      */
 	public void setWristMotorPosition(double position) {
-		final PositionVoltage request = new PositionVoltage(0).withSlot(0);
+		final MotionMagicVoltage request = new MotionMagicVoltage(0).withSlot(0);
 		m_arm_wrist.setControl(request.withPosition(position));
+	}
+
+	public void pauseWristMotor() {
+		final VoltageOut request = new VoltageOut(0);
+		m_arm_wrist.setControl(request);
+	}
+
+	public void pauseArmMotor() {
+		final VoltageOut request = new VoltageOut(0);
+		m_arm_base.setControl(request);
 	}
 }
