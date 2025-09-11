@@ -10,6 +10,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import com.ctre.phoenix6.controls.*;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.path.PathConstraints;
@@ -90,6 +91,11 @@ public class Constants {
 		public static final Angle LVL2 = Rotations.of(0.3);
 		public static final Angle LVL3 = Rotations.of(0.245);
 		public static final Angle STOW = Rotations.of(0.3);
+	}
+
+	public class Requests {
+		public static final MotionMagicVoltage MOTIONMAGIC = new MotionMagicVoltage(0).withSlot(0);
+		public static final VoltageOut ZERO = new VoltageOut(0);
 	}
 
 	public class ArmPositions {

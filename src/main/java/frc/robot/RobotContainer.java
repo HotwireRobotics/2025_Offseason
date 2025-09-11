@@ -123,53 +123,63 @@ public class RobotContainer {
         // );
 
         //! ==== Temporary ====
+        // Constants.driver.x().whileTrue(
+        //     new InstantCommand(() -> {
+        //         intake.targetState = Intake.TargetState.COLLECT;
+        //     })
+        // ).onFalse(
+        //     new InstantCommand(() -> {
+        //         intake.targetState = Intake.TargetState.HOLD;
+        //     })
+        // );
+
+        // Constants.driver.povUp().whileTrue(
+        //     new InstantCommand(() -> {
+        //         intake.targetState = Intake.TargetState.EJECT_BACKWARD;
+        //     })
+        // );
+
+        // Constants.driver.y().onTrue(
+        //     new InstantCommand(() -> {
+        //         position_index ++;
+        //         if (position_index >= positions.length) {position_index = 0;}
+        //         arm.setWristMotorPosition(positions[position_index].magnitude());
+        //     })
+        // );
+
+        // Constants.operator.y().onTrue(
+        //     new InstantCommand(() -> {
+        //         arm.setArmMotorPosition(Constants.ArmPositions.LVL2.magnitude());
+        //     })
+        // );
+        // Constants.operator.b().onTrue(
+        //     new InstantCommand(() -> {
+        //         arm.setWristMotorPosition(Constants.WristPositions.LVL2.magnitude());
+        //     })
+        // );
+        // Constants.operator.a().onTrue(
+        //     new InstantCommand(() -> {
+        //         arm.pauseArmMotor();
+        //     })
+        // );
+        // Constants.operator.x().onTrue(
+        //     new InstantCommand(() -> {
+        //         arm.setWristMotorPosition(Constants.WristPositions.INTAKE.magnitude());
+        //     })
+        // );
+        //! ==== Temporary ====
+
         Constants.driver.x().whileTrue(
             new InstantCommand(() -> {
-                intake.targetState = Intake.TargetState.COLLECT;
+                System.out.println("Intake");
+                superstructure.targetSuperState = Superstructure.TargetState.INTAKE;
             })
         ).onFalse(
             new InstantCommand(() -> {
-                intake.targetState = Intake.TargetState.HOLD;
+                System.out.println("Default");
+                superstructure.targetSuperState = Superstructure.TargetState.DEFAULT;
             })
         );
-
-        Constants.driver.povUp().whileTrue(
-            new InstantCommand(() -> {
-                intake.targetState = Intake.TargetState.EJECT_BACKWARD;
-            })
-        );
-
-        Constants.driver.y().onTrue(
-            new InstantCommand(() -> {
-                position_index ++;
-                if (position_index >= positions.length) {position_index = 0;}
-                arm.setWristMotorPosition(positions[position_index].magnitude());
-            })
-        );
-
-        Constants.operator.y().onTrue(
-            new InstantCommand(() -> {
-                arm.setArmMotorPosition(Constants.ArmPositions.LVL2.magnitude());
-            })
-        );
-        Constants.operator.b().onTrue(
-            new InstantCommand(() -> {
-                arm.setWristMotorPosition(Constants.WristPositions.LVL2.magnitude());
-            })
-        );
-        Constants.operator.a().onTrue(
-            new InstantCommand(() -> {
-                arm.pauseArmMotor();
-            })
-        );
-        Constants.operator.x().onTrue(
-            new InstantCommand(() -> {
-                arm.setWristMotorPosition(Constants.WristPositions.INTAKE.magnitude());
-            })
-        );
-        //! ==== Temporary ====
-
-        
 
         final var idle = new SwerveRequest.Idle();
         RobotModeTriggers.disabled().whileTrue(drivetrain.applyRequest(() -> idle).ignoringDisable(true));

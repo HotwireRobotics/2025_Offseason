@@ -4,6 +4,7 @@ import java.lang.annotation.Target;
 
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 import frc.robot.RobotContainer;
 import edu.wpi.first.wpilibj2.command.Command;
 
@@ -78,10 +79,9 @@ public class Superstructure extends SubsystemBase {
 				currentSuperState = SystemState.HOME;
 				break;
 			case INTAKE:
-				intake.targetState = Intake.TargetState.COLLECT;
+				currentSuperState = SystemState.INTAKING;
 				break;
 			case SCORE_DOWN_RIGHT:
-				
 				break;
 			default:
 				currentSuperState = SystemState.STOPPED;
@@ -95,10 +95,16 @@ public class Superstructure extends SubsystemBase {
 			case STOPPED:
 				drivetrain.targetState = DriveTrain.TargetState.IDLE;
 				intake.targetState = Intake.TargetState.STOPPED;
-				arm.targetState = Arm.TargetState.STOPPED;
+				arm.targetState = Arm.TargetState.STOP;
 				break;
 			case HOME:
 				drivetrain.targetState = DriveTrain.TargetState.TELEOP_DRIVE;
+				intake.targetState = Intake.TargetState.HOLD;
+				arm.targetState = Arm.TargetState.HOME;
+				break;
+			case INTAKING:
+				intake.targetState = Intake.TargetState.COLLECT;
+				arm.targetState = Arm.TargetState.INTAKE;
 				break;
 			default:
 				break;

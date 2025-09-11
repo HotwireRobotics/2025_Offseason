@@ -47,9 +47,6 @@ public class Robot extends TimedRobot {
         SmartDashboard.putData("Nearest Tag", nearest_tag);
         SmartDashboard.putData("Nearest Pole", nearest_pole);
 
-        SmartDashboard.putString("Superstructure Current State", m_robotContainer.superstructure.currentSuperState.toString());
-        SmartDashboard.putString("Superstructure Target State", m_robotContainer.superstructure.targetSuperState.toString());
-
         // ! Memory Error; implement when ur system doesn't suck.
         // Logger.recordMetadata("Hotwire Project", "2026"); // Set a metadata value
 
@@ -91,10 +88,16 @@ public class Robot extends TimedRobot {
 
         SmartDashboard.putString("Intake TargetState", target.toString());
         SmartDashboard.putString("Intake SystemState", current.toString());
+
+        SmartDashboard.putString("Arm TargetState", (m_robotContainer.arm.targetState).toString());
+        SmartDashboard.putString("Arm SystemState", (m_robotContainer.arm.currentState).toString());
+
+        SmartDashboard.putString("Superstructure Current State", m_robotContainer.superstructure.currentSuperState.toString());
+        SmartDashboard.putString("Superstructure Target State", m_robotContainer.superstructure.targetSuperState.toString());
         
         for (Intake.Range range : Intake.Range.values()) {
-          Distance measurement = m_robotContainer.intake.getMeasurement(range);
-          SmartDashboard.putNumber(range.toString() + " CANrange", measurement.magnitude());
+          Boolean measurement = m_robotContainer.intake.getMeasurement(range);
+          SmartDashboard.putBoolean(range.toString() + " CANrange", measurement);
         }
         
         if (utilizeLimelight) {
@@ -104,13 +107,11 @@ public class Robot extends TimedRobot {
             LimelightHelpers.setPipelineIndex("limelight", 0);
             LimelightHelpers.SetRobotOrientation("limelight", headingDeg, 0, 0, 0, 0, 0);
             var limelightMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight");
-            System.out.println(limelightMeasurement);
 
             if ((limelightMeasurement != null) && (limelightMeasurement.tagCount > 0) && (Math.abs(omegaRPS) < 2)) {
                 m_robotContainer.drivetrain.addVisionMeasurement(limelightMeasurement.pose,
                     limelightMeasurement.timestampSeconds);
                 llestamation.setRobotPose(limelightMeasurement.pose);
-                System.out.println("Updated Pose!!!!!!!!!!");
             }
       }
 

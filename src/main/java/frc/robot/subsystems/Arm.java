@@ -31,6 +31,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.Units.*;
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -57,14 +58,16 @@ public class Arm extends SubsystemBase {
 		/**
 		 * Robot is offline, move to starting positons.
 		 */
-		STOPPED, 
-		HOME,
+		STOP, 
 		IDLE,
-		MOVE_TO_POSTION,
 		PRACTICE,
+
+		INTAKE,
+		HOME,
+		START,
 	}
 
-	public TargetState targetState = TargetState.STOPPED;
+	public TargetState targetState = TargetState.STOP;
 
 	public enum SystemState {
 		/**
@@ -74,9 +77,15 @@ public class Arm extends SubsystemBase {
 		HOMING_SHOULDER,
 		HOMING_WRIST,
 		IDLING,
-		MOVING_TO_POSITION,
-		PRACTICE
+		PRACTICING,
+
+		INTAKING,
+		HOMING,
+		STARTING,
 	}
+
+	public Angle targetArmPosition   = Constants.ArmPositions.START;
+	public Angle targetWristPosition = Constants.WristPositions.START;
 
 	public SystemState currentState = SystemState.STOPPED;
 	public SystemState getSystemState() {
@@ -101,11 +110,17 @@ public class Arm extends SubsystemBase {
 	private void handleStateTransitions() {
 
 		switch (targetState) {
-			case STOPPED:
+			case STOP:
 				currentState = SystemState.STOPPED;
 				break;
 			case PRACTICE:
-				currentState = SystemState.PRACTICE;
+				currentState = SystemState.PRACTICING;
+				break;
+			case INTAKE:
+				currentState = SystemState.INTAKING;
+				break;
+			case HOME:
+				currentState = SystemState.HOMING;
 				break;
 			default:
 				currentState = SystemState.STOPPED;
@@ -115,10 +130,19 @@ public class Arm extends SubsystemBase {
 
 	private void applyStates() {
 
-		switch (targetState) {
+		switch (currentState) {
 			case STOPPED:
 				break;
-			case PRACTICE:
+			case INTAKING:
+				pauseArmMotor();
+				setWristMotorPosition(Constants.WristPositions.INTAKE.magnitude());
+				break;
+			case HOMING:
+				pauseArmMotor();
+				setWristMotorPosition(Constants.WristPositions.STOW.magnitude());
+				break;
+			case PRACTICING:
+				pauseArmMotor();
 				setWristMotorPosition(WristPositions.STOW.magnitude());
 				break;
 			default:
@@ -167,8 +191,7 @@ public class Arm extends SubsystemBase {
      * @param position Factor from -1 to 1
      */
 	public void setArmMotorPosition(double position) {
-		final MotionMagicVoltage request = new MotionMagicVoltage(0).withSlot(0);
-		m_arm_base.setControl(request.withPosition(position));
+		m_arm_base.setControl(Constants.Requests.MOTIONMAGIC.withPosition(position));
 	}
 
 	/**
@@ -178,17 +201,16 @@ public class Arm extends SubsystemBase {
      * @param position Factor from -1 to 1
      */
 	public void setWristMotorPosition(double position) {
-		final MotionMagicVoltage request = new MotionMagicVoltage(0).withSlot(0);
-		m_arm_wrist.setControl(request.withPosition(position));
+		m_arm_wrist.setControl(Constants.Requests.MOTIONMAGIC.withPosition(position));
 	}
 
 	public void pauseWristMotor() {
-		final VoltageOut request = new VoltageOut(0);
+		final VoltageOut request = Constants.Requests.ZERO;
 		m_arm_wrist.setControl(request);
 	}
 
 	public void pauseArmMotor() {
-		final VoltageOut request = new VoltageOut(0);
+		final VoltageOut request = Constants.Requests.ZERO;
 		m_arm_base.setControl(request);
 	}
 }

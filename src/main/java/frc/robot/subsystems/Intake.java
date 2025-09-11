@@ -30,13 +30,14 @@ public class Intake extends SubsystemBase {
 		 */
 		STOPPED, 
 		INTAKING_CORAL,
-		HOLDING_CORAL,
 		INDEXING_CORAL,
 		INDEX_FORWARD,
 		INDEX_BACKWARD,
 		EJECTING_FORWARD,
 		EJECTING_BACKWARD,
-		NO_CORAL
+
+		NO_CORAL,
+		HOLDING_CORAL,
 	}
 
 	public SystemState currentState = SystemState.STOPPED;
@@ -80,25 +81,16 @@ public class Intake extends SubsystemBase {
 		d_rollers = new TalonFXS(Constants.MotorIDs.rollers_id);
 	}
 
-	private Distance left;
-	private Distance right;
-	private Distance stop;
-	private Distance front;
+	private Boolean left;
+	private Boolean right;
+	private Boolean stop;
+	private Boolean front;
 
-	private Boolean is_left;
-	private Boolean is_right;
-	private Boolean is_stop;
-	private Boolean is_front;
 	public void periodic() {
-		left = getMeasurement(Range.LEFT);
+		left =  getMeasurement(Range.LEFT);
 		right = getMeasurement(Range.RIGHT);
-		stop = getMeasurement(Range.STOP);
+		stop =  getMeasurement(Range.STOP);
 		front = getMeasurement(Range.FRONT);
-
-		is_left  = left.magnitude() <=  Constants.Ranges.horizontal_range.magnitude();
-		is_right = right.magnitude() <= Constants.Ranges.horizontal_range.magnitude();
-		is_stop  = stop.magnitude() <=  Constants.Ranges.normal_range.magnitude();
-		is_front = front.magnitude() <= Constants.Ranges.normal_range.magnitude();
 
 		handleStateTransitions(); applyStates();
 	}
@@ -111,38 +103,38 @@ public class Intake extends SubsystemBase {
 			case COLLECT:
 				currentState = SystemState.INTAKING_CORAL;
 
-				if (is_stop) {
+				if (stop) {
 					currentState = SystemState.HOLDING_CORAL;
-				} else if (is_left && is_right) {
+				} else if (left && right) {
 					currentState = SystemState.INDEXING_CORAL;
 				} else {
 					currentState = SystemState.INTAKING_CORAL;
 				}
 				break;
 			case HOLD:
-				if (is_front && is_stop) {
+				if (front && stop) {
 					currentState = SystemState.HOLDING_CORAL;
 					break;
 				}
-				if (is_stop) {
+				if (stop) {
 					currentState = SystemState.INDEX_FORWARD;
 					break;
 				}
-				if (is_front) {
+				if (front) {
 					currentState = SystemState.INDEX_BACKWARD;
 					break;
 				}
 				currentState = SystemState.NO_CORAL;
 				break;
 			case EJECT_FORWARD:
-				if (is_front || is_stop) {
+				if (front || stop) {
 					currentState = SystemState.EJECTING_FORWARD; 
 				} else {
 					currentState = SystemState.NO_CORAL;
 				}
 				break;
 			case EJECT_BACKWARD:
-				if (is_front || is_stop) {
+				if (front || stop) {
 					currentState = SystemState.EJECTING_BACKWARD; 
 				} else {
 					currentState = SystemState.NO_CORAL;
@@ -212,16 +204,16 @@ public class Intake extends SubsystemBase {
      * @param range 
 	 * Get from the <code>Range</code> enum.
      */
-	public Distance getMeasurement(Range range) {
+	public Boolean getMeasurement(Range range) {
 		CANrange range_obj;
 		switch (range) {
 			case RIGHT: range_obj = r_right; break;
 			case LEFT: range_obj = r_left; break;
 			case FRONT: range_obj = r_front; break;
 			case STOP: range_obj = r_stop; break;
-			default: return Meters.of(-1); //! Error
+			default: return false; //! Error
 		}
-		return range_obj.getDistance().getValue();
+		return range_obj.getIsDetected().getValue();
 	}
 
 	public TalonFXS getRollers() {
