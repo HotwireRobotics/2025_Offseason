@@ -1,2 +1,3 @@
-![shrek](src\main\deploy\image.png)
-# Our lord and savior.
+> ![logo](src\main\deploy\logo.png)
+# Hotwire Robotics Offseason/2026
+`break;` statements are the most important element in state-based programming.

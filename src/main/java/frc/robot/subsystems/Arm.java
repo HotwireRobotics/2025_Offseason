@@ -7,6 +7,8 @@ import java.util.function.Supplier;
 import com.ctre.phoenix6.Orchestra;
 import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.Utils;
+import com.ctre.phoenix6.controls.ControlRequest;
+import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.MotionMagicDutyCycle;
 import com.ctre.phoenix6.controls.MotionMagicVoltage;
 import com.ctre.phoenix6.controls.MusicTone;
@@ -63,8 +65,11 @@ public class Arm extends SubsystemBase {
 		PRACTICE,
 
 		INTAKE,
-		HOME,
+		DEFAULT,
 		START,
+
+		SCORE_LVL2,
+		SCORE_LVL3
 	}
 
 	public TargetState targetState = TargetState.STOP;
@@ -74,14 +79,19 @@ public class Arm extends SubsystemBase {
 		 * Robot is offline, move to starting positons.
 		 */
 		STOPPED, 
-		HOMING_SHOULDER,
-		HOMING_WRIST,
+		// HOMING_SHOULDER,
+		// HOMING_WRIST,
 		IDLING,
 		PRACTICING,
 
 		INTAKING,
 		HOMING,
+		HOME,
+
 		STARTING,
+
+		SCORING_LVL2,
+		SCORING_LVL3,
 	}
 
 	public Angle targetArmPosition   = Constants.ArmPositions.START;
@@ -94,18 +104,25 @@ public class Arm extends SubsystemBase {
 	public SystemState previousSuperState;
 
 	private final TalonFX m_arm_base;
+	private final TalonFX m_arm_follower;
 	private final TalonFX m_arm_wrist;
 
 	public final CANcoder arm_encoder;
 
 	public Arm() {
-		m_arm_base = new TalonFX(Constants.MotorIDs.arm_base_id);
-		m_arm_wrist = new TalonFX(Constants.MotorIDs.arm_wrist_id);
+		m_arm_base     = new TalonFX(Constants.MotorIDs.arm_base_id);
+		m_arm_follower = new TalonFX(Constants.MotorIDs.arm_follower_id);
+		m_arm_follower.setControl(new Follower(Constants.MotorIDs.arm_base_id, true));
+		// Master is counter-clockwise and follower is clockwise.
+		m_arm_wrist    = new TalonFX(Constants.MotorIDs.arm_wrist_id);
 
-		arm_encoder = new CANcoder(Constants.CANcoderIDs.arm_base_encoder_id);
+		arm_encoder    = new CANcoder(Constants.CANcoderIDs.arm_base_encoder_id);
 	}
 	
-	public void periodic() {handleStateTransitions(); applyStates();}
+	public void periodic() {
+		handleStateTransitions(); applyStates();
+		
+	}
 
 	private void handleStateTransitions() {
 
@@ -119,8 +136,18 @@ public class Arm extends SubsystemBase {
 			case INTAKE:
 				currentState = SystemState.INTAKING;
 				break;
-			case HOME:
-				currentState = SystemState.HOMING;
+			case DEFAULT:
+				currentState = (!isArmAtPosition(Constants.ArmPositions.FLOOR, Rotations.of(0.03))) 
+					? SystemState.HOMING : SystemState.HOME;
+				break;
+			case START:
+				currentState = SystemState.STARTING;
+				break;
+			case SCORE_LVL2:
+				currentState = SystemState.SCORING_LVL2;
+				break;
+			case SCORE_LVL3:
+				currentState = SystemState.SCORING_LVL3;
 				break;
 			default:
 				currentState = SystemState.STOPPED;
@@ -138,12 +165,29 @@ public class Arm extends SubsystemBase {
 				setWristMotorPosition(Constants.WristPositions.INTAKE.magnitude());
 				break;
 			case HOMING:
+				// setArmMotorPosition(Constants.ArmPositions.FLOOR.magnitude());
+				setArmMotor1Volt();
+				setWristMotorPosition(Constants.WristPositions.STOW.magnitude());
+				break;
+			case HOME:
 				pauseArmMotor();
 				setWristMotorPosition(Constants.WristPositions.STOW.magnitude());
 				break;
 			case PRACTICING:
 				pauseArmMotor();
-				setWristMotorPosition(WristPositions.STOW.magnitude());
+				setWristMotorPosition(Constants.WristPositions.STOW.magnitude());
+				break;
+			case STARTING:
+				setArmMotorPosition(Constants.ArmPositions.START.magnitude());
+				setWristMotorPosition(Constants.WristPositions.START.magnitude());
+				break;
+			case SCORING_LVL2:
+				setArmMotorPosition(Constants.ArmPositions.LVL2.magnitude());
+				setWristMotorPosition(Constants.WristPositions.LVL2.magnitude());
+				break;
+			case SCORING_LVL3:
+				setArmMotorPosition(Constants.ArmPositions.LVL3.magnitude());
+				setWristMotorPosition(Constants.WristPositions.LVL3.magnitude());
 				break;
 			default:
 				break;
@@ -158,10 +202,33 @@ public class Arm extends SubsystemBase {
 	}
 
 	/**
+     * Get the follower motor.
+     */
+	public TalonFX getFollowerMotor() {
+		return m_arm_follower;
+	}
+
+	/**
      * Get the wrist motor.
      */
 	public TalonFX getWristMotor() {
 		return m_arm_wrist;
+	}
+
+	/**
+     * Is the arm at an angle and within a given threshold.
+     */
+	public boolean isArmAtPosition(Angle angle, Angle threshold) {
+		// System.out.println("Arm Difference: " + m_arm_base.getPosition().getValue().minus(angle).magnitude());
+		return Math.abs(m_arm_base.getPosition().getValue().minus(angle).magnitude()) < threshold.magnitude();
+	}
+
+	/**
+     * Is the wrist at an angle and within a given threshold.
+     */
+	public boolean isWristAtPosition(Angle angle, Angle threshold) {
+		// System.out.println("Wrist Difference: " + m_arm_wrist.getPosition().getValue().minus(angle).magnitude());
+		return Math.abs(m_arm_wrist.getPosition().getValue().minus(angle).magnitude()) < threshold.magnitude();
 	}
 
 	/**
@@ -196,12 +263,29 @@ public class Arm extends SubsystemBase {
 
 	/**
      * Takes a factor from <strong>-1 to 1</strong> and moves 
+	 * the shoulder to the appropriate angle.
+     *
+     * @param position Factor from -1 to 1
+     */
+	public void setArmMotor1Volt() {
+		m_arm_base.setControl(Constants.Requests.VOLT1BACKWARD);
+	}
+
+	/**
+     * Takes a factor from <strong>-1 to 1</strong> and moves 
 	 * the wrist to the appropriate angle.
      *
      * @param position Factor from -1 to 1
      */
 	public void setWristMotorPosition(double position) {
-		m_arm_wrist.setControl(Constants.Requests.MOTIONMAGIC.withPosition(position));
+		double feedforward = 0.3349609375 * // Gravity Constant
+		Math.cos(
+			m_arm_wrist.getPosition().getValueAsDouble() + 
+			m_arm_base.getPosition().getValueAsDouble());
+		SmartDashboard.putNumber("feedforward", feedforward);
+		
+		m_arm_wrist.setControl(Constants.Requests.MOTIONMAGIC.withPosition(position)
+			.withFeedForward(feedforward));
 	}
 
 	public void pauseWristMotor() {

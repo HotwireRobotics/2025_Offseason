@@ -81,23 +81,23 @@ public class RobotContainer {
     int position_index = 0;
 
     private void configureBindings() {
-
+        // music.addInstrument(arm.getBaseMotor());
         // music.play(); // TODO Make orchestra function.
 
         drivetrain.setDefaultCommand(drivetrain.applyRequest(() -> brake));
 
-        Constants.driver.leftBumper().onTrue(CommandGenerator.goToNearestBranch(this, Tracks.left));
-        Constants.driver.rightBumper().onTrue(CommandGenerator.goToNearestBranch(this, Tracks.right));
+        // Constants.driver.leftBumper().onTrue(CommandGenerator.goToNearestBranch(this, Tracks.left));
+        // Constants.driver.rightBumper().onTrue(CommandGenerator.goToNearestBranch(this, Tracks.right));
 
         // Left POV button navigates right to the righthand branch.
-        Constants.driver.povRight().onTrue(
-            CommandGenerator.goRightTwoBranchWidths(drivetrain)
-        );
+        // Constants.driver.povRight().onTrue(
+        //     CommandGenerator.goRightTwoBranchWidths(drivetrain)
+        // );
 
         // Left POV button navigates left to the lefthand branch.
-        Constants.driver.povLeft().onTrue(
-            CommandGenerator.goLeftTwoBranchWidths(drivetrain)
-        );
+        // Constants.driver.povLeft().onTrue(
+        //     CommandGenerator.goLeftTwoBranchWidths(drivetrain)
+        // );
 
         // Right bumper navigates to the nearest lefthand branch.
         // Constants.driver.leftBumper().onTrue(
@@ -169,7 +169,21 @@ public class RobotContainer {
         // );
         //! ==== Temporary ====
 
-        Constants.driver.x().whileTrue(
+        // Lower the intake.
+        Constants.operator.x().whileTrue(
+            new InstantCommand(() -> {
+                System.out.println("Lower");
+                superstructure.targetSuperState = Superstructure.TargetState.LOWER;
+            })
+        ).onFalse(
+            new InstantCommand(() -> {
+                System.out.println("Default");
+                superstructure.targetSuperState = Superstructure.TargetState.DEFAULT;
+            })
+        );
+
+        // Run intake devices.
+        Constants.operator.y().whileTrue(
             new InstantCommand(() -> {
                 System.out.println("Intake");
                 superstructure.targetSuperState = Superstructure.TargetState.INTAKE;
@@ -177,6 +191,49 @@ public class RobotContainer {
         ).onFalse(
             new InstantCommand(() -> {
                 System.out.println("Default");
+                superstructure.targetSuperState = Superstructure.TargetState.DEFAULT;
+            })
+        );
+
+        // Scoring Positions
+        Constants.operator.rightBumper().onTrue(
+            new InstantCommand(() -> {
+                System.out.println("Up-Right");
+                superstructure.targetSuperState = Superstructure.TargetState.NAVIGATE_UP_RIGHT;
+            })
+        );
+
+        Constants.operator.leftBumper().onTrue(
+            new InstantCommand(() -> {
+                System.out.println("Up-Left");
+                superstructure.targetSuperState = Superstructure.TargetState.NAVIGATE_UP_LEFT;
+            })
+        );
+
+        Constants.operator.rightBumper().onTrue(
+            new InstantCommand(() -> {
+                System.out.println("Down-Right");
+                superstructure.targetSuperState = Superstructure.TargetState.NAVIGATE_DOWN_RIGHT;
+            })
+        );
+
+        Constants.operator.leftBumper().onTrue(
+            new InstantCommand(() -> {
+                System.out.println("Down-Left");
+                superstructure.targetSuperState = Superstructure.TargetState.NAVIGATE_DOWN_LEFT;
+            })
+        );
+
+        //! Emergency Bootonne
+        Constants.operator.back().onTrue(
+            new InstantCommand(() -> {
+                System.out.println("Yo, dis bad");
+                superstructure.targetSuperState = Superstructure.TargetState.DEFAULT;
+            })
+        );
+        Constants.driver.back().onTrue(
+            new InstantCommand(() -> {
+                System.out.println("Yo, dis bad");
                 superstructure.targetSuperState = Superstructure.TargetState.DEFAULT;
             })
         );

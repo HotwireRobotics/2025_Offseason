@@ -32,8 +32,11 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
+import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
+import frc.robot.Constants.Tracks;
+import frc.robot.commands.CommandGenerator;
 import frc.robot.commands.CommandWrapper;
 import frc.robot.generated.TunerConstants.TunerSwerveDrivetrain;
 
@@ -63,11 +66,29 @@ public class DriveTrain extends TunerSwerveDrivetrain implements Subsystem {
     private final SwerveRequest.ApplyRobotSpeeds m_pathApplyRobotSpeeds = new SwerveRequest.ApplyRobotSpeeds();
 
     public enum TargetState {
-		TELEOP_DRIVE, FOLLOW_PATH, IDLE
+		TELEOP_DRIVE, 
+        FOLLOW_PATH,
+
+		NAVIGATE_DOWN_LEFT,
+		NAVIGATE_UP_LEFT,
+		NAVIGATE_DOWN_RIGHT,
+		NAVIGATE_UP_RIGHT,
+
+        STOP, 
+        IDLE
 	}
 
     public enum SystemState {
-		TELEOP_DRIVE, FOLLOW_PATH, IDLE
+		TELEOP_DRIVE, 
+        FOLLOW_PATH, 
+
+		NAVIGATING_DOWN_LEFT,
+		NAVIGATING_UP_LEFT,
+		NAVIGATING_DOWN_RIGHT,
+		NAVIGATING_UP_RIGHT,
+
+        STOPPED,
+        IDLE
 	}
 
     public Pose2d wantedPose;
@@ -322,33 +343,102 @@ public class DriveTrain extends TunerSwerveDrivetrain implements Subsystem {
         return i * sign;
     }
 
-    private void applyStates() {
-        switch (currentState) {
-            case TELEOP_DRIVE:
-                drive_command.schedule();
-                break;
-            case FOLLOW_PATH:
-                // Create command to navigate to `wantedPose` and schedule command.
-                
-                break;
-            case IDLE:
-                break;
-        }
-    }
-
+    public Command navigateCommand;
     private void handleStateTransitions() {
         switch (targetState) {
             case TELEOP_DRIVE:
                 currentState = SystemState.TELEOP_DRIVE;
+                navigateCommand = null;
                 break;
-            case FOLLOW_PATH:
-                currentState = SystemState.FOLLOW_PATH;
+            case STOP:
+                currentState = SystemState.STOPPED;
                 break;
+            case NAVIGATE_DOWN_RIGHT:
+                if (currentState != SystemState.NAVIGATING_DOWN_RIGHT) {
+                    navigateCommand = navigate();
+                    navigateCommand.schedule();
+                }
+				currentState = SystemState.NAVIGATING_DOWN_RIGHT;
+				break;
+			case NAVIGATE_DOWN_LEFT:
+                // TODO add movement to lvl2 scoring position for arm and intake.
+                if (currentState != SystemState.NAVIGATING_DOWN_LEFT) {
+                    navigateCommand = navigate();
+                    navigateCommand.schedule();
+                }
+				currentState = SystemState.NAVIGATING_DOWN_LEFT;
+				break;
+			case NAVIGATE_UP_RIGHT:
+                if (currentState != SystemState.NAVIGATING_UP_RIGHT) {
+                    navigateCommand = navigate();
+                    navigateCommand.schedule();
+                }
+				currentState = SystemState.NAVIGATING_UP_RIGHT;
+				break;
+			case NAVIGATE_UP_LEFT:
+                if (currentState != SystemState.NAVIGATING_UP_LEFT) {
+                    navigateCommand = navigate();
+                    navigateCommand.schedule();
+                }
+				currentState = SystemState.NAVIGATING_UP_LEFT;
+				break;
             default:
                 currentState = SystemState.IDLE;
                 break;
         }
     }
+
+    private void applyStates() {
+        switch (currentState) {
+            case TELEOP_DRIVE:
+                drive_command.schedule();
+                break;
+            case STOPPED:
+                idle().schedule();
+                break;
+            case FOLLOW_PATH:
+                break;
+            case NAVIGATING_UP_LEFT:
+			case NAVIGATING_UP_RIGHT:
+			case NAVIGATING_DOWN_LEFT:
+			case NAVIGATING_DOWN_RIGHT:
+            case IDLE:
+                break;
+        }
+    }
+
+    public Pose2d nearestPose;
+    public Command navigate() {
+        Command command;
+        switch (targetState) {
+            case NAVIGATE_UP_LEFT: 
+                nearestPose = Constants.nearestBranchPose(getState().Pose, Tracks.left).get();
+                command = AutoBuilder.pathfindToPose(nearestPose, Constants.constraints);
+                break;
+            case NAVIGATE_DOWN_LEFT:
+                nearestPose = Constants.nearestBranchPose(getState().Pose, Tracks.left).get();
+                nearestPose = nearestPose.rotateAround(nearestPose.getTranslation(), new Rotation2d(Radians.of(Math.PI)));
+                command = AutoBuilder.pathfindToPose(nearestPose, Constants.constraints);
+                break;
+            case NAVIGATE_UP_RIGHT: 
+                nearestPose = Constants.nearestBranchPose(getState().Pose, Tracks.right).get();
+                command = AutoBuilder.pathfindToPose(nearestPose, Constants.constraints);
+                break;
+            case NAVIGATE_DOWN_RIGHT:
+                nearestPose = Constants.nearestBranchPose(getState().Pose, Tracks.right).get();
+                nearestPose = nearestPose.rotateAround(nearestPose.getTranslation(), new Rotation2d(Radians.of(Math.PI)));
+                command = AutoBuilder.pathfindToPose(nearestPose, Constants.constraints);
+                break;
+            default:
+                return drive_command;
+        }
+        return command;
+    }
+
+    public Command idle() {
+        return applyRequest(() -> new SwerveRequest.Idle());
+    }
+
 
     private void startSimThread() {
         m_lastSimTime = Utils.getCurrentTimeSeconds();

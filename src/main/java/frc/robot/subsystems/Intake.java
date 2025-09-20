@@ -15,7 +15,7 @@ public class Intake extends SubsystemBase {
 		 * Robot is offline, move to starting positons.
 		 */
 		STOPPED, 
-		HOLD,
+		DEFAULT,
 		COLLECT,
 		EJECT_FORWARD,
 		EJECT_BACKWARD
@@ -86,6 +86,11 @@ public class Intake extends SubsystemBase {
 	private Boolean stop;
 	private Boolean front;
 
+	private Boolean hasCoral = false;
+	public boolean hasCoral() {
+		return hasCoral;
+	}
+
 	public void periodic() {
 		left =  getMeasurement(Range.LEFT);
 		right = getMeasurement(Range.RIGHT);
@@ -93,6 +98,12 @@ public class Intake extends SubsystemBase {
 		front = getMeasurement(Range.FRONT);
 
 		handleStateTransitions(); applyStates();
+
+		if (front && stop) {
+			hasCoral = true;
+		} else {
+			hasCoral = false;
+		}
 	}
 
 	private void handleStateTransitions() {
@@ -111,7 +122,7 @@ public class Intake extends SubsystemBase {
 					currentState = SystemState.INTAKING_CORAL;
 				}
 				break;
-			case HOLD:
+			case DEFAULT:
 				if (front && stop) {
 					currentState = SystemState.HOLDING_CORAL;
 					break;
@@ -153,14 +164,14 @@ public class Intake extends SubsystemBase {
 				// Todo: Move to starting position.
 				break;
 			case INTAKING_CORAL:
-				setLeftIntake(Constants.IntakeSpeeds.eject);
-				setRightIntake(Constants.IntakeSpeeds.eject);
+				setLeftIntake(Constants.IntakeSpeeds.EJECT);
+				setRightIntake(Constants.IntakeSpeeds.EJECT);
 				setRollers(0.4);
 
 				break;
 			case INDEXING_CORAL:
-				setLeftIntake(Constants.IntakeSpeeds.eject);
-				setRightIntake(-Constants.IntakeSpeeds.eject);
+				setLeftIntake(Constants.IntakeSpeeds.EJECT);
+				setRightIntake(-Constants.IntakeSpeeds.EJECT);
 				setRollers(0.4);
 
 				break;
@@ -171,26 +182,26 @@ public class Intake extends SubsystemBase {
 
 				break;
 			case INDEX_FORWARD:
-				setLeftIntake(-Constants.IntakeSpeeds.index);
-				setRightIntake(-Constants.IntakeSpeeds.index);
+				setLeftIntake(-Constants.IntakeSpeeds.INDEX);
+				setRightIntake(-Constants.IntakeSpeeds.INDEX);
 				setRollers(0);
 
 				break;
 			case INDEX_BACKWARD:
-				setLeftIntake(Constants.IntakeSpeeds.index);
-				setRightIntake(Constants.IntakeSpeeds.index);
+				setLeftIntake(Constants.IntakeSpeeds.INDEX);
+				setRightIntake(Constants.IntakeSpeeds.INDEX);
 				setRollers(0);
 
 				break;
 			case EJECTING_BACKWARD:
-				setLeftIntake(Constants.IntakeSpeeds.eject);
-				setRightIntake(Constants.IntakeSpeeds.eject);
+				setLeftIntake(Constants.IntakeSpeeds.EJECT);
+				setRightIntake(Constants.IntakeSpeeds.EJECT);
 				setRollers(0);
 
 				break;
 			case EJECTING_FORWARD:
-				setLeftIntake(-Constants.IntakeSpeeds.eject);
-				setRightIntake(-Constants.IntakeSpeeds.eject);
+				setLeftIntake(-Constants.IntakeSpeeds.EJECT);
+				setRightIntake(-Constants.IntakeSpeeds.EJECT);
 				setRollers(0);
 				break;
 			default:

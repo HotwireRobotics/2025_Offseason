@@ -11,6 +11,7 @@ import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Hashtable;
 
+import com.ctre.phoenix6.controls.VoltageOut;
 import com.pathplanner.lib.commands.PathfindingCommand;
 
 import edu.wpi.first.math.geometry.Translation2d;
@@ -38,6 +39,10 @@ public class Robot extends TimedRobot {
     Field2d llestamation = new Field2d();
     Field2d nearest_tag = new Field2d();
     Field2d nearest_pole = new Field2d();
+    Field2d robot_pose = new Field2d();
+
+    double slider_value = 0;
+    
 
     private final RobotContainer m_robotContainer;
 
@@ -46,6 +51,7 @@ public class Robot extends TimedRobot {
         SmartDashboard.putData("Limelight Pose", llestamation);
         SmartDashboard.putData("Nearest Tag", nearest_tag);
         SmartDashboard.putData("Nearest Pole", nearest_pole);
+        SmartDashboard.putData("Robot Pose", robot_pose);
 
         // ! Memory Error; implement when ur system doesn't suck.
         // Logger.recordMetadata("Hotwire Project", "2026"); // Set a metadata value
@@ -75,8 +81,6 @@ public class Robot extends TimedRobot {
     public void robotPeriodic() {
         CommandScheduler.getInstance().run();
 
-        // m_robotContainer.arm.targetState = Arm.TargetState.PRACTICE; //! BE WARY, THIS SETS THE STATE CONSTANTLY
-
         // Angle value = m_robotContainer.arm.arm_encoder.getPosition().getValue();
         // SmartDashboard.putString("Arm Position", value.toString());
 
@@ -92,6 +96,9 @@ public class Robot extends TimedRobot {
         SmartDashboard.putString("Arm TargetState", (m_robotContainer.arm.targetState).toString());
         SmartDashboard.putString("Arm SystemState", (m_robotContainer.arm.currentState).toString());
 
+        SmartDashboard.putString("Drivetrain TargetState", (m_robotContainer.drivetrain.targetState).toString());
+        SmartDashboard.putString("Drivetrain SystemState", (m_robotContainer.drivetrain.currentState).toString());
+
         SmartDashboard.putString("Superstructure Current State", m_robotContainer.superstructure.currentSuperState.toString());
         SmartDashboard.putString("Superstructure Target State", m_robotContainer.superstructure.targetSuperState.toString());
         
@@ -99,6 +106,10 @@ public class Robot extends TimedRobot {
           Boolean measurement = m_robotContainer.intake.getMeasurement(range);
           SmartDashboard.putBoolean(range.toString() + " CANrange", measurement);
         }
+
+        SmartDashboard.putBoolean("Is Route Complete", m_robotContainer.superstructure.routeComplete);
+
+        robot_pose.setRobotPose(m_robotContainer.drivetrain.getState().Pose);
         
         if (utilizeLimelight) {
             var driveState = m_robotContainer.drivetrain.getState();
@@ -121,8 +132,9 @@ public class Robot extends TimedRobot {
       //     end.getDistance(m_robotContainer.drivetrain.getState().Pose.getTranslation()));
 
       nearest_tag.setRobotPose(Constants.nearestTagPose(m_robotContainer.drivetrain.getState().Pose).get());
-      nearest_pole
-          .setRobotPose(Constants.nearestBranchPose(m_robotContainer.drivetrain.getState().Pose, Tracks.right).get());
+      if (m_robotContainer.drivetrain.nearestPose != null) {
+        nearest_pole.setRobotPose(m_robotContainer.drivetrain.nearestPose);
+      }
     }
 
     // Command pfc = AutoBuilder.pathfindToPose(new Pose2d(0, 0, new Rotation2d(0,

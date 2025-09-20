@@ -86,44 +86,47 @@ public class Constants {
 	public static final Distance poleOffset = Inches.of(6.5);
 
 	public class WristPositions {
-		public static final Angle INTAKE = Rotations.of(0.002);
+		public static final Angle INTAKE = Rotations.of(-0.015);
 		public static final Angle START = Rotations.of(0.002);
-		public static final Angle LVL2 = Rotations.of(0.3);
-		public static final Angle LVL3 = Rotations.of(0.245);
+		public static final Angle LVL2 = Rotations.of(0.305);
+		public static final Angle LVL3 = Rotations.of(0.232);
 		public static final Angle STOW = Rotations.of(0.3);
 	}
 
 	public class Requests {
 		public static final MotionMagicVoltage MOTIONMAGIC = new MotionMagicVoltage(0).withSlot(0);
 		public static final VoltageOut ZERO = new VoltageOut(0);
+		public static final VoltageOut VOLT1BACKWARD = new VoltageOut(-1);
 	}
 
 	public class ArmPositions {
-		public static final Angle LVL2 = Rotations.of(0.03);
-		public static final Angle START = Rotations.of(0);
-		public static final Angle FLOOR = Rotations.of(-0.082);
+		public static final Angle LVL2 = Rotations.of(0.044);
+		public static final Angle LVL3 = Rotations.of(0.251);
+		public static final Angle START = Rotations.of(0); //! Change me
+		public static final Angle FLOOR = Rotations.of(-0.0695);
 	}
 
 	public class IntakeSpeeds {
-		public static double eject = 1.0;
-		public static double index = 0.25;
+		public static final double EJECT = 0.6;
+		public static final double INDEX = 0.25;
 	}
 
 	public class Ranges {
-		public static Distance horizontal_range = Meters.of(0.08);
-		public static Distance normal_range = Meters.of(0.05);
+		public static final Distance horizontal_range = Meters.of(0.08);
+		public static final Distance normal_range = Meters.of(0.05);
 	}
 
 	public class Dimensions {
-		public static Mass mass = Kilograms.of(35.153); // Kilograms
+		public static final Mass mass = Kilograms.of(35.153); // Kilograms
 
 		// Bumpers
-		public static Distance bumperWidth = Meters.of(0.864);
-		public static Distance bumperLength = Meters.of(0.864);
+		public static final Distance bumperWidth = Meters.of(0.864);
+		public static final Distance bumperLength = Meters.of(0.864);
 	}
 
 	public class MotorIDs {
 		public static final Integer arm_base_id = 17;
+		public static final Integer arm_follower_id = 10; 
 		public static final Integer arm_wrist_id = 12;
 
 		public static final Integer right_intake_id = 14;
@@ -239,6 +242,57 @@ public class Constants {
 		Transform2d offset = new Transform2d(
 				new Translation2d(Dimensions.bumperLength.magnitude() / 2, new Rotation2d()), Rotation2d.k180deg);
 		pose = pose.plus(offset);
+
+		return Optional.of(pose);
+	}
+
+	public static Optional<Pose2d> nearestBranchPose(Pose2d robotPose, Tracks types, Distance offset) {
+
+		Set<Integer> tags = (DriverStation.getAlliance().get() == DriverStation.Alliance.Red) ? redtags : bluetags;
+
+		List<Pose2d> poses = taglayout.getTags().stream().filter(tag -> (tags.contains(tag.ID)))
+				.map(tag -> (tag.pose.toPose2d())).toList();
+
+		List<Pose2d> lefts = new ArrayList<>();
+		List<Pose2d> rights = new ArrayList<>();
+
+		Distance zero = Meters.of(0);
+		Transform2d rightOffset = new Transform2d(new Translation2d(zero, poleOffset), new Rotation2d());
+		Transform2d leftOffset = new Transform2d(new Translation2d(zero, poleOffset.times(-1)), new Rotation2d());
+
+		for (Pose2d pose : poses) {
+			Pose2d left = pose.transformBy(leftOffset);
+			Pose2d right = pose.transformBy(rightOffset);
+
+			rights.add(right);
+			lefts.add(left);
+		}
+
+		if (poses.isEmpty()) {
+			return Optional.empty();
+		}
+
+		Pose2d pose = robotPose.nearest(lefts);
+		switch (types) {
+			case all:
+				rights.addAll(lefts);
+				pose = robotPose.nearest(rights);
+				break;
+			case right:
+				pose = robotPose.nearest(rights);
+				break;
+			case left:
+				pose = robotPose.nearest(lefts);
+				break;
+			default:
+				System.out.println("Did not select a valid tracking type.");
+				rights.addAll(lefts);
+				pose = robotPose.nearest(rights);
+		}
+
+		Transform2d offset1 = new Transform2d(
+				new Translation2d((Dimensions.bumperLength.magnitude() / 2) + offset.magnitude() + 0.15, new Rotation2d()), Rotation2d.k180deg);
+		pose = pose.plus(offset1);
 
 		return Optional.of(pose);
 	}
