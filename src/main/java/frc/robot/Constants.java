@@ -103,7 +103,7 @@ public class Constants {
 		public static final Angle LVL2 = Rotations.of(0.044);
 		public static final Angle LVL3 = Rotations.of(0.251);
 		public static final Angle START = Rotations.of(0); //! Change me
-		public static final Angle FLOOR = Rotations.of(-0.0695);
+		public static final Angle FLOOR = Rotations.of(-0.0762); //! old poseition -0.0695
 	}
 
 	public class IntakeSpeeds {
