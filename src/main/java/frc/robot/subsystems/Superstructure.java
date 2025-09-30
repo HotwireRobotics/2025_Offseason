@@ -25,7 +25,9 @@ public class Superstructure extends SubsystemBase {
 		/**
 		 * Transition to the subsequent state based on current conditions. (This is only a <strong>TARGET</strong> state.)
 		 */
-		DEFAULT, 
+		DEFAULT,
+		EXIT_STARTING_POSE,
+		AUTONOMOUS, 
 		// Move arm and intake into scoring position.
 		SCORE_DOWN_LEFT,
 		SCORE_UP_LEFT,
@@ -37,6 +39,7 @@ public class Superstructure extends SubsystemBase {
 		NAVIGATE_UP_LEFT,
 		NAVIGATE_DOWN_RIGHT,
 		NAVIGATE_UP_RIGHT,
+		NAVIGATE_EXIT_LVL2,
 		/**
 		 * Lower intake to floor level.
 		 */
@@ -48,7 +51,7 @@ public class Superstructure extends SubsystemBase {
 		EJECT
 	}
 
-	public TargetState targetSuperState = TargetState.STOPPED;
+	public TargetState targetState = TargetState.STOPPED;
 
 	public enum SystemState {
 		/**
@@ -59,6 +62,8 @@ public class Superstructure extends SubsystemBase {
 		 * Robot is in teleop; the driver is in control.
 		 */
 		HOME,
+		EXITING_STARTING_POSE,
+		AUTONOMOUS,
 		SCORING_DOWN_LEFT,
 		SCORING_UP_LEFT,
 		SCORING_DOWN_RIGHT,
@@ -68,6 +73,7 @@ public class Superstructure extends SubsystemBase {
 		NAVIGATING_UP_LEFT,
 		NAVIGATING_DOWN_RIGHT,
 		NAVIGATING_UP_RIGHT,
+		NAVIGATING_EXIT_LVL2,
 		/**
 		 * Robot is lowering intake to floor level and intaking coral gamepiece.
 		 */
@@ -79,17 +85,23 @@ public class Superstructure extends SubsystemBase {
 		EJECTING_FORWARD,
 		EJECTING_BACKWARD,
 		EXITING_LVL3,
-		EXITING_LVL2,
+		// EXITING_LVL2,
 		GO_TO_LVL2,
 	}
 
-	public SystemState currentSuperState = SystemState.STOPPED;
+	public SystemState systemState = SystemState.STOPPED;
 
 	public SystemState previousSuperState;
 
 	private DriveTrain drivetrain;
 	private Intake intake;
 	private Arm arm;
+
+	public enum AutonomousState {
+		RAISE_ARM_L2, LOWER_ARM,
+		NAVIGATING_TO_L2
+	}
+	public AutonomousState autonomousState = AutonomousState.LOWER_ARM;
 	
 	public Superstructure(RobotContainer container) {
 
@@ -99,7 +111,16 @@ public class Superstructure extends SubsystemBase {
 
 	}
 
-	public void periodic() {handleStateTransitions(); applyStates();}
+	public void periodic() {
+		if (drivetrain.getDoGoHome()) {
+			targetState = TargetState.DEFAULT;
+			drivetrain.GO_HOME = !drivetrain.GO_HOME;
+		}
+		if (arm.IS_ARM_AT_EXIT_STARTING_POSITION) {
+			targetState = TargetState.SCORE_DOWN_RIGHT;
+		}
+		handleStateTransitions(); applyStates();
+	}
 
 	public boolean LVL3Processes() {
 		if (intake.hasCoral()) {
@@ -108,7 +129,7 @@ public class Superstructure extends SubsystemBase {
 				arm.isWristAtPosition(Constants.WristPositions.LVL3, Rotations.of(0.025))
 			) {
 				System.out.println("Arm is in position");
-				currentSuperState = SystemState.EJECTING_FORWARD;
+				systemState = SystemState.EJECTING_FORWARD;
 				return false;
 			}
 		} else {
@@ -116,10 +137,10 @@ public class Superstructure extends SubsystemBase {
 				arm.isArmAtPosition(Constants.ArmPositions.FLOOR, Rotations.of(0.03)) &&
 				arm.isWristAtPosition(Constants.WristPositions.STOW, Rotations.of(0.01))
 			) {
-				targetSuperState = TargetState.DEFAULT;
+				targetState = TargetState.DEFAULT;
 				return false;
 			}
-			currentSuperState = SystemState.EXITING_LVL3;
+			systemState = SystemState.EXITING_LVL3;
 			return false;
 		}
 		return true;
@@ -132,18 +153,18 @@ public class Superstructure extends SubsystemBase {
 				arm.isWristAtPosition(Constants.WristPositions.LVL2, Rotations.of(0.025))
 			) {
 				System.out.println("Arm is in position");
-				currentSuperState = SystemState.EJECTING_BACKWARD;
+				systemState = SystemState.EJECTING_BACKWARD;
 				return false;
 			}
 		} else {
-			if ((drivetrain.nearestPose != null) && (drivetrain.getState().Pose != null)) {
-				routeComplete = drivetrain.nearestPose.getTranslation().getDistance(
-					drivetrain.getState().Pose.getTranslation()
-			) > 0.25;
-				targetSuperState = TargetState.DEFAULT;
-				return false;
-			}
-			currentSuperState = SystemState.EXITING_LVL2;
+			// if ((drivetrain.nearestPose != null) && (drivetrain.getState().Pose != null)) {
+			// 	routeComplete = drivetrain.nearestPose.getTranslation().getDistance(
+			// 		drivetrain.getState().Pose.getTranslation()
+			// ) > 0.25;
+			// 	targetSuperState = TargetState.DEFAULT;
+			// 	return false;
+			// }
+			targetState = TargetState.NAVIGATE_EXIT_LVL2;
 			return false;
 		}
 		return true;
@@ -152,33 +173,30 @@ public class Superstructure extends SubsystemBase {
 	public Boolean routeComplete = false;
 	private void handleStateTransitions() {
 
-		previousSuperState = currentSuperState;
-
-		// if ((drivetrain.nearestPose != null) && (drivetrain.getState().Pose != null)) {
-		// 	routeComplete = drivetrain.nearestPose.getTranslation().getDistance(
-		// 		drivetrain.getState().Pose.getTranslation()
-		// 	) < 0.025;
-		// }
+		previousSuperState = systemState;
 
 		if (drivetrain.navigateCommand != null) {routeComplete = drivetrain.navigateCommand.isFinished();} else {routeComplete = false;};
 		
-		switch (targetSuperState) {
+		switch (targetState) {
 			case STOPPED:
 				break;
 			case DEFAULT:
-				currentSuperState = SystemState.HOME;
+				systemState = SystemState.HOME;
+				break;
+			case EXIT_STARTING_POSE:
+				systemState = SystemState.EXITING_STARTING_POSE;
 				break;
 			case LOWER:
-				currentSuperState = SystemState.LOWERING;
+				systemState = SystemState.LOWERING;
 				break;
 			case INTAKE:
-				currentSuperState = SystemState.INTAKING;
+				systemState = SystemState.INTAKING;
 				break;
 			case EJECT:
-				currentSuperState = SystemState.EJECTING_FORWARD;
+				systemState = SystemState.EJECTING_FORWARD;
 				break;
 			case SCORE_DOWN_RIGHT:
-				currentSuperState = SystemState.SCORING_DOWN_RIGHT;
+				systemState = SystemState.SCORING_DOWN_RIGHT;
 				break;
 			case SCORE_DOWN_LEFT:
 				System.out.println("At Position: " + (arm.isArmAtPosition(Constants.ArmPositions.LVL2, Rotations.of(0.025)) && arm.isWristAtPosition(Constants.WristPositions.LVL2, Rotations.of(0.025))));
@@ -186,62 +204,77 @@ public class Superstructure extends SubsystemBase {
 					!(arm.isArmAtPosition(Constants.ArmPositions.LVL2, Rotations.of(0.025)) &&
 					arm.isWristAtPosition(Constants.WristPositions.LVL2, Rotations.of(0.025)))
 				) {
-					currentSuperState = SystemState.GO_TO_LVL2;
+					systemState = SystemState.GO_TO_LVL2;
 				} else if (!routeComplete) {
-					currentSuperState = SystemState.NAVIGATING_DOWN_LEFT;
-				} else if (LVL2Processes()) {currentSuperState = SystemState.SCORING_UP_LEFT;}
+					systemState = SystemState.NAVIGATING_DOWN_LEFT;
+				} else if (LVL2Processes()) {systemState = SystemState.SCORING_UP_LEFT;}
 				break;
 			case SCORE_UP_RIGHT:
-				currentSuperState = SystemState.SCORING_UP_RIGHT;
+				systemState = SystemState.SCORING_UP_RIGHT;
 				break;
 			case SCORE_UP_LEFT:
-				currentSuperState = SystemState.SCORING_UP_LEFT;
+				systemState = SystemState.SCORING_UP_LEFT;
 				break;
 			case NAVIGATE_DOWN_RIGHT:
 				if (
 					!(arm.isArmAtPosition(Constants.ArmPositions.LVL2, Rotations.of(0.025)) &&
 					arm.isWristAtPosition(Constants.WristPositions.LVL2, Rotations.of(0.025)))
 				) {
-					currentSuperState = SystemState.GO_TO_LVL2;
+					systemState = SystemState.GO_TO_LVL2;
 				} else if (!routeComplete) {
-					currentSuperState = SystemState.NAVIGATING_DOWN_RIGHT;
-				} else if (LVL2Processes()) {currentSuperState = SystemState.SCORING_UP_RIGHT;}
+					systemState = SystemState.NAVIGATING_DOWN_RIGHT;
+				} else if (LVL2Processes()) {systemState = SystemState.SCORING_UP_RIGHT;}
 				break;
 			case NAVIGATE_DOWN_LEFT:
 				if (
 					!(arm.isArmAtPosition(Constants.ArmPositions.LVL2, Rotations.of(0.025)) &&
 					arm.isWristAtPosition(Constants.WristPositions.LVL2, Rotations.of(0.025)))
 				) {
-					currentSuperState = SystemState.GO_TO_LVL2;
+					systemState = SystemState.GO_TO_LVL2;
 				} else if (!routeComplete) {
-					currentSuperState = SystemState.NAVIGATING_DOWN_LEFT;
-				} else if (LVL2Processes()) {currentSuperState = SystemState.SCORING_UP_LEFT;}
+					systemState = SystemState.NAVIGATING_DOWN_LEFT;
+				} else if (LVL2Processes()) {systemState = SystemState.SCORING_UP_LEFT;}
 				break;
 			case NAVIGATE_UP_RIGHT:
-				if (!routeComplete) {
-					currentSuperState = SystemState.NAVIGATING_UP_RIGHT;
-				} else if (LVL3Processes()) {currentSuperState = SystemState.SCORING_UP_RIGHT;}
+				if (!routeComplete && intake.hasCoral()) {
+					systemState = SystemState.NAVIGATING_UP_RIGHT;
+				} else if (LVL3Processes()) {systemState = SystemState.SCORING_UP_RIGHT;}
 				break;
 			case NAVIGATE_UP_LEFT:
-				if (!routeComplete) {
-					currentSuperState = SystemState.NAVIGATING_UP_LEFT;
-				} else if (LVL3Processes()) {currentSuperState = SystemState.SCORING_UP_LEFT;}
+				if (!routeComplete && intake.hasCoral()) {
+					systemState = SystemState.NAVIGATING_UP_LEFT;
+				} else if (LVL3Processes()) {systemState = SystemState.SCORING_UP_LEFT;}
+				break;
+			case NAVIGATE_EXIT_LVL2:
+				if ((drivetrain.nearestPose != null) && (drivetrain.getState().Pose != null)) {
+					SmartDashboard.putNumber("Distance from nearestPose", drivetrain.nearestPose.getTranslation().getDistance(
+						drivetrain.getState().Pose.getTranslation()
+					));
+					if (drivetrain.nearestPose.getTranslation().getDistance(
+						drivetrain.getState().Pose.getTranslation()
+					) < 0.05) {
+						systemState = SystemState.NAVIGATING_EXIT_LVL2;
+					} else {
+						targetState = TargetState.DEFAULT;
+					}
+				}
 				break;
 			default:
-				currentSuperState = SystemState.STOPPED;
+				systemState = SystemState.STOPPED;
 				break;
 		}
 	}
 
 	private void applyStates() {
 
-		switch (currentSuperState) {
+		switch (systemState) {
 			case STOPPED:
 				drivetrain.targetState = DriveTrain.TargetState.IDLE;
 				intake.targetState = Intake.TargetState.STOPPED;
 				arm.targetState = Arm.TargetState.STOP;
 				break;
-			case EXITING_LVL2:
+			case NAVIGATING_EXIT_LVL2:
+				// drivetrain.targetState = DriveTrain.TargetState.NAVIGATE_EXIT_LVL2;
 				drivetrain.targetState = DriveTrain.TargetState.TELEOP_DRIVE;
 				intake.targetState = Intake.TargetState.DEFAULT;
 				arm.targetState = Arm.TargetState.SCORE_LVL2;
@@ -251,6 +284,28 @@ public class Superstructure extends SubsystemBase {
 				intake.targetState = Intake.TargetState.DEFAULT;
 				arm.targetState = Arm.TargetState.DEFAULT;
 				break;
+			// case AUTONOMOUS:
+			// 	drivetrain.targetState = DriveTrain.TargetState.AUTONOMOUS;
+			// 	intake.targetState = Intake.TargetState.DEFAULT;
+			// 	arm.targetState = Arm.TargetState.DEFAULT;
+			// 	switch (autonomousState) {
+			// 		case RAISE_ARM_L2:
+			// 			intake.targetState = Intake.TargetState.DEFAULT;
+			// 			arm.targetState = Arm.TargetState.SCORE_LVL2;
+			// 			if (arm.isArmAtPosition(Constants.ArmPositions.LVL3, Rotations.of(0.025)) &&
+			// 				arm.isWristAtPosition(Constants.WristPositions.LVL3, Rotations.of(0.025))
+			// 			) {
+			// 				autonomousState = AutonomousState.NAVIGATING_TO_L2;
+			// 			}
+			// 			break;
+			// 		case NAVIGATING_TO_L2:
+			// 			intake.targetState = Intake.TargetState.DEFAULT;
+			// 			arm.targetState = Arm.TargetState.SCORE_LVL2;
+			// 			break;
+			// 		default:
+			// 			break;
+			// 	}
+			// 	break;
 			case LOWERING:
 				intake.targetState = Intake.TargetState.DEFAULT;
 				arm.targetState = Arm.TargetState.INTAKE;
@@ -298,6 +353,10 @@ public class Superstructure extends SubsystemBase {
 				break;
 			case GO_TO_LVL2:
 				arm.targetState = Arm.TargetState.SCORE_LVL2;
+				break;
+			case EXITING_STARTING_POSE:
+				intake.targetState = Intake.TargetState.DEFAULT;
+				arm.targetState = Arm.TargetState.EXIT_STARTING_POSE;
 				break;
 			default:
 				break;

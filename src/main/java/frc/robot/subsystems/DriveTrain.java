@@ -21,6 +21,8 @@ import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -31,6 +33,7 @@ import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -66,30 +69,37 @@ public class DriveTrain extends TunerSwerveDrivetrain implements Subsystem {
     private final SwerveRequest.ApplyRobotSpeeds m_pathApplyRobotSpeeds = new SwerveRequest.ApplyRobotSpeeds();
 
     public enum TargetState {
-		TELEOP_DRIVE, 
-        FOLLOW_PATH,
+		TELEOP_DRIVE,
+        AUTONOMOUS,
 
 		NAVIGATE_DOWN_LEFT,
 		NAVIGATE_UP_LEFT,
 		NAVIGATE_DOWN_RIGHT,
 		NAVIGATE_UP_RIGHT,
+        NAVIGATE_EXIT_LVL2,
 
         STOP, 
         IDLE
 	}
 
     public enum SystemState {
-		TELEOP_DRIVE, 
-        FOLLOW_PATH, 
+		TELEOP_DRIVE,
+        AUTONOMOUS,
 
 		NAVIGATING_DOWN_LEFT,
 		NAVIGATING_UP_LEFT,
 		NAVIGATING_DOWN_RIGHT,
 		NAVIGATING_UP_RIGHT,
+        NAVIGATING_EXIT_LVL2,
 
         STOPPED,
         IDLE
 	}
+
+    public boolean GO_HOME = false;
+    public boolean getDoGoHome() {
+        return GO_HOME;
+    }
 
     public Pose2d wantedPose;
 
@@ -353,6 +363,9 @@ public class DriveTrain extends TunerSwerveDrivetrain implements Subsystem {
             case STOP:
                 currentState = SystemState.STOPPED;
                 break;
+            case AUTONOMOUS:
+                currentState = SystemState.AUTONOMOUS;
+                break;
             case NAVIGATE_DOWN_RIGHT:
                 if (currentState != SystemState.NAVIGATING_DOWN_RIGHT) {
                     navigateCommand = navigate();
@@ -382,6 +395,13 @@ public class DriveTrain extends TunerSwerveDrivetrain implements Subsystem {
                 }
 				currentState = SystemState.NAVIGATING_UP_LEFT;
 				break;
+            case NAVIGATE_EXIT_LVL2:
+                if (currentState != SystemState.NAVIGATING_EXIT_LVL2) {
+                    navigateCommand = navigate();
+                    navigateCommand.schedule();
+                }
+                currentState = SystemState.NAVIGATING_EXIT_LVL2;
+                break;
             default:
                 currentState = SystemState.IDLE;
                 break;
@@ -396,12 +416,14 @@ public class DriveTrain extends TunerSwerveDrivetrain implements Subsystem {
             case STOPPED:
                 idle().schedule();
                 break;
-            case FOLLOW_PATH:
+            case AUTONOMOUS:
+                // Allow Pathplanner control.
                 break;
             case NAVIGATING_UP_LEFT:
 			case NAVIGATING_UP_RIGHT:
 			case NAVIGATING_DOWN_LEFT:
 			case NAVIGATING_DOWN_RIGHT:
+            case NAVIGATING_EXIT_LVL2:
             case IDLE:
                 break;
         }
@@ -428,6 +450,14 @@ public class DriveTrain extends TunerSwerveDrivetrain implements Subsystem {
                 nearestPose = Constants.nearestBranchPose(getState().Pose, Tracks.right).get();
                 nearestPose = nearestPose.rotateAround(nearestPose.getTranslation(), new Rotation2d(Radians.of(Math.PI)));
                 command = AutoBuilder.pathfindToPose(nearestPose, Constants.constraints);
+                break;
+            case NAVIGATE_EXIT_LVL2:
+                nearestPose = getState().Pose;
+                Transform2d backwards = new Transform2d(new Translation2d(Constants.EXIT_DISTANCE.magnitude(), new Rotation2d()), new Rotation2d());
+                nearestPose = nearestPose.plus(backwards);
+                command = AutoBuilder.pathfindToPose(nearestPose, Constants.constraints).andThen(new InstantCommand(() -> {
+                    GO_HOME = true;
+                }));
                 break;
             default:
                 return drive_command;

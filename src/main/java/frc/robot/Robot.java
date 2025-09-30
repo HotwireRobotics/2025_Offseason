@@ -7,18 +7,26 @@ package frc.robot;
 import static edu.wpi.first.units.Units.Celsius;
 import static edu.wpi.first.units.Units.Fahrenheit;
 
+import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.List;
 
+import com.ctre.phoenix6.Orchestra;
 import com.ctre.phoenix6.controls.VoltageOut;
+import com.ctre.phoenix6.swerve.SwerveDrivetrain.SwerveDriveState;
 import com.pathplanner.lib.commands.PathfindingCommand;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Temperature;
+import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -26,6 +34,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import frc.robot.Constants.Tracks;
+import frc.robot.LimelightHelpers.PoseEstimate;
 import edu.wpi.first.units.BaseUnits.*;
 import frc.robot.subsystems.*;
 
@@ -37,9 +46,8 @@ public class Robot extends TimedRobot {
     public boolean utilizeLimelight = true;
 
     Field2d llestamation = new Field2d();
-    Field2d nearest_tag = new Field2d();
-    Field2d nearest_pole = new Field2d();
-    Field2d robot_pose = new Field2d();
+    Field2d robotPose = new Field2d();
+    Field2d nearestPoseField = new Field2d();
 
     double slider_value = 0;
     
@@ -49,9 +57,8 @@ public class Robot extends TimedRobot {
     public Robot() {
         m_robotContainer = new RobotContainer();
         SmartDashboard.putData("Limelight Pose", llestamation);
-        SmartDashboard.putData("Nearest Tag", nearest_tag);
-        SmartDashboard.putData("Nearest Pole", nearest_pole);
-        SmartDashboard.putData("Robot Pose", robot_pose);
+        SmartDashboard.putData("Robot Pose", robotPose);
+        SmartDashboard.putData("Navigate Target Pose", nearestPoseField);
 
         // ! Memory Error; implement when ur system doesn't suck.
         // Logger.recordMetadata("Hotwire Project", "2026"); // Set a metadata value
@@ -72,9 +79,24 @@ public class Robot extends TimedRobot {
         // metadata values may be added.
     }
 
+    // Non-functional; Implement later
+    Orchestra m_orchestra = new Orchestra(
+        Filesystem.getDeployDirectory() + "/orchestra/output.chrp"
+    );
+
     @Override
     public void robotInit() {
       PathfindingCommand.warmupCommand().schedule();
+
+      // var status = m_orchestra.loadMusic("track.chrp");
+
+      // m_orchestra.addInstrument(m_robotContainer.arm.baseMotor());
+      // m_orchestra.addInstrument(m_robotContainer.arm.wristMotor());
+      // m_orchestra.addInstrument(m_robotContainer.drivetrain.getModule(0).getDriveMotor());
+      // m_orchestra.addInstrument(m_robotContainer.drivetrain.getModule(1).getDriveMotor());
+      // m_orchestra.addInstrument(m_robotContainer.drivetrain.getModule(2).getDriveMotor());
+      // m_orchestra.addInstrument(m_robotContainer.drivetrain.getModule(3).getDriveMotor());
+      // m_orchestra.play(); // TODO Make orchestra function.
     }
 
     @Override
@@ -99,8 +121,8 @@ public class Robot extends TimedRobot {
         SmartDashboard.putString("Drivetrain TargetState", (m_robotContainer.drivetrain.targetState).toString());
         SmartDashboard.putString("Drivetrain SystemState", (m_robotContainer.drivetrain.currentState).toString());
 
-        SmartDashboard.putString("Superstructure Current State", m_robotContainer.superstructure.currentSuperState.toString());
-        SmartDashboard.putString("Superstructure Target State", m_robotContainer.superstructure.targetSuperState.toString());
+        SmartDashboard.putString("Superstructure Current State", m_robotContainer.superstructure.systemState.toString());
+        SmartDashboard.putString("Superstructure Target State", m_robotContainer.superstructure.targetState.toString());
         
         for (Intake.Range range : Intake.Range.values()) {
           Boolean measurement = m_robotContainer.intake.getMeasurement(range);
@@ -109,21 +131,48 @@ public class Robot extends TimedRobot {
 
         SmartDashboard.putBoolean("Is Route Complete", m_robotContainer.superstructure.routeComplete);
 
-        robot_pose.setRobotPose(m_robotContainer.drivetrain.getState().Pose);
+        robotPose.setRobotPose(m_robotContainer.drivetrain.getState().Pose);
         
         if (utilizeLimelight) {
-            var driveState = m_robotContainer.drivetrain.getState();
-            var headingDeg = driveState.Pose.getRotation().getDegrees();
-            var omegaRPS = Units.radiansToRotations(driveState.Speeds.omegaRadiansPerSecond);
-            LimelightHelpers.setPipelineIndex("limelight", 0);
-            LimelightHelpers.SetRobotOrientation("limelight", headingDeg, 0, 0, 0, 0, 0);
-            var limelightMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue("limelight");
+            List<PoseEstimate> measurements = new ArrayList<PoseEstimate>();
 
-            if ((limelightMeasurement != null) && (limelightMeasurement.tagCount > 0) && (Math.abs(omegaRPS) < 2)) {
-                m_robotContainer.drivetrain.addVisionMeasurement(limelightMeasurement.pose,
-                    limelightMeasurement.timestampSeconds);
-                llestamation.setRobotPose(limelightMeasurement.pose);
+            SwerveDriveState driveState;
+            double headingDeg;
+            double omegaRPS;
+            PoseEstimate limelightMeasurement;
+
+
+            /*
+            //  * `limelight-one` is back.
+             * `limelight-two` is front.
+             */
+            String[] limelightNames = {"limelight-two"};
+
+            for (String limelight : limelightNames) {
+
+              driveState = m_robotContainer.drivetrain.getState();
+              headingDeg = driveState.Pose.getRotation().getDegrees();
+              omegaRPS = Units.radiansToRotations(driveState.Speeds.omegaRadiansPerSecond);
+              LimelightHelpers.setPipelineIndex(limelight, 0);
+              LimelightHelpers.SetRobotOrientation(limelight, headingDeg, 0, 0, 0, 0, 0);
+              limelightMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelight);
+
+              if ((limelightMeasurement != null) && (limelightMeasurement.tagCount > 0) && (Math.abs(omegaRPS) < 2)) {
+                  m_robotContainer.drivetrain.addVisionMeasurement(limelightMeasurement.pose,
+                      limelightMeasurement.timestampSeconds);
+                  // measurements.add(limelightMeasurement);
+                  llestamation.setRobotPose(limelightMeasurement.pose);
+                  break;
+              }
             }
+            // Pose2d poseSum = new Pose2d();
+            // for (PoseEstimate measurement : measurements) {
+            //   poseSum = poseSum.plus(new Transform2d(measurement.pose.getTranslation(), new Rotation2d()));
+            // }
+            // poseSum = poseSum.div(measurements.size());
+
+            // llestamation.setRobotPose(poseSum);
+
       }
 
       Translation2d end = new Translation2d(0, 0);
@@ -131,9 +180,9 @@ public class Robot extends TimedRobot {
       // SmartDashboard.putNumber("Distance to Score",
       //     end.getDistance(m_robotContainer.drivetrain.getState().Pose.getTranslation()));
 
-      nearest_tag.setRobotPose(Constants.nearestTagPose(m_robotContainer.drivetrain.getState().Pose).get());
+      // nearestPoseField.setRobotPose(Constants.nearestTagPose(m_robotContainer.drivetrain.getState().Pose).get());
       if (m_robotContainer.drivetrain.nearestPose != null) {
-        nearest_pole.setRobotPose(m_robotContainer.drivetrain.nearestPose);
+        nearestPoseField.setRobotPose(m_robotContainer.drivetrain.nearestPose);
       }
     }
 
@@ -178,11 +227,12 @@ public class Robot extends TimedRobot {
 
     @Override
     public void autonomousInit() {
-      m_autonomousCommand = m_robotContainer.getAutonomousCommand();
+      m_robotContainer.superstructure.targetState = Superstructure.TargetState.EXIT_STARTING_POSE;
+      // m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
-      if (m_autonomousCommand != null) {
-        m_autonomousCommand.schedule();
-      }
+      // if (m_autonomousCommand != null) {
+      //   m_autonomousCommand.schedule();
+      // }
     }
 
     @Override
@@ -195,7 +245,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void teleopInit() {
-      m_robotContainer.superstructure.targetSuperState = Superstructure.TargetState.DEFAULT;
+      m_robotContainer.superstructure.targetState = Superstructure.TargetState.DEFAULT;
       if (m_autonomousCommand != null) {
         m_autonomousCommand.cancel();
       }
@@ -207,7 +257,7 @@ public class Robot extends TimedRobot {
         m_robotContainer.drivetrain.currentState.toString()
       );
       SmartDashboard.putString("Superstructure State", 
-        m_robotContainer.superstructure.currentSuperState.toString()
+        m_robotContainer.superstructure.systemState.toString()
       );
     }
 

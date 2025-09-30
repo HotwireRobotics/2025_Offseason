@@ -161,7 +161,6 @@ public class Intake extends SubsystemBase {
 
 		switch (currentState) {
 			case STOPPED:
-				// Todo: Move to starting position.
 				break;
 			case INTAKING_CORAL:
 				setLeftIntake(Constants.IntakeSpeeds.EJECT);

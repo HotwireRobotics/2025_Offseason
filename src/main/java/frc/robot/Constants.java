@@ -69,6 +69,8 @@ public class Constants {
 		
 	}
 
+	public static final Distance EXIT_DISTANCE = Meters.of(0.3);
+
 	public static final CommandXboxController driver   = new CommandXboxController(0);
 	public static final CommandXboxController operator = new CommandXboxController(1);
 
@@ -86,24 +88,25 @@ public class Constants {
 	public static final Distance poleOffset = Inches.of(6.5);
 
 	public class WristPositions {
-		public static final Angle INTAKE = Rotations.of(-0.015);
-		public static final Angle START = Rotations.of(0.002);
-		public static final Angle LVL2 = Rotations.of(0.305);
+		public static final Angle INTAKE = Rotations.of(-0.016);
+		public static final Angle LVL2 = Rotations.of(0.295);
 		public static final Angle LVL3 = Rotations.of(0.232);
 		public static final Angle STOW = Rotations.of(0.3);
+		public static final Angle STARTING = Rotations.of(-0.394);
 	}
 
 	public class Requests {
 		public static final MotionMagicVoltage MOTIONMAGIC = new MotionMagicVoltage(0).withSlot(0);
 		public static final VoltageOut ZERO = new VoltageOut(0);
-		public static final VoltageOut VOLT1BACKWARD = new VoltageOut(-1);
+		public static final VoltageOut VOLTAGE_BACKWARD = new VoltageOut(-1.45);
 	}
 
 	public class ArmPositions {
-		public static final Angle LVL2 = Rotations.of(0.044);
+		public static final Angle LVL2 = Rotations.of(0.048);
 		public static final Angle LVL3 = Rotations.of(0.251);
 		public static final Angle START = Rotations.of(0); //! Change me
-		public static final Angle FLOOR = Rotations.of(-0.0762); //! old poseition -0.0695
+		public static final Angle FLOOR = Rotations.of(-0.0762); // Old Position: -0.0695
+		public static final Angle EXIT_STARTING = Rotations.of(0.14); // Start is 0.114
 	}
 
 	public class IntakeSpeeds {
@@ -117,7 +120,7 @@ public class Constants {
 	}
 
 	public class Dimensions {
-		public static final Mass mass = Kilograms.of(35.153); // Kilograms
+		public static final Mass MASS = Kilograms.of(35.153); // Kilograms
 
 		// Bumpers
 		public static final Distance bumperWidth = Meters.of(0.864);

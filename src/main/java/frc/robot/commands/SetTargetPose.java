@@ -23,14 +23,14 @@ public class SetTargetPose extends Command {
 	}
 
 	public void initialize() {
-		superstructure.targetSuperState = superState;
+		superstructure.targetState = superState;
 
 		drivetrain.wantedPose = pose;
 
 		new CommandWrapper(AutoBuilder.pathfindToPose(
 			drivetrain.wantedPose, Constants.constraints
 		), () -> {
-			superstructure.targetSuperState = Superstructure.TargetState.DEFAULT;
+			superstructure.targetState = Superstructure.TargetState.DEFAULT;
 		}, () -> {}).schedule();
 	}
 

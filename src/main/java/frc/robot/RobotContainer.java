@@ -8,6 +8,7 @@ import com.ctre.phoenix6.Orchestra;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.path.PathPlannerPath;
 
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -62,12 +63,11 @@ public class RobotContainer {
     private final SendableChooser<Command> autoChooser;
 
     // TODO
-    // Non-functional; Implement later
-    // Orchestra music = new Orchestra(
-    //     Filesystem.getDeployDirectory() + "/orchestra/output.chrp"
-    // );
 
     public RobotContainer() {
+        NamedCommands.registerCommand("RaiseArm", new InstantCommand(() -> {
+            superstructure.autonomousState = Superstructure.AutonomousState.RAISE_ARM_L2;
+        }));
         configureBindings();
         autoChooser = AutoBuilder.buildAutoChooser();
         SmartDashboard.putData("Selected Auto", autoChooser);
@@ -169,16 +169,18 @@ public class RobotContainer {
         // );
         //! ==== Temporary ====
 
+        
+
         // Lower the intake.
         Constants.operator.x().whileTrue(
             new InstantCommand(() -> {
                 System.out.println("Lower");
-                superstructure.targetSuperState = Superstructure.TargetState.LOWER;
+                superstructure.targetState = Superstructure.TargetState.LOWER;
             })
         ).onFalse(
             new InstantCommand(() -> {
                 System.out.println("Default");
-                superstructure.targetSuperState = Superstructure.TargetState.DEFAULT;
+                superstructure.targetState = Superstructure.TargetState.DEFAULT;
             })
         );
 
@@ -186,12 +188,12 @@ public class RobotContainer {
         Constants.operator.y().whileTrue(
             new InstantCommand(() -> {
                 System.out.println("Intake");
-                superstructure.targetSuperState = Superstructure.TargetState.INTAKE;
+                superstructure.targetState = Superstructure.TargetState.INTAKE;
             })
         ).onFalse(
             new InstantCommand(() -> {
                 System.out.println("Default");
-                superstructure.targetSuperState = Superstructure.TargetState.DEFAULT;
+                superstructure.targetState = Superstructure.TargetState.DEFAULT;
             })
         );
 
@@ -199,28 +201,28 @@ public class RobotContainer {
         Constants.operator.rightBumper().onTrue(
             new InstantCommand(() -> {
                 System.out.println("Up-Right");
-                superstructure.targetSuperState = Superstructure.TargetState.NAVIGATE_UP_RIGHT;
+                superstructure.targetState = Superstructure.TargetState.NAVIGATE_UP_RIGHT;
             })
         );
 
         Constants.operator.leftBumper().onTrue(
             new InstantCommand(() -> {
                 System.out.println("Up-Left");
-                superstructure.targetSuperState = Superstructure.TargetState.NAVIGATE_UP_LEFT;
+                superstructure.targetState = Superstructure.TargetState.NAVIGATE_UP_LEFT;
             })
         );
 
-        Constants.operator.rightBumper().onTrue(
+        Constants.operator.rightTrigger().onTrue(
             new InstantCommand(() -> {
                 System.out.println("Down-Right");
-                superstructure.targetSuperState = Superstructure.TargetState.NAVIGATE_DOWN_RIGHT;
+                superstructure.targetState = Superstructure.TargetState.NAVIGATE_DOWN_RIGHT;
             })
         );
 
-        Constants.operator.leftBumper().onTrue(
+        Constants.operator.leftTrigger().onTrue(
             new InstantCommand(() -> {
                 System.out.println("Down-Left");
-                superstructure.targetSuperState = Superstructure.TargetState.NAVIGATE_DOWN_LEFT;
+                superstructure.targetState = Superstructure.TargetState.NAVIGATE_DOWN_LEFT;
             })
         );
 
@@ -228,13 +230,13 @@ public class RobotContainer {
         Constants.operator.back().onTrue(
             new InstantCommand(() -> {
                 System.out.println("Yo, dis bad");
-                superstructure.targetSuperState = Superstructure.TargetState.DEFAULT;
+                superstructure.targetState = Superstructure.TargetState.DEFAULT;
             })
         );
         Constants.driver.back().onTrue(
             new InstantCommand(() -> {
                 System.out.println("Yo, dis bad");
-                superstructure.targetSuperState = Superstructure.TargetState.DEFAULT;
+                superstructure.targetState = Superstructure.TargetState.DEFAULT;
             })
         );
 

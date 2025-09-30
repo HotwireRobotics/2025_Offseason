@@ -62,6 +62,7 @@ public class Arm extends SubsystemBase {
 		 */
 		STOP, 
 		IDLE,
+		EXIT_STARTING_POSE,
 		PRACTICE,
 
 		INTAKE,
@@ -82,20 +83,18 @@ public class Arm extends SubsystemBase {
 		// HOMING_SHOULDER,
 		// HOMING_WRIST,
 		IDLING,
+		EXITING_STARTING_POSE,
 		PRACTICING,
 
 		INTAKING,
 		HOMING,
 		HOME,
 
-		STARTING,
-
 		SCORING_LVL2,
 		SCORING_LVL3,
 	}
 
-	public Angle targetArmPosition   = Constants.ArmPositions.START;
-	public Angle targetWristPosition = Constants.WristPositions.START;
+	public boolean IS_ARM_AT_EXIT_STARTING_POSITION;
 
 	public SystemState currentState = SystemState.STOPPED;
 	public SystemState getSystemState() {
@@ -120,6 +119,11 @@ public class Arm extends SubsystemBase {
 	}
 	
 	public void periodic() {
+		IS_ARM_AT_EXIT_STARTING_POSITION = (
+			isArmAtPosition(Constants.ArmPositions.EXIT_STARTING, Rotations.of(0.015)) &&
+			(getBaseMotor().gt(Rotations.of(0.05))) && (targetState == TargetState.EXIT_STARTING_POSE)
+		);
+
 		handleStateTransitions(); applyStates();
 		
 	}
@@ -140,14 +144,14 @@ public class Arm extends SubsystemBase {
 				currentState = (!isArmAtPosition(Constants.ArmPositions.FLOOR, Rotations.of(0.03))) 
 					? SystemState.HOMING : SystemState.HOME;
 				break;
-			case START:
-				currentState = SystemState.STARTING;
-				break;
 			case SCORE_LVL2:
 				currentState = SystemState.SCORING_LVL2;
 				break;
 			case SCORE_LVL3:
 				currentState = SystemState.SCORING_LVL3;
+				break;
+			case EXIT_STARTING_POSE:
+				currentState = SystemState.EXITING_STARTING_POSE;
 				break;
 			default:
 				currentState = SystemState.STOPPED;
@@ -166,7 +170,7 @@ public class Arm extends SubsystemBase {
 				break;
 			case HOMING:
 				// setArmMotorPosition(Constants.ArmPositions.FLOOR.magnitude());
-				setArmMotor1Volt();
+				setArmMotorToConstantVoltageBackward();
 				setWristMotorPosition(Constants.WristPositions.STOW.magnitude());
 				break;
 			case HOME:
@@ -177,10 +181,6 @@ public class Arm extends SubsystemBase {
 				pauseArmMotor();
 				setWristMotorPosition(Constants.WristPositions.STOW.magnitude());
 				break;
-			case STARTING:
-				setArmMotorPosition(Constants.ArmPositions.START.magnitude());
-				setWristMotorPosition(Constants.WristPositions.START.magnitude());
-				break;
 			case SCORING_LVL2:
 				setArmMotorPosition(Constants.ArmPositions.LVL2.magnitude());
 				setWristMotorPosition(Constants.WristPositions.LVL2.magnitude());
@@ -188,6 +188,10 @@ public class Arm extends SubsystemBase {
 			case SCORING_LVL3:
 				setArmMotorPosition(Constants.ArmPositions.LVL3.magnitude());
 				setWristMotorPosition(Constants.WristPositions.LVL3.magnitude());
+				break;
+			case EXITING_STARTING_POSE:
+				setArmMotorPosition(Constants.ArmPositions.EXIT_STARTING.magnitude());
+				setWristMotorPosition(Constants.WristPositions.STOW.magnitude());
 				break;
 			default:
 				break;
@@ -197,21 +201,21 @@ public class Arm extends SubsystemBase {
 	/**
      * Get the base motor.
      */
-	public TalonFX getBaseMotor() {
+	public TalonFX baseMotor() {
 		return m_arm_base;
 	}
 
 	/**
      * Get the follower motor.
      */
-	public TalonFX getFollowerMotor() {
+	public TalonFX followerMotor() {
 		return m_arm_follower;
 	}
 
 	/**
      * Get the wrist motor.
      */
-	public TalonFX getWristMotor() {
+	public TalonFX wristMotor() {
 		return m_arm_wrist;
 	}
 
@@ -267,8 +271,8 @@ public class Arm extends SubsystemBase {
      *
      * @param position Factor from -1 to 1
      */
-	public void setArmMotor1Volt() {
-		m_arm_base.setControl(Constants.Requests.VOLT1BACKWARD);
+	public void setArmMotorToConstantVoltageBackward() {
+		m_arm_base.setControl(Constants.Requests.VOLTAGE_BACKWARD);
 	}
 
 	/**
@@ -296,5 +300,26 @@ public class Arm extends SubsystemBase {
 	public void pauseArmMotor() {
 		final VoltageOut request = Constants.Requests.ZERO;
 		m_arm_base.setControl(request);
+	}
+
+	/**
+     * Get the base motor.
+     */
+	public Angle getBaseMotor() {
+		return m_arm_base.getPosition().getValue();
+	}
+
+	/**
+     * Get the follower motor.
+     */
+	public Angle getFollowerMotor() {
+		return m_arm_follower.getPosition().getValue();
+	}
+
+	/**
+     * Get the wrist motor.
+     */
+	public Angle getWristMotor() {
+		return m_arm_wrist.getPosition().getValue();
 	}
 }

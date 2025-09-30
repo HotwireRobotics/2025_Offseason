@@ -29,9 +29,9 @@ public class CommandGenerator {
 			Superstructure.SystemState state = tracksToState.get(types);
 
 			command = new CommandWrapper(command, () -> {
-				container.superstructure.targetSuperState = Superstructure.TargetState.DEFAULT;
+				container.superstructure.targetState = Superstructure.TargetState.DEFAULT;
 			}, () -> {
-				container.superstructure.currentSuperState = state;
+				container.superstructure.systemState = state;
 			});
 
 			return command;
