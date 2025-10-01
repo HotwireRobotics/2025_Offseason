@@ -65,12 +65,19 @@ public class RobotContainer {
     // TODO
 
     public RobotContainer() {
-        NamedCommands.registerCommand("RaiseArm", new InstantCommand(() -> {
-            superstructure.autonomousState = Superstructure.AutonomousState.RAISE_ARM_L2;
+        NamedCommands.registerCommand("ExitStart", new InstantCommand(() -> {
+            superstructure.targetState = Superstructure.TargetState.EXIT_STARTING_POSE;
+        }));
+        NamedCommands.registerCommand("EjectCoral", new InstantCommand(() -> {
+            superstructure.targetState = Superstructure.TargetState.EJECT;
+        }));
+        NamedCommands.registerCommand("ToDefault", new InstantCommand(() -> {
+            superstructure.targetState = Superstructure.TargetState.DEFAULT;
         }));
         configureBindings();
         autoChooser = AutoBuilder.buildAutoChooser();
         SmartDashboard.putData("Selected Auto", autoChooser);
+        // autoChooser.
     }
 
     // Cycle between positions

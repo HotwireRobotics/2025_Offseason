@@ -193,7 +193,11 @@ public class Superstructure extends SubsystemBase {
 				systemState = SystemState.INTAKING;
 				break;
 			case EJECT:
-				systemState = SystemState.EJECTING_FORWARD;
+				if (arm.getWristMotor().gt(Constants.WristPositions.LVL3.plus(Rotations.of(0.0315))))
+					systemState = SystemState.EJECTING_BACKWARD;
+				else {
+					systemState = SystemState.EJECTING_FORWARD;
+				}
 				break;
 			case SCORE_DOWN_RIGHT:
 				systemState = SystemState.SCORING_DOWN_RIGHT;
@@ -250,13 +254,14 @@ public class Superstructure extends SubsystemBase {
 					SmartDashboard.putNumber("Distance from nearestPose", drivetrain.nearestPose.getTranslation().getDistance(
 						drivetrain.getState().Pose.getTranslation()
 					));
-					if (drivetrain.nearestPose.getTranslation().getDistance(
-						drivetrain.getState().Pose.getTranslation()
-					) < 0.05) {
-						systemState = SystemState.NAVIGATING_EXIT_LVL2;
-					} else {
-						targetState = TargetState.DEFAULT;
-					}
+					// if (drivetrain.nearestPose.getTranslation().getDistance(
+					// 	drivetrain.getState().Pose.getTranslation()
+					// ) < 0.05) {
+					systemState = SystemState.NAVIGATING_EXIT_LVL2;
+					// } 
+					// else {
+					// 	targetState = TargetState.DEFAULT;
+					// }
 				}
 				break;
 			default:

@@ -81,7 +81,7 @@ public class Robot extends TimedRobot {
 
     // Non-functional; Implement later
     Orchestra m_orchestra = new Orchestra(
-        Filesystem.getDeployDirectory() + "/orchestra/output.chrp"
+        Filesystem.getDeployDirectory() + "/orchestra/mac.chrp"
     );
 
     @Override
@@ -146,7 +146,7 @@ public class Robot extends TimedRobot {
             //  * `limelight-one` is back.
              * `limelight-two` is front.
              */
-            String[] limelightNames = {"limelight-two"};
+            String[] limelightNames = {"limelight-two", "limelight-one"};
 
             for (String limelight : limelightNames) {
 
@@ -155,15 +155,25 @@ public class Robot extends TimedRobot {
               omegaRPS = Units.radiansToRotations(driveState.Speeds.omegaRadiansPerSecond);
               LimelightHelpers.setPipelineIndex(limelight, 0);
               LimelightHelpers.SetRobotOrientation(limelight, headingDeg, 0, 0, 0, 0, 0);
-              limelightMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelight);
+              limelightMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue(limelight);
 
               if ((limelightMeasurement != null) && (limelightMeasurement.tagCount > 0) && (Math.abs(omegaRPS) < 2)) {
-                  m_robotContainer.drivetrain.addVisionMeasurement(limelightMeasurement.pose,
-                      limelightMeasurement.timestampSeconds);
-                  // measurements.add(limelightMeasurement);
-                  llestamation.setRobotPose(limelightMeasurement.pose);
+                  measurements.add(limelightMeasurement);
                   break;
               }
+            }
+            if (measurements.size() > 0) {
+              int bestTagCount = 0;  
+              PoseEstimate bestMeasurement = measurements.get(0);
+              for (PoseEstimate measurement : measurements) {
+                if (measurement.tagCount > bestTagCount) {
+                  bestTagCount = measurement.tagCount;
+                  bestMeasurement = measurement;
+                }
+              }
+              m_robotContainer.drivetrain.addVisionMeasurement(bestMeasurement.pose,
+                bestMeasurement.timestampSeconds);
+              llestamation.setRobotPose(bestMeasurement.pose);
             }
             // Pose2d poseSum = new Pose2d();
             // for (PoseEstimate measurement : measurements) {
@@ -227,12 +237,12 @@ public class Robot extends TimedRobot {
 
     @Override
     public void autonomousInit() {
-      m_robotContainer.superstructure.targetState = Superstructure.TargetState.EXIT_STARTING_POSE;
-      // m_autonomousCommand = m_robotContainer.getAutonomousCommand();
+      m_robotContainer.superstructure.targetState = Superstructure.TargetState.AUTONOMOUS;
+      m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
-      // if (m_autonomousCommand != null) {
-      //   m_autonomousCommand.schedule();
-      // }
+      if (m_autonomousCommand != null) {
+        m_autonomousCommand.schedule();
+      }
     }
 
     @Override
