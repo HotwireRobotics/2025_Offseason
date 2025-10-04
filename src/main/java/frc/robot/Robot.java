@@ -26,6 +26,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Temperature;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
@@ -128,6 +129,10 @@ public class Robot extends TimedRobot {
           Boolean measurement = m_robotContainer.intake.getMeasurement(range);
           SmartDashboard.putBoolean(range.toString() + " CANrange", measurement);
         }
+
+        SmartDashboard.putNumber("PyRobot X", robotPose.getRobotPose().getX());
+        SmartDashboard.putNumber("PyRobot Y", robotPose.getRobotPose().getY());
+        SmartDashboard.putBoolean("PyRobot Enabled", DriverStation.isEnabled());
 
         SmartDashboard.putBoolean("Is Route Complete", m_robotContainer.superstructure.routeComplete);
 

@@ -102,7 +102,7 @@ public class Constants {
 	}
 
 	public class ArmPositions {
-		public static final Angle LVL2 = Rotations.of(0.048);
+		public static final Angle LVL2 = Rotations.of(0.048); // Old Position is 0.048
 		public static final Angle LVL3 = Rotations.of(0.251);
 		public static final Angle START = Rotations.of(0); //! Change me
 		public static final Angle FLOOR = Rotations.of(-0.0762); // Old Position: -0.0695
@@ -136,6 +136,8 @@ public class Constants {
 		public static final Integer left_intake_id = 13;
 
 		public static final Integer rollers_id = 11;
+
+		// public static final Integer winch_id = "nuh uh";
 	}
 
 	public class CANrangeIDs {
