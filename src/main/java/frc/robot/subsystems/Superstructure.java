@@ -177,6 +177,8 @@ public class Superstructure extends SubsystemBase {
 
 		if (drivetrain.navigateCommand != null) {routeComplete = drivetrain.navigateCommand.isFinished();} else {routeComplete = false;};
 		
+		routeComplete = true; //! No navigate
+
 		switch (targetState) {
 			case STOPPED:
 				break;

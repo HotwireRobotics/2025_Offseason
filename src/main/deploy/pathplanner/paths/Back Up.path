@@ -4,12 +4,12 @@
     {
       "anchor": {
         "x": 5.02125,
-        "y": 2.8257499999999993
+        "y": 2.816
       },
       "prevControl": null,
       "nextControl": {
         "x": 5.52406054931041,
-        "y": 2.110053143548556
+        "y": 2.1003031435485564
       },
       "isLocked": false,
       "linkedName": "GGAtBranch"
@@ -48,7 +48,7 @@
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -55.5
+    "rotation": -55.0
   },
   "useDefaultConstraints": true
 }

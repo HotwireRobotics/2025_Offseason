@@ -88,11 +88,15 @@ public class Constants {
 	public static final Distance poleOffset = Inches.of(6.5);
 
 	public class WristPositions {
-		public static final Angle INTAKE = Rotations.of(-0.016);
+		public static final Angle INTAKE = Rotations.of(-0.01);
 		public static final Angle LVL2 = Rotations.of(0.295);
 		public static final Angle LVL3 = Rotations.of(0.232);
 		public static final Angle STOW = Rotations.of(0.3);
 		public static final Angle STARTING = Rotations.of(-0.394);
+
+		// Wrist is 0.067
+		// .21
+		// .301
 	}
 
 	public class Requests {
@@ -107,6 +111,11 @@ public class Constants {
 		public static final Angle START = Rotations.of(0); //! Change me
 		public static final Angle FLOOR = Rotations.of(-0.0762); // Old Position: -0.0695
 		public static final Angle EXIT_STARTING = Rotations.of(0.14); // Start is 0.114
+
+
+		// Arm is .01
+		// .253 Algae Suck
+		// .267
 	}
 
 	public class IntakeSpeeds {
@@ -137,7 +146,7 @@ public class Constants {
 
 		public static final Integer rollers_id = 11;
 
-		// public static final Integer winch_id = "nuh uh";
+		public static final Integer winch_id = 8;
 	}
 
 	public class CANrangeIDs {

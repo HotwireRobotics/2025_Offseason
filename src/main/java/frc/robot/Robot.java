@@ -133,7 +133,7 @@ public class Robot extends TimedRobot {
         SmartDashboard.putNumber("PyRobot X", robotPose.getRobotPose().getX());
         SmartDashboard.putNumber("PyRobot Y", robotPose.getRobotPose().getY());
         SmartDashboard.putBoolean("PyRobot Enabled", DriverStation.isEnabled());
-
+// 
         SmartDashboard.putBoolean("Is Route Complete", m_robotContainer.superstructure.routeComplete);
 
         robotPose.setRobotPose(m_robotContainer.drivetrain.getState().Pose);

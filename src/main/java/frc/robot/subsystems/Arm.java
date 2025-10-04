@@ -290,6 +290,7 @@ public class Arm extends SubsystemBase {
 		
 		m_arm_wrist.setControl(Constants.Requests.MOTIONMAGIC.withPosition(position)
 			.withFeedForward(feedforward));
+		// m_arm_wrist.setControl(Constants.Requests.MOTIONMAGIC);
 	}
 
 	public void pauseWristMotor() {

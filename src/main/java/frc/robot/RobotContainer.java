@@ -77,7 +77,7 @@ public class RobotContainer {
         configureBindings();
         autoChooser = AutoBuilder.buildAutoChooser();
         SmartDashboard.putData("Selected Auto", autoChooser);
-        // autoChooser.
+        // autoChooser.setDefaultOption("Diagonal GGAuto");
     }
 
     // Cycle between positions
@@ -203,6 +203,32 @@ public class RobotContainer {
                 superstructure.targetState = Superstructure.TargetState.DEFAULT;
             })
         );
+
+        // // Run arm up.
+        // Constants.driver.povUp().whileTrue(
+        //     new InstantCommand(() -> {
+        //         System.out.println("Arm");
+        //         superstructure.targetState = Superstructure.TargetState.EXIT_STARTING_POSE;
+        //     })
+        // ).onFalse(
+        //     new InstantCommand(() -> {
+        //         System.out.println("Default");
+        //         superstructure.targetState = Superstructure.TargetState.DEFAULT;
+        //     })
+        // );
+
+        // // Eject.
+        // Constants.driver.povRight().whileTrue(
+        //     new InstantCommand(() -> {
+        //         System.out.println("Arm");
+        //         superstructure.targetState = Superstructure.TargetState.EJECT;
+        //     })
+        // ).onFalse(
+        //     new InstantCommand(() -> {
+        //         System.out.println("Default");
+        //         superstructure.targetState = Superstructure.TargetState.DEFAULT;
+        //     })
+        // );
 
         // Scoring Positions
         Constants.operator.rightBumper().onTrue(

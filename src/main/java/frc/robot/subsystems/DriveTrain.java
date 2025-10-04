@@ -374,7 +374,6 @@ public class DriveTrain extends TunerSwerveDrivetrain implements Subsystem {
 				currentState = SystemState.NAVIGATING_DOWN_RIGHT;
 				break;
 			case NAVIGATE_DOWN_LEFT:
-                // TODO add movement to lvl2 scoring position for arm and intake.
                 if (currentState != SystemState.NAVIGATING_DOWN_LEFT) {
                     navigateCommand = navigate();
                     navigateCommand.schedule();
