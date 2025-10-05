@@ -245,6 +245,13 @@ public class RobotContainer {
             })
         );
 
+        Constants.operator.povDown().onTrue(
+            new InstantCommand(() -> {
+                System.out.println("Up-Left");
+                superstructure.targetState = Superstructure.TargetState.NAVIGATE_ALGAE;
+            })
+        );
+
         Constants.operator.rightTrigger().onTrue(
             new InstantCommand(() -> {
                 System.out.println("Down-Right");

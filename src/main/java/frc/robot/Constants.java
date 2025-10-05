@@ -82,6 +82,10 @@ public class Constants {
 	public static final Set<Integer> bluetags = IntStream.rangeClosed(17, 22).boxed()
 			.collect(Collectors.toUnmodifiableSet());
 
+	public static final ArrayList<Integer> RED_TAG_IDS  = new ArrayList<>(Arrays.asList(6, 7, 8, 9, 10, 11));
+	public static final ArrayList<Integer> BLUE_TAG_IDS = new ArrayList<>(Arrays.asList(17, 18, 19, 20, 21, 22));
+	
+
 	public static final PathConstraints constraints = new PathConstraints(3.0, 4.0, Units.degreesToRadians(540),
 			Units.degreesToRadians(720));
 
@@ -94,9 +98,10 @@ public class Constants {
 		public static final Angle STOW = Rotations.of(0.3);
 		public static final Angle STARTING = Rotations.of(-0.394);
 
-		// Wrist is 0.067
+		public static final Angle REMOVE_ALGAE_L2 = Rotations.of(0.067);
 		// .21
 		// .301
+		public static final Angle REMOVE_ALGAE_L3 = Rotations.of(0.21);
 	}
 
 	public class Requests {
@@ -113,14 +118,16 @@ public class Constants {
 		public static final Angle EXIT_STARTING = Rotations.of(0.14); // Start is 0.114
 
 
-		// Arm is .01
+		public static final Angle REMOVE_ALGAE_L2 = Rotations.of(0.01);
 		// .253 Algae Suck
 		// .267
+		public static final Angle REMOVE_ALGAE_L3 = Rotations.of(0.267);
 	}
 
 	public class IntakeSpeeds {
 		public static final double EJECT = 0.6;
 		public static final double INDEX = 0.25;
+		public static final double ALGAE = 0.3;
 	}
 
 	public class Ranges {
@@ -168,12 +175,14 @@ public class Constants {
 
 		List<Pose2d> poses = taglayout.getTags().stream().filter(tag -> (tags.contains(tag.ID)))
 				.map(tag -> (tag.pose.toPose2d())).toList();
+		
 
 		if (poses.isEmpty()) {
 			return Optional.empty();
 		}
 
 		Pose2d pose = robotPose.nearest(poses);
+
 		Transform2d offset = new Transform2d(
 				new Translation2d(Dimensions.bumperLength.magnitude() / 2, new Rotation2d()), Rotation2d.k180deg);
 		pose = pose.plus(offset);
@@ -258,6 +267,30 @@ public class Constants {
 		pose = pose.plus(offset);
 
 		return Optional.of(pose);
+	}
+
+	public static Integer nearestAlgaeId(Pose2d robotPose) {
+		Set<Integer> tags = (DriverStation.getAlliance().get() == DriverStation.Alliance.Red) ? redtags : bluetags;
+
+		List<Pose2d> poses = taglayout.getTags().stream().filter(tag -> (tags.contains(tag.ID)))
+				.map(tag -> (tag.pose.toPose2d())).toList();
+
+		if (poses.isEmpty()) {
+			return -1;
+		}
+
+		Pose2d pose = robotPose.nearest(poses);
+
+		Integer index = poses.indexOf(pose);
+
+		Integer id;
+		if (DriverStation.getAlliance().get() == DriverStation.Alliance.Red) {
+			id = RED_TAG_IDS.get(index);
+		} else {
+			id = BLUE_TAG_IDS.get(index);
+		}
+
+		return id;
 	}
 
 	public static Optional<Pose2d> nearestBranchPose(Pose2d robotPose, Tracks types, Distance offset) {

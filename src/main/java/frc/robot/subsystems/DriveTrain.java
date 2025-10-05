@@ -38,6 +38,7 @@ import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
+import frc.robot.Constants.Dimensions;
 import frc.robot.Constants.Tracks;
 import frc.robot.commands.CommandGenerator;
 import frc.robot.commands.CommandWrapper;
@@ -77,6 +78,7 @@ public class DriveTrain extends TunerSwerveDrivetrain implements Subsystem {
 		NAVIGATE_DOWN_RIGHT,
 		NAVIGATE_UP_RIGHT,
         NAVIGATE_EXIT_LVL2,
+        NAVIGATE_ALGAE,
 
         STOP, 
         IDLE
@@ -91,6 +93,7 @@ public class DriveTrain extends TunerSwerveDrivetrain implements Subsystem {
 		NAVIGATING_DOWN_RIGHT,
 		NAVIGATING_UP_RIGHT,
         NAVIGATING_EXIT_LVL2,
+        NAVIGATING_ALGAE,
 
         STOPPED,
         IDLE
@@ -99,6 +102,11 @@ public class DriveTrain extends TunerSwerveDrivetrain implements Subsystem {
     public boolean GO_HOME = false;
     public boolean getDoGoHome() {
         return GO_HOME;
+    }
+
+    public boolean ALGAE_POSE = false;
+    public boolean getAlgaePose() {
+        return ALGAE_POSE;
     }
 
     public Pose2d wantedPose;
@@ -401,6 +409,13 @@ public class DriveTrain extends TunerSwerveDrivetrain implements Subsystem {
                 }
                 currentState = SystemState.NAVIGATING_EXIT_LVL2;
                 break;
+            case NAVIGATE_ALGAE:
+                if (currentState != SystemState.NAVIGATING_ALGAE) {
+                    navigateCommand = navigate();
+                    navigateCommand.schedule();
+                }
+                currentState = SystemState.NAVIGATING_ALGAE;
+                break;
             default:
                 currentState = SystemState.IDLE;
                 break;
@@ -423,11 +438,13 @@ public class DriveTrain extends TunerSwerveDrivetrain implements Subsystem {
 			case NAVIGATING_DOWN_LEFT:
 			case NAVIGATING_DOWN_RIGHT:
             case NAVIGATING_EXIT_LVL2:
+            case NAVIGATING_ALGAE:
             case IDLE:
                 break;
         }
     }
 
+    public Integer nearestId = -1;
     public Pose2d nearestPose;
     public Command navigate() {
         Command command;
@@ -443,6 +460,33 @@ public class DriveTrain extends TunerSwerveDrivetrain implements Subsystem {
                 break;
             case NAVIGATE_UP_RIGHT: 
                 nearestPose = Constants.nearestBranchPose(getState().Pose, Tracks.right).get();
+                command = AutoBuilder.pathfindToPose(nearestPose, Constants.constraints);
+                break;
+            case NAVIGATE_ALGAE:
+                nearestId = Constants.nearestAlgaeId(getState().Pose);
+                nearestPose = Constants.taglayout.getTags().get(nearestId - 1).pose.toPose2d();
+                Rotation2d rot = Rotation2d.k180deg;
+                if (Constants.RED_TAG_IDS.contains(nearestId)) {
+                    if ((nearestId % 2) == 0) {
+                        rot = Rotation2d.kZero;
+                        ALGAE_POSE = false;
+                    } else {
+                        rot = Rotation2d.k180deg;
+                        ALGAE_POSE = true;
+                    }
+                }
+                if (Constants.BLUE_TAG_IDS.contains(nearestId)) {
+                    if ((nearestId % 2) == 1) {
+                        rot = Rotation2d.kZero;
+                        ALGAE_POSE = false;
+                    } else {
+                        rot = Rotation2d.k180deg;
+                        ALGAE_POSE = true;
+                    }
+                }
+                Transform2d offset = new Transform2d(
+				    new Translation2d(Dimensions.bumperLength.magnitude() / 2, new Rotation2d()), rot);
+		        nearestPose = nearestPose.plus(offset);
                 command = AutoBuilder.pathfindToPose(nearestPose, Constants.constraints);
                 break;
             case NAVIGATE_DOWN_RIGHT:

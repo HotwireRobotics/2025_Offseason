@@ -18,7 +18,10 @@ public class Intake extends SubsystemBase {
 		DEFAULT,
 		COLLECT,
 		EJECT_FORWARD,
-		EJECT_BACKWARD
+		EJECT_BACKWARD,
+
+		TAKE_ALGAE_L3,
+		TAKE_ALGAE_L2
 	}
 
 	public TargetState targetState = TargetState.STOPPED;
@@ -38,6 +41,9 @@ public class Intake extends SubsystemBase {
 
 		NO_CORAL,
 		HOLDING_CORAL,
+
+		TAKING_ALGAE_L3,
+		TAKING_ALGAE_L2
 	}
 
 	public SystemState currentState = SystemState.STOPPED;
@@ -151,6 +157,12 @@ public class Intake extends SubsystemBase {
 					currentState = SystemState.NO_CORAL;
 				}
 				break;
+			case TAKE_ALGAE_L2:
+				currentState = SystemState.TAKING_ALGAE_L2;
+				break;
+			case TAKE_ALGAE_L3:
+				currentState = SystemState.TAKING_ALGAE_L3;
+				break;
 			default:
 				currentState = SystemState.STOPPED;
 				break;
@@ -202,6 +214,19 @@ public class Intake extends SubsystemBase {
 				setLeftIntake(-Constants.IntakeSpeeds.EJECT);
 				setRightIntake(-Constants.IntakeSpeeds.EJECT);
 				setRollers(0);
+
+				break;
+			case TAKING_ALGAE_L2:
+				setLeftIntake(0);
+				setRightIntake(0);
+				setRollers(-0.45);
+
+				break;
+			case TAKING_ALGAE_L3:
+				setLeftIntake(Constants.IntakeSpeeds.ALGAE);
+				setRightIntake(Constants.IntakeSpeeds.ALGAE);
+				setRollers(0.3);
+
 				break;
 			default:
 				break;

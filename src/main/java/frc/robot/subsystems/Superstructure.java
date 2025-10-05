@@ -33,6 +33,8 @@ public class Superstructure extends SubsystemBase {
 		SCORE_UP_LEFT,
 		SCORE_DOWN_RIGHT,
 		SCORE_UP_RIGHT,
+		// Remove algae.
+		REMOVE_ALGAE,
 
 		// Navigate to nearest branch.
 		NAVIGATE_DOWN_LEFT,
@@ -40,6 +42,8 @@ public class Superstructure extends SubsystemBase {
 		NAVIGATE_DOWN_RIGHT,
 		NAVIGATE_UP_RIGHT,
 		NAVIGATE_EXIT_LVL2,
+		// Algae
+		NAVIGATE_ALGAE,
 		/**
 		 * Lower intake to floor level.
 		 */
@@ -68,12 +72,17 @@ public class Superstructure extends SubsystemBase {
 		SCORING_UP_LEFT,
 		SCORING_DOWN_RIGHT,
 		SCORING_UP_RIGHT,
+		// Remove algae.
+		REMOVING_ALGAE_L2,
+		REMOVING_ALGAE_L3,
 
 		NAVIGATING_DOWN_LEFT,
 		NAVIGATING_UP_LEFT,
 		NAVIGATING_DOWN_RIGHT,
 		NAVIGATING_UP_RIGHT,
 		NAVIGATING_EXIT_LVL2,
+		// Algae
+		NAVIGATING_ALGAE,
 		/**
 		 * Robot is lowering intake to floor level and intaking coral gamepiece.
 		 */
@@ -176,8 +185,6 @@ public class Superstructure extends SubsystemBase {
 		previousSuperState = systemState;
 
 		if (drivetrain.navigateCommand != null) {routeComplete = drivetrain.navigateCommand.isFinished();} else {routeComplete = false;};
-		
-		routeComplete = true; //! No navigate
 
 		switch (targetState) {
 			case STOPPED:
@@ -266,6 +273,30 @@ public class Superstructure extends SubsystemBase {
 					// }
 				}
 				break;
+			case NAVIGATE_ALGAE:
+				if (!routeComplete) {
+					// systemState = drivetrain.getAlgaePose() ? SystemState.NAVIGATING_ALGAE_L2 : SystemState.NAVIGATING_ALGAE_L3;
+					systemState = SystemState.NAVIGATING_ALGAE;
+				} else {
+					targetState = TargetState.REMOVE_ALGAE;
+				}
+				break;
+			case REMOVE_ALGAE:
+				if (drivetrain.getAlgaePose()) {
+					systemState = SystemState.REMOVING_ALGAE_L3;
+					if (
+						arm.isArmAtPosition(Constants.ArmPositions.REMOVE_ALGAE_L3, Rotations.of(0.015)) &&
+						arm.isWristAtPosition(Constants.WristPositions.REMOVE_ALGAE_L3, Rotations.of(0.015))
+					) {
+						intake.targetState = Intake.TargetState.TAKE_ALGAE_L3;
+						arm.targetState = Arm.TargetState.TAKE_ALGAE_L3;
+					}
+				} else {
+					systemState = SystemState.REMOVING_ALGAE_L2;
+					intake.targetState = Intake.TargetState.TAKE_ALGAE_L2;
+					arm.targetState = Arm.TargetState.TAKE_ALGAE_L2;
+				}
+				break;
 			default:
 				systemState = SystemState.STOPPED;
 				break;
@@ -335,6 +366,12 @@ public class Superstructure extends SubsystemBase {
 				arm.targetState = Arm.TargetState.SCORE_LVL3;
 				drivetrain.targetState = DriveTrain.TargetState.STOP;
 				break;
+			case REMOVING_ALGAE_L2:
+				arm.currentState = Arm.SystemState.TAKING_ALGAE_L2;
+				break;
+			case REMOVING_ALGAE_L3:
+				arm.currentState = Arm.SystemState.TAKING_ALGAE_L2;
+				break;
 			case SCORING_DOWN_LEFT:
 				arm.targetState = Arm.TargetState.SCORE_LVL2;
 				break;
@@ -352,6 +389,10 @@ public class Superstructure extends SubsystemBase {
 				break;
 			case NAVIGATING_DOWN_RIGHT:
 				drivetrain.targetState = DriveTrain.TargetState.NAVIGATE_DOWN_RIGHT;
+				break;
+			case NAVIGATING_ALGAE:
+				arm.targetState = drivetrain.getAlgaePose() ? Arm.TargetState.TAKE_ALGAE_L3 : Arm.TargetState.TAKE_ALGAE_L2;
+				drivetrain.targetState = DriveTrain.TargetState.NAVIGATE_ALGAE;
 				break;
 			case EXITING_LVL3:
 				drivetrain.targetState = DriveTrain.TargetState.TELEOP_DRIVE;
