@@ -14,7 +14,7 @@ import frc.robot.Constants;
  */
 public class ExampleArm extends SubsystemBase {
 
-	// -------- Hardware --------
+	//* -------- Hardware --------
 
 	/**
 	 * Arm base motor.
@@ -25,7 +25,7 @@ public class ExampleArm extends SubsystemBase {
 	 */
 	TalonFX m_wrist;
 
-	// ----- Initialization -----
+	//* ----- Initialization -----
 
 	/**
 	 * Constructor for the subsystem.
@@ -45,7 +45,7 @@ public class ExampleArm extends SubsystemBase {
 		
 	}
 
-	// ----- State Management -----
+	//* ----- State Management -----
 	
 	/**
 	 * Subsystem state options.
@@ -78,7 +78,7 @@ public class ExampleArm extends SubsystemBase {
 		state = newState;
 	}
 
-	// ----- Private Methods -----
+	//* ----- Private Methods -----
 
 	/**
 	 * Sets the target position of <code>m_base</code>.
@@ -120,7 +120,7 @@ public class ExampleArm extends SubsystemBase {
 		return Math.abs(m_wrist.getPosition().getValueAsDouble() - target.in(Rotations)) <= tolerance.in(Rotations);
 	}
 
-	// ------- Commands -------
+	//* ------- Commands -------
 
 	/**
 	 * Brings the arm from its' current position to a target position.
@@ -211,4 +211,12 @@ public class ExampleArm extends SubsystemBase {
 			super(Constants.ArmPositions.LVL3, Constants.WristPositions.LVL3, State.L3);
 		}
 	}
+
+	/**
+	 * Example of chaining commands and actively changing th subsystem state.
+	 */
+	public Command L2AndThenL3 = 
+				 new ArmToL2()
+		.andThen(new ArmToL3())
+		.andThen(new ArmToFloor());
 }
