@@ -36,6 +36,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import frc.robot.Constants.Tracks;
 import frc.robot.LimelightHelpers.PoseEstimate;
+import frc.robot.commands.ArmToPose;
 import edu.wpi.first.units.BaseUnits.*;
 import frc.robot.subsystems.*;
 
@@ -147,6 +148,19 @@ public class Robot extends TimedRobot {
             double headingDeg;
             double omegaRPS;
             PoseEstimate limelightMeasurement;
+
+
+            // How we should structure our sequences next season.
+            // m_robotContainer.drivetrain.navigateCommand
+            //   .alongWith(new ArmToPose(
+            //     Constants.ArmPositions.TAKE_ALGAE_L3, 
+            //     Constants.WristPositions.TAKE_ALGAE_L3, 
+            //     m_robotContainer.arm)
+            //   .andThen(new ArmToPose(
+            //     Constants.ArmPositions.TAKE_ALGAE_L3, 
+            //     Constants.WristPositions.REMOVE_ALGAE_L3,
+            //     m_robotContainer.arm)
+            //   ));
 
 
             /*

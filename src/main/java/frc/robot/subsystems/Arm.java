@@ -73,6 +73,7 @@ public class Arm extends SubsystemBase {
 		SCORE_LVL3,
 
 		TAKE_ALGAE_L3,
+		REMOVE_ALGAE_L3,
 		TAKE_ALGAE_L2
 	}
 
@@ -97,6 +98,7 @@ public class Arm extends SubsystemBase {
 		SCORING_LVL3,
 
 		TAKING_ALGAE_L3,
+		REMOVING_ALGAE_L3,
 		TAKING_ALGAE_L2
 	}
 
@@ -162,6 +164,9 @@ public class Arm extends SubsystemBase {
 			case TAKE_ALGAE_L3:
 				currentState = SystemState.TAKING_ALGAE_L3;
 				break;
+			case REMOVE_ALGAE_L3:
+				currentState = SystemState.REMOVING_ALGAE_L3;
+				break;
 			case TAKE_ALGAE_L2:
 				currentState = SystemState.TAKING_ALGAE_L2;
 				break;
@@ -206,12 +211,16 @@ public class Arm extends SubsystemBase {
 				setWristMotorPosition(Constants.WristPositions.STOW.magnitude());
 				break;
 			case TAKING_ALGAE_L3:
-				setArmMotorPosition(Constants.ArmPositions.REMOVE_ALGAE_L3.magnitude());
-				setWristMotorPosition(Constants.WristPositions.REMOVE_ALGAE_L3.magnitude());
+				setArmMotorPosition(Constants.ArmPositions.TAKE_ALGAE_L3.magnitude());
+				setWristMotorPosition(Constants.WristPositions.TAKE_ALGAE_L3.magnitude());
 				break;
 			case TAKING_ALGAE_L2:
-				setArmMotorPosition(Constants.ArmPositions.REMOVE_ALGAE_L2.magnitude());
-				setWristMotorPosition(Constants.WristPositions.REMOVE_ALGAE_L2.magnitude());
+				setArmMotorPosition(Constants.ArmPositions.TAKE_ALGAE_L2.magnitude());
+				setWristMotorPosition(Constants.WristPositions.TAKE_L2.magnitude());
+				break;
+			case REMOVING_ALGAE_L3:
+				setArmMotorPosition(Constants.ArmPositions.TAKE_ALGAE_L3.magnitude());
+				setWristMotorPosition(Constants.WristPositions.REMOVE_ALGAE_L3.magnitude());
 				break;
 			default:
 				break;

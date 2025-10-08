@@ -94,14 +94,15 @@ public class Constants {
 	public class WristPositions {
 		public static final Angle INTAKE = Rotations.of(-0.01);
 		public static final Angle LVL2 = Rotations.of(0.295);
-		public static final Angle LVL3 = Rotations.of(0.232);
+		public static final Angle LVL3 = Rotations.of(0.252); // Old Position 0.232
 		public static final Angle STOW = Rotations.of(0.3);
 		public static final Angle STARTING = Rotations.of(-0.394);
 
-		public static final Angle REMOVE_ALGAE_L2 = Rotations.of(0.067);
+		public static final Angle TAKE_L2 = Rotations.of(0.067);
 		// .21
 		// .301
-		public static final Angle REMOVE_ALGAE_L3 = Rotations.of(0.21);
+		public static final Angle TAKE_ALGAE_L3   = Rotations.of(0.21);
+		public static final Angle REMOVE_ALGAE_L3 = Rotations.of(0.218); //TODO Check Pose
 	}
 
 	public class Requests {
@@ -112,16 +113,16 @@ public class Constants {
 
 	public class ArmPositions {
 		public static final Angle LVL2 = Rotations.of(0.048); // Old Position is 0.048
-		public static final Angle LVL3 = Rotations.of(0.251);
+		public static final Angle LVL3 = Rotations.of(0.271); // Old Position is 0.251
 		public static final Angle START = Rotations.of(0); //! Change me
 		public static final Angle FLOOR = Rotations.of(-0.0762); // Old Position: -0.0695
 		public static final Angle EXIT_STARTING = Rotations.of(0.14); // Start is 0.114
 
 
-		public static final Angle REMOVE_ALGAE_L2 = Rotations.of(0.01);
+		public static final Angle TAKE_ALGAE_L2 = Rotations.of(0.01);
 		// .253 Algae Suck
 		// .267
-		public static final Angle REMOVE_ALGAE_L3 = Rotations.of(0.267);
+		public static final Angle TAKE_ALGAE_L3 = Rotations.of(0.271);
 	}
 
 	public class IntakeSpeeds {

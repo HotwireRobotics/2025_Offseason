@@ -40,6 +40,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
 import frc.robot.Constants.Dimensions;
 import frc.robot.Constants.Tracks;
+import frc.robot.commands.ArmToPose;
 import frc.robot.commands.CommandGenerator;
 import frc.robot.commands.CommandWrapper;
 import frc.robot.generated.TunerConstants.TunerSwerveDrivetrain;
@@ -412,7 +413,11 @@ public class DriveTrain extends TunerSwerveDrivetrain implements Subsystem {
             case NAVIGATE_ALGAE:
                 if (currentState != SystemState.NAVIGATING_ALGAE) {
                     navigateCommand = navigate();
-                    navigateCommand.schedule();
+                    if (ALGAE_POSE) {
+                        navigateCommand.schedule();
+                    } else {
+                        GO_HOME = true;
+                    }
                 }
                 currentState = SystemState.NAVIGATING_ALGAE;
                 break;
@@ -464,6 +469,7 @@ public class DriveTrain extends TunerSwerveDrivetrain implements Subsystem {
                 break;
             case NAVIGATE_ALGAE:
                 nearestId = Constants.nearestAlgaeId(getState().Pose);
+                // nearestId = 17; //TODO Remove
                 nearestPose = Constants.taglayout.getTags().get(nearestId - 1).pose.toPose2d();
                 Rotation2d rot = Rotation2d.k180deg;
                 if (Constants.RED_TAG_IDS.contains(nearestId)) {

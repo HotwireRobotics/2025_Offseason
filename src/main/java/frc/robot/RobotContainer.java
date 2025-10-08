@@ -176,7 +176,7 @@ public class RobotContainer {
         // );
         //! ==== Temporary ====
 
-        
+        //#####################################INTAKE#########################################
 
         // Lower the intake.
         Constants.operator.x().whileTrue(
@@ -204,31 +204,35 @@ public class RobotContainer {
             })
         );
 
-        // // Run arm up.
-        // Constants.driver.povUp().whileTrue(
-        //     new InstantCommand(() -> {
-        //         System.out.println("Arm");
-        //         superstructure.targetState = Superstructure.TargetState.EXIT_STARTING_POSE;
-        //     })
-        // ).onFalse(
-        //     new InstantCommand(() -> {
-        //         System.out.println("Default");
-        //         superstructure.targetState = Superstructure.TargetState.DEFAULT;
-        //     })
-        // );
+        //####################################ABORT BUTTONS###################################
 
-        // // Eject.
-        // Constants.driver.povRight().whileTrue(
-        //     new InstantCommand(() -> {
-        //         System.out.println("Arm");
-        //         superstructure.targetState = Superstructure.TargetState.EJECT;
-        //     })
-        // ).onFalse(
-        //     new InstantCommand(() -> {
-        //         System.out.println("Default");
-        //         superstructure.targetState = Superstructure.TargetState.DEFAULT;
-        //     })
-        // );
+        // Run arm up.
+        Constants.driver.povUp().whileTrue(
+            new InstantCommand(() -> {
+                System.out.println("Arm");
+                superstructure.targetState = Superstructure.TargetState.EXIT_STARTING_POSE;
+            })
+        ).onFalse(
+            new InstantCommand(() -> {
+                System.out.println("Default");
+                superstructure.targetState = Superstructure.TargetState.DEFAULT;
+            })
+        );
+
+        // Eject.
+        Constants.driver.povRight().whileTrue(
+            new InstantCommand(() -> {
+                System.out.println("Arm");
+                superstructure.targetState = Superstructure.TargetState.EJECT;
+            })
+        ).onFalse(
+            new InstantCommand(() -> {
+                System.out.println("Default");
+                superstructure.targetState = Superstructure.TargetState.DEFAULT;
+            })
+        );
+
+        //####################################################################################
 
         // Scoring Positions
         Constants.operator.rightBumper().onTrue(
@@ -245,12 +249,17 @@ public class RobotContainer {
             })
         );
 
+        //####################################################################################
+        
+        // Remove Algae
         Constants.operator.povDown().onTrue(
             new InstantCommand(() -> {
                 System.out.println("Up-Left");
                 superstructure.targetState = Superstructure.TargetState.NAVIGATE_ALGAE;
             })
         );
+
+        //####################################################################################
 
         Constants.operator.rightTrigger().onTrue(
             new InstantCommand(() -> {
@@ -265,6 +274,8 @@ public class RobotContainer {
                 superstructure.targetState = Superstructure.TargetState.NAVIGATE_DOWN_LEFT;
             })
         );
+
+        //####################################################################################
 
         //! Emergency Bootonne
         Constants.operator.back().onTrue(
