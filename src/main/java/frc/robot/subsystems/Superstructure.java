@@ -404,7 +404,9 @@ public class Superstructure extends SubsystemBase {
 				drivetrain.targetState = DriveTrain.TargetState.NAVIGATE_DOWN_RIGHT;
 				break;
 			case NAVIGATING_ALGAE:
-				arm.targetState = drivetrain.getAlgaePose() ? Arm.TargetState.TAKE_ALGAE_L3 : Arm.TargetState.TAKE_ALGAE_L2;
+				arm.targetState = drivetrain.getAlgaePose() ? 
+					Arm.TargetState.TAKE_ALGAE_L3 : Arm.TargetState.TAKE_ALGAE_L2;
+				
 				drivetrain.targetState = DriveTrain.TargetState.NAVIGATE_ALGAE;
 				break;
 			case EXITING_LVL3:

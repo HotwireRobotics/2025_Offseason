@@ -151,6 +151,7 @@ public class Robot extends TimedRobot {
 
 
             // How we should structure our sequences next season.
+            //? Button A
             // m_robotContainer.drivetrain.navigateCommand
             //   .alongWith(new ArmToPose(
             //     Constants.ArmPositions.TAKE_ALGAE_L3, 
@@ -178,24 +179,27 @@ public class Robot extends TimedRobot {
               LimelightHelpers.SetRobotOrientation(limelight, headingDeg, 0, 0, 0, 0, 0);
               limelightMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue(limelight);
 
-              if ((limelightMeasurement != null) && (limelightMeasurement.tagCount > 0) && (Math.abs(omegaRPS) < 2)) {
+              if ((limelightMeasurement != null) && (limelightMeasurement.tagCount > 0) && (Math.abs(omegaRPS) < 2) && (limelightMeasurement.avgTagDist < 2.75)) {
                   measurements.add(limelightMeasurement);
-                  break;
+                  m_robotContainer.drivetrain.addVisionMeasurement(limelightMeasurement.pose,
+                    limelightMeasurement.timestampSeconds);
+                  llestamation.setRobotPose(limelightMeasurement.pose);
               }
             }
-            if (measurements.size() > 0) {
-              int bestTagCount = 0;  
-              PoseEstimate bestMeasurement = measurements.get(0);
-              for (PoseEstimate measurement : measurements) {
-                if (measurement.tagCount > bestTagCount) {
-                  bestTagCount = measurement.tagCount;
-                  bestMeasurement = measurement;
-                }
-              }
-              m_robotContainer.drivetrain.addVisionMeasurement(bestMeasurement.pose,
-                bestMeasurement.timestampSeconds);
-              llestamation.setRobotPose(bestMeasurement.pose);
-            }
+
+            // if (measurements.size() > 0) {
+            //   int bestTagCount = 0;  
+            //   PoseEstimate bestMeasurement = measurements.get(0);
+            //   for (PoseEstimate measurement : measurements) {
+            //     if (measurement.tagCount > bestTagCount) {
+            //       bestTagCount = measurement.tagCount;
+            //       bestMeasurement = measurement;
+            //     }
+            //   }
+            //   m_robotContainer.drivetrain.addVisionMeasurement(bestMeasurement.pose,
+            //     bestMeasurement.timestampSeconds);
+            //   llestamation.setRobotPose(bestMeasurement.pose);
+            // }
             // Pose2d poseSum = new Pose2d();
             // for (PoseEstimate measurement : measurements) {
             //   poseSum = poseSum.plus(new Transform2d(measurement.pose.getTranslation(), new Rotation2d()));
