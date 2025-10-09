@@ -1,4 +1,4 @@
-package frc.robot.subsystems;
+package frc.robot.example;
 
 import static edu.wpi.first.units.Units.*;
 
@@ -35,7 +35,7 @@ public class ExampleArm extends SubsystemBase {
 		m_wrist = new TalonFX(Constants.MotorIDs.arm_wrist_id);
 	}
 
-	// ----- Periodic -----
+	//* ----- Periodic -----
 
 	/**
 	 * Periodic method for the subsystem.
@@ -51,6 +51,7 @@ public class ExampleArm extends SubsystemBase {
 	 * Subsystem state options.
 	 */
 	public enum State {
+		STOPPED,
 		TRANSIT,
 
 		FLOOR,
@@ -60,21 +61,21 @@ public class ExampleArm extends SubsystemBase {
 	/** 
 	 * Active subsystem state.
 	*/
-	private State state = State.FLOOR;
+	private State state = State.STOPPED;
 
 	/**
 	 * Returns the active subsystem state.	
 	 *
 	 * @return <code>state</code>
 	 */
-	public State getState() {
+	public State getSysState() {
 		return state;
 	}
 
 	/**
 	 * Sets the active subsystem state.
 	 */
-	public void setState(State newState) {
+	public void setSysState(State newState) {
 		state = newState;
 	}
 
@@ -140,6 +141,7 @@ public class ExampleArm extends SubsystemBase {
 		State endState;
 
 		public ArmToPose(Angle armTarget, Angle wristTarget, State endState) {
+			super();
 			this.armTarget = armTarget;
 			this.wristTarget = wristTarget;
 
@@ -151,7 +153,7 @@ public class ExampleArm extends SubsystemBase {
 		 */
 		@Override
 		public void initialize() {
-			setState(State.TRANSIT);
+			setSysState(State.TRANSIT);
 			
 			setArmPose(armTarget);
 			setWristPose(wristTarget);
@@ -162,7 +164,7 @@ public class ExampleArm extends SubsystemBase {
 		 */
 		@Override
 		public void execute() {
-			setState(State.TRANSIT);
+			setSysState(State.TRANSIT);
 		}
 
 		/**
@@ -181,7 +183,7 @@ public class ExampleArm extends SubsystemBase {
 		 */
 		@Override
 		public void end(boolean interrupted) {
-			setState(State.FLOOR);
+			setSysState(State.FLOOR);
 		}
 	}
 
