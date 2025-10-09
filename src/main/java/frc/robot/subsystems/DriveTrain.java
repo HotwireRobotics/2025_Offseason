@@ -413,11 +413,12 @@ public class DriveTrain extends TunerSwerveDrivetrain implements Subsystem {
             case NAVIGATE_ALGAE:
                 if (currentState != SystemState.NAVIGATING_ALGAE) {
                     navigateCommand = navigate();
-                    if (ALGAE_POSE) {
-                        navigateCommand.schedule();
-                    } else {
-                        GO_HOME = true;
-                    }
+                    // if (ALGAE_POSE) {
+                    //     navigateCommand.schedule();
+                    // } else {
+                    //     GO_HOME = true;
+                    // }
+                    navigateCommand.schedule();
                 }
                 currentState = SystemState.NAVIGATING_ALGAE;
                 break;
@@ -469,7 +470,6 @@ public class DriveTrain extends TunerSwerveDrivetrain implements Subsystem {
                 break;
             case NAVIGATE_ALGAE:
                 nearestId = Constants.nearestAlgaeId(getState().Pose);
-                // nearestId = 17; //TODO Remove
                 nearestPose = Constants.taglayout.getTags().get(nearestId - 1).pose.toPose2d();
                 Rotation2d rot = Rotation2d.k180deg;
                 if (Constants.RED_TAG_IDS.contains(nearestId)) {

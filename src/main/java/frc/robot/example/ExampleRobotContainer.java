@@ -37,16 +37,11 @@ public class ExampleRobotContainer {
         SmartDashboard.putData("Selected Auto", autoChooser);
     }
 
-	public Command Score(ExampleDriveTrain.ScoringPosition position) {
-		return (
-			drivetrain.new Navigate(position) // This took way too long to figure out.
-			.andThen(arm.new ArmToL3())
-		); 
-	}
-
     private void configureBindings() {
 
-		Constants.driver.a().onTrue(Score(ExampleDriveTrain.ScoringPosition.RIGHT_L2));
+		Constants.driver.a().onTrue(
+            superstructure.Score(ExampleDriveTrain.ScoringPosition.RIGHT_L2)
+        );
 
         drivetrain.setDefaultCommand(drivetrain.applyRequest(() -> brake));
 

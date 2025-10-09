@@ -52,7 +52,10 @@ public class Superstructure extends SubsystemBase {
 		 * Lower intake to floor level and intake coral gamepiece.
 		 */
 		INTAKE,
-		EJECT
+		EJECT,
+		ALGAE_L2_AUTO,
+
+		GO_TO_LVL3
 	}
 
 	public TargetState targetState = TargetState.STOPPED;
@@ -96,6 +99,9 @@ public class Superstructure extends SubsystemBase {
 		EXITING_LVL3,
 		// EXITING_LVL2,
 		GO_TO_LVL2,
+		GO_TO_LVL3,
+		GOING_TO_ALGAE_L2,
+		AUTO_ALGAE_L2,
 	}
 
 	public SystemState systemState = SystemState.STOPPED;
@@ -275,40 +281,53 @@ public class Superstructure extends SubsystemBase {
 				break;
 			case NAVIGATE_ALGAE:
 				if (!routeComplete) {
-					// systemState = drivetrain.getAlgaePose() ? SystemState.NAVIGATING_ALGAE_L2 : SystemState.NAVIGATING_ALGAE_L3;
-					systemState = SystemState.NAVIGATING_ALGAE;
+					if (!drivetrain.getAlgaePose()) {
+						systemState = SystemState.GOING_TO_ALGAE_L2;
+						if (
+							arm.isArmAtPosition(Constants.ArmPositions.TAKE_ALGAE_L2, Rotations.of(0.0025)) &&
+							arm.isWristAtPosition(Constants.WristPositions.TAKE_L2, Rotations.of(0.005))
+						) {
+							systemState = SystemState.NAVIGATING_ALGAE;
+						}
+					} else {
+						systemState = SystemState.NAVIGATING_ALGAE;
+					}
 				} else {
 					targetState = TargetState.REMOVE_ALGAE;
 				}
 				break;
 			case REMOVE_ALGAE:
+				drivetrain.targetState = DriveTrain.TargetState.TELEOP_DRIVE;
 				if (drivetrain.getAlgaePose()) {
 					systemState = SystemState.REMOVING_ALGAE_L3;
 					intake.targetState = Intake.TargetState.TAKE_ALGAE_L3;
-					if (
+					
+					if (intake.getMeasurement(Intake.Range.FRONT)) {
+						arm.targetState = Arm.TargetState.DEFAULT;
+					} else if (
 						arm.isArmAtPosition(Constants.ArmPositions.TAKE_ALGAE_L3, Rotations.of(0.015)) &&
 						arm.isWristAtPosition(Constants.WristPositions.TAKE_ALGAE_L3, Rotations.of(0.015))
 					) {
 						arm.targetState = Arm.TargetState.REMOVE_ALGAE_L3;
 					}
-
-					if (
-						arm.isArmAtPosition(Constants.ArmPositions.TAKE_ALGAE_L3, Rotations.of(0.015)) &&
-						arm.isWristAtPosition(Constants.WristPositions.REMOVE_ALGAE_L3, Rotations.of(0.015)) &&
-						intake.currentState.equals(Intake.SystemState.TAKING_ALGAE_L3)
-					) {
-						arm.targetState = Arm.TargetState.DEFAULT;
-					}
 					
 					if (arm.currentState.equals(Arm.SystemState.HOME)) {
 						targetState = TargetState.DEFAULT;
-						intake.targetState = Intake.TargetState.DEFAULT;
 					}
 				} else {
 					systemState = SystemState.REMOVING_ALGAE_L2;
 					intake.targetState = Intake.TargetState.TAKE_ALGAE_L2;
 					arm.targetState = Arm.TargetState.TAKE_ALGAE_L2;
 				}
+				break;
+			case ALGAE_L2_AUTO:
+				systemState = SystemState.AUTO_ALGAE_L2;
+				break;
+			case GO_TO_LVL3:
+				systemState = SystemState.GO_TO_LVL3;
+				break;
+			case AUTONOMOUS:
+				systemState = SystemState.AUTONOMOUS;
 				break;
 			default:
 				systemState = SystemState.STOPPED;
@@ -332,6 +351,11 @@ public class Superstructure extends SubsystemBase {
 				break;
 			case HOME:
 				drivetrain.targetState = DriveTrain.TargetState.TELEOP_DRIVE;
+				intake.targetState = Intake.TargetState.DEFAULT;
+				arm.targetState = Arm.TargetState.DEFAULT;
+				break;
+			case AUTONOMOUS:
+				drivetrain.targetState = DriveTrain.TargetState.AUTONOMOUS;
 				intake.targetState = Intake.TargetState.DEFAULT;
 				arm.targetState = Arm.TargetState.DEFAULT;
 				break;
@@ -383,7 +407,7 @@ public class Superstructure extends SubsystemBase {
 				arm.targetState = Arm.TargetState.TAKE_ALGAE_L2;
 				break;
 			case REMOVING_ALGAE_L3:
-				arm.targetState = Arm.TargetState.TAKE_ALGAE_L3;
+				// arm.targetState = Arm.TargetState.TAKE_ALGAE_L3;
 				break;
 			case SCORING_DOWN_LEFT:
 				arm.targetState = Arm.TargetState.SCORE_LVL2;
@@ -417,9 +441,17 @@ public class Superstructure extends SubsystemBase {
 			case GO_TO_LVL2:
 				arm.targetState = Arm.TargetState.SCORE_LVL2;
 				break;
+			case AUTO_ALGAE_L2:
+				intake.targetState = Intake.TargetState.TAKE_ALGAE_L2;
+			case GOING_TO_ALGAE_L2:
+				arm.targetState = Arm.TargetState.TAKE_ALGAE_L2;
+				break;
 			case EXITING_STARTING_POSE:
 				intake.targetState = Intake.TargetState.DEFAULT;
 				arm.targetState = Arm.TargetState.EXIT_STARTING_POSE;
+				break;
+			case GO_TO_LVL3:
+				arm.targetState = Arm.TargetState.SCORE_LVL3;
 				break;
 			default:
 				break;

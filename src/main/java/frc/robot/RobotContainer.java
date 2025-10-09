@@ -17,6 +17,7 @@ import edu.wpi.first.units.measure.Distance;
 
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 import edu.wpi.first.wpilibj.Filesystem;
@@ -32,7 +33,9 @@ import frc.robot.commands.CommandGenerator;
 import frc.robot.commands.SetTargetPose;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.*;
+import frc.robot.subsystems.Arm.TargetState;
 
+import java.lang.annotation.Target;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -65,14 +68,51 @@ public class RobotContainer {
     // TODO
 
     public RobotContainer() {
+        SmartDashboard.putString("Auto Step", "None");
         NamedCommands.registerCommand("ExitStart", new InstantCommand(() -> {
+            SmartDashboard.putString("Auto Step", "ExitStart");
             superstructure.targetState = Superstructure.TargetState.EXIT_STARTING_POSE;
         }));
+        class ScoreL3 extends Command {
+            @Override
+            public void initialize() {
+                SmartDashboard.putString("Auto Step", "GoToL3");
+                superstructure.targetState = Superstructure.TargetState.GO_TO_LVL3;
+            }
+
+            @Override
+            public void execute() {
+                if (
+                    arm.isArmAtPosition(Constants.ArmPositions.LVL3, Rotations.of(0.025)) &&
+                    arm.isWristAtPosition(Constants.WristPositions.LVL3, Rotations.of(0.025))
+                ) {
+                    intake.targetState = Intake.TargetState.EJECT_FORWARD;
+                    arm.targetState = Arm.TargetState.DEFAULT;
+                }
+            }
+
+            @Override
+            public void end(boolean interrupted) {
+                superstructure.targetState = Superstructure.TargetState.AUTONOMOUS;
+            }
+
+            @Override
+            public boolean isFinished() {
+                return !intake.hasCoral();
+            }
+        }
+        NamedCommands.registerCommand("GoToL3", new ScoreL3());
         NamedCommands.registerCommand("EjectCoral", new InstantCommand(() -> {
+            SmartDashboard.putString("Auto Step", "EjectCoral");
             superstructure.targetState = Superstructure.TargetState.EJECT;
         }));
         NamedCommands.registerCommand("ToDefault", new InstantCommand(() -> {
+            SmartDashboard.putString("Auto Step", "ToDefault");
             superstructure.targetState = Superstructure.TargetState.DEFAULT;
+        }));
+        NamedCommands.registerCommand("ToAlgaeL2", new InstantCommand(() -> {
+            SmartDashboard.putString("Auto Step", "ToAlgaeL2");
+            superstructure.targetState = Superstructure.TargetState.ALGAE_L2_AUTO;
         }));
         configureBindings();
         autoChooser = AutoBuilder.buildAutoChooser();
@@ -254,11 +294,10 @@ public class RobotContainer {
         // Remove Algae
         Constants.operator.povDown().onTrue(
             new InstantCommand(() -> {
-                System.out.println("Up-Left");
                 superstructure.targetState = Superstructure.TargetState.NAVIGATE_ALGAE;
             })
         );
-
+        
         //####################################################################################
 
         Constants.operator.rightTrigger().onTrue(

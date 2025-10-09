@@ -11,34 +11,45 @@
           }
         },
         {
-          "type": "wait",
+          "type": "path",
           "data": {
-            "waitTime": 0.5
-          }
-        },
-        {
-          "type": "parallel",
-          "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "Center Girlsgen Auto"
-                }
-              }
-            ]
+            "pathName": "Center Girlsgen Auto"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "EjectCoral"
+            "name": "GoToL3"
           }
         },
         {
           "type": "wait",
           "data": {
-            "waitTime": 0.6
+            "waitTime": 1.4
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Center Back Up"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ToAlgaeL2"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "GG Remove Algae"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 1.6
           }
         },
         {

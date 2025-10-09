@@ -217,8 +217,8 @@ public class Intake extends SubsystemBase {
 
 				break;
 			case TAKING_ALGAE_L2:
-				setLeftIntake(0);
-				setRightIntake(0);
+				setLeftIntake(-Constants.IntakeSpeeds.EJECT);
+				setRightIntake(-Constants.IntakeSpeeds.EJECT);
 				setRollers(-0.45);
 
 				break;

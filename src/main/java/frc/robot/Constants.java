@@ -98,7 +98,7 @@ public class Constants {
 		public static final Angle STOW = Rotations.of(0.3);
 		public static final Angle STARTING = Rotations.of(-0.394);
 
-		public static final Angle TAKE_L2 = Rotations.of(0.067);
+		public static final Angle TAKE_L2 = Rotations.of(0.243);
 		// .21
 		// .301
 		public static final Angle TAKE_ALGAE_L3   = Rotations.of(0.21);
@@ -119,7 +119,7 @@ public class Constants {
 		public static final Angle EXIT_STARTING = Rotations.of(0.14); // Start is 0.114
 
 
-		public static final Angle TAKE_ALGAE_L2 = Rotations.of(0.01);
+		public static final Angle TAKE_ALGAE_L2 = Rotations.of(0.0175);
 		// .253 Algae Suck
 		// .267
 		public static final Angle TAKE_ALGAE_L3 = Rotations.of(0.271);

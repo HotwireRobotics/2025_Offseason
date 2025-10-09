@@ -2,9 +2,12 @@ package frc.robot.example;
 
 import com.ctre.phoenix6.hardware.TalonFX;
 
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.RobotContainer;
+import frc.robot.example.ExampleArm.ArmToL3;
+import frc.robot.example.ExampleDriveTrain.Navigate;
 
 public class ExampleSuperstructure extends SubsystemBase {
 	
@@ -60,5 +63,12 @@ public class ExampleSuperstructure extends SubsystemBase {
 	 */
 	public void setSysState(State newState) {
 		state = newState;
+	}
+
+	public Command Score(ExampleDriveTrain.ScoringPosition position) {
+		return (
+			container.drivetrain.new Navigate(position) // This took way too long to figure out.
+			.andThen(container.arm.new ArmToL3())
+		); 
 	}
 }
