@@ -300,20 +300,6 @@ public class Superstructure extends SubsystemBase {
 				drivetrain.targetState = DriveTrain.TargetState.TELEOP_DRIVE;
 				if (drivetrain.getAlgaePose()) {
 					systemState = SystemState.REMOVING_ALGAE_L3;
-					intake.targetState = Intake.TargetState.TAKE_ALGAE_L3;
-					
-					if (intake.getMeasurement(Intake.Range.FRONT)) {
-						arm.targetState = Arm.TargetState.DEFAULT;
-					} else if (
-						arm.isArmAtPosition(Constants.ArmPositions.TAKE_ALGAE_L3, Rotations.of(0.015)) &&
-						arm.isWristAtPosition(Constants.WristPositions.TAKE_ALGAE_L3, Rotations.of(0.015))
-					) {
-						arm.targetState = Arm.TargetState.REMOVE_ALGAE_L3;
-					}
-					
-					if (arm.currentState.equals(Arm.SystemState.HOME)) {
-						targetState = TargetState.DEFAULT;
-					}
 				} else {
 					systemState = SystemState.REMOVING_ALGAE_L2;
 					intake.targetState = Intake.TargetState.TAKE_ALGAE_L2;
@@ -407,7 +393,20 @@ public class Superstructure extends SubsystemBase {
 				arm.targetState = Arm.TargetState.TAKE_ALGAE_L2;
 				break;
 			case REMOVING_ALGAE_L3:
-				// arm.targetState = Arm.TargetState.TAKE_ALGAE_L3;
+				intake.targetState = Intake.TargetState.TAKE_ALGAE_L3;
+						
+				if (intake.getMeasurement(Intake.Range.FRONT)) {
+					arm.targetState = Arm.TargetState.DEFAULT;
+				} else if (
+					arm.isArmAtPosition(Constants.ArmPositions.TAKE_ALGAE_L3, Rotations.of(0.015)) &&
+					arm.isWristAtPosition(Constants.WristPositions.TAKE_ALGAE_L3, Rotations.of(0.015))
+				) {
+					arm.targetState = Arm.TargetState.REMOVE_ALGAE_L3;
+				}
+				
+				if (arm.currentState.equals(Arm.SystemState.HOME)) {
+					targetState = TargetState.DEFAULT;
+				}
 				break;
 			case SCORING_DOWN_LEFT:
 				arm.targetState = Arm.TargetState.SCORE_LVL2;
