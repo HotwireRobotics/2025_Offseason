@@ -213,12 +213,4 @@ public class ExampleArm extends SubsystemBase {
 			super(Constants.ArmPositions.LVL3, Constants.WristPositions.LVL3, State.L3);
 		}
 	}
-
-	/**
-	 * Example of chaining commands and actively changing th subsystem state.
-	 */
-	public Command L2AndThenL3 = 
-				 new ArmToL2()
-		.andThen(new ArmToL3())
-		.andThen(new ArmToFloor());
 }

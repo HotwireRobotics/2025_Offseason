@@ -1,18 +1,9 @@
 package frc.robot.example;
 
-import java.time.Instant;
-import java.util.function.BooleanSupplier;
-
-import com.ctre.phoenix6.hardware.TalonFX;
-
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ConditionalCommand;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
-import frc.robot.RobotContainer;
-import frc.robot.example.ExampleArm.ArmToL3;
-import frc.robot.example.ExampleDriveTrain.Navigate;
 
 public class ExampleSuperstructure extends SubsystemBase {
 	
@@ -70,9 +61,13 @@ public class ExampleSuperstructure extends SubsystemBase {
 		state = newState;
 	}
 
+	private Command setSuperState(State newState) {
+		return new InstantCommand(() -> setSysState(State.PATHFINDING));
+	}
+
 	public Command Score(ExampleDriveTrain.ScoringPosition position) {
 		return (
-			new InstantCommand(() -> setSysState(State.PATHFINDING))
+					 setSuperState(State.PATHFINDING)
 			.andThen(container.drivetrain.new Navigate(position)
 			.andThen(new ConditionalCommand(
 						 container.arm.new ArmToL3()
@@ -83,10 +78,10 @@ public class ExampleSuperstructure extends SubsystemBase {
 				.andThen(new InstantCommand(() -> {System.out.println("Missing Intake");}))
 				.andThen(container.arm.new ArmToFloor()),
 
-				() -> position == ExampleDriveTrain.ScoringPosition.RIGHT_L3 
-				|| position == ExampleDriveTrain.ScoringPosition.LEFT_L3
+				() -> position == ExampleDriveTrain.ScoringPosition.RIGHT_L3
+				||    position == ExampleDriveTrain.ScoringPosition.LEFT_L3
 			))
-			.andThen(new InstantCommand(() -> setSysState(State.TELEOP)))
+			.andThen(setSuperState(State.TELEOP))
 		));
 	}
 }

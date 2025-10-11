@@ -269,14 +269,7 @@ public class Superstructure extends SubsystemBase {
 					SmartDashboard.putNumber("Distance from nearestPose", drivetrain.nearestPose.getTranslation().getDistance(
 						drivetrain.getState().Pose.getTranslation()
 					));
-					// if (drivetrain.nearestPose.getTranslation().getDistance(
-					// 	drivetrain.getState().Pose.getTranslation()
-					// ) < 0.05) {
 					systemState = SystemState.NAVIGATING_EXIT_LVL2;
-					// } 
-					// else {
-					// 	targetState = TargetState.DEFAULT;
-					// }
 				}
 				break;
 			case NAVIGATE_ALGAE:
@@ -302,8 +295,6 @@ public class Superstructure extends SubsystemBase {
 					systemState = SystemState.REMOVING_ALGAE_L3;
 				} else {
 					systemState = SystemState.REMOVING_ALGAE_L2;
-					intake.targetState = Intake.TargetState.TAKE_ALGAE_L2;
-					arm.targetState = Arm.TargetState.TAKE_ALGAE_L2;
 				}
 				break;
 			case ALGAE_L2_AUTO:
@@ -390,6 +381,7 @@ public class Superstructure extends SubsystemBase {
 				drivetrain.targetState = DriveTrain.TargetState.STOP;
 				break;
 			case REMOVING_ALGAE_L2:
+				intake.targetState = Intake.TargetState.TAKE_ALGAE_L2;
 				arm.targetState = Arm.TargetState.TAKE_ALGAE_L2;
 				break;
 			case REMOVING_ALGAE_L3:

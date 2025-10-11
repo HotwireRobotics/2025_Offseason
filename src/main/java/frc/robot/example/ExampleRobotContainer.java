@@ -11,14 +11,12 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.Constants;
 import frc.robot.Telemetry;
 import frc.robot.generated.TunerConstants;
-import frc.robot.example.ExampleDriveTrain.Navigate;
 
 public class ExampleRobotContainer {
 
     private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
     private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
     private final Telemetry logger = new Telemetry(Constants.MaxSpeed);
-
 
 	public final ExampleDriveTrain drivetrain = new ExampleDriveTrain(TunerConstants.DrivetrainConstants, 
 													TunerConstants.FrontLeft, TunerConstants.FrontRight, 
@@ -27,7 +25,6 @@ public class ExampleRobotContainer {
 	public final ExampleArm arm = new ExampleArm();
 
     public final ExampleSuperstructure superstructure = new ExampleSuperstructure(this);
-
 
     private final SendableChooser<Command> autoChooser;
 

@@ -258,9 +258,31 @@ public class RobotContainer {
                 superstructure.targetState = Superstructure.TargetState.DEFAULT;
             })
         );
+        Constants.operator.povUp().whileTrue(
+            new InstantCommand(() -> {
+                System.out.println("Arm");
+                superstructure.targetState = Superstructure.TargetState.EXIT_STARTING_POSE;
+            })
+        ).onFalse(
+            new InstantCommand(() -> {
+                System.out.println("Default");
+                superstructure.targetState = Superstructure.TargetState.DEFAULT;
+            })
+        );
 
         // Eject.
         Constants.driver.povRight().whileTrue(
+            new InstantCommand(() -> {
+                System.out.println("Arm");
+                superstructure.targetState = Superstructure.TargetState.EJECT;
+            })
+        ).onFalse(
+            new InstantCommand(() -> {
+                System.out.println("Default");
+                superstructure.targetState = Superstructure.TargetState.DEFAULT;
+            })
+        );
+        Constants.operator.povRight().whileTrue(
             new InstantCommand(() -> {
                 System.out.println("Arm");
                 superstructure.targetState = Superstructure.TargetState.EJECT;
