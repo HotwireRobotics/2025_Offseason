@@ -11,6 +11,12 @@
           }
         },
         {
+          "type": "wait",
+          "data": {
+            "waitTime": 2.15
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "Center Girlsgen Auto"
@@ -55,7 +61,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Center Back Up"
+            "pathName": "Center Back Up 2"
           }
         },
         {

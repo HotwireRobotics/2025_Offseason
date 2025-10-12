@@ -84,7 +84,8 @@ public class Constants {
 
 	public static final ArrayList<Integer> RED_TAG_IDS  = new ArrayList<>(Arrays.asList(6, 7, 8, 9, 10, 11));
 	public static final ArrayList<Integer> BLUE_TAG_IDS = new ArrayList<>(Arrays.asList(17, 18, 19, 20, 21, 22));
-	
+
+	public static final String[] LIMELIGHT_NAMES = {"limelight-two", "limelight-one"};
 
 	public static final PathConstraints constraints = new PathConstraints(3.0, 4.0, Units.degreesToRadians(540),
 			Units.degreesToRadians(720));
@@ -116,7 +117,7 @@ public class Constants {
 		public static final Angle LVL3 = Rotations.of(0.271); // Old Position is 0.251
 		public static final Angle START = Rotations.of(0); //! Change me
 		public static final Angle FLOOR = Rotations.of(-0.0762); // Old Position: -0.0695
-		public static final Angle EXIT_STARTING = Rotations.of(0.14); // Start is 0.114
+		public static final Angle EXIT_STARTING = Rotations.of(0.21); // Start is 0.114
 
 
 		public static final Angle TAKE_ALGAE_L2 = Rotations.of(0.0175);

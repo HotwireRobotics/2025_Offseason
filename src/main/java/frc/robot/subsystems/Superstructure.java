@@ -132,7 +132,7 @@ public class Superstructure extends SubsystemBase {
 			drivetrain.GO_HOME = !drivetrain.GO_HOME;
 		}
 		if (arm.IS_ARM_AT_EXIT_STARTING_POSITION) {
-			targetState = TargetState.SCORE_DOWN_RIGHT;
+			targetState = TargetState.AUTONOMOUS;
 		}
 		handleStateTransitions(); applyStates();
 	}

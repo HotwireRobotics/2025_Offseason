@@ -62,6 +62,10 @@ public class Robot extends TimedRobot {
         SmartDashboard.putData("Robot Pose", robotPose);
         SmartDashboard.putData("Navigate Target Pose", nearestPoseField);
 
+        for (String limelight : Constants.LIMELIGHT_NAMES) {
+          SmartDashboard.putBoolean(limelight + " detecting", false);
+        }
+
         // ! Memory Error; implement when ur system doesn't suck.
         // Logger.recordMetadata("Hotwire Project", "2026"); // Set a metadata value
 
@@ -168,22 +172,41 @@ public class Robot extends TimedRobot {
             //  * `limelight-one` is back.
              * `limelight-two` is front.
              */
-            String[] limelightNames = {"limelight-two", "limelight-one"};
-
-            for (String limelight : limelightNames) {
+            
+            boolean detectedFlag = false;
+            for (String limelight : Constants.LIMELIGHT_NAMES) {
 
               driveState = m_robotContainer.drivetrain.getState();
               headingDeg = driveState.Pose.getRotation().getDegrees();
               omegaRPS = Units.radiansToRotations(driveState.Speeds.omegaRadiansPerSecond);
+              /**
+               * Pipeline 0 is for the red side,
+               * Pipeline 1 is for the blue side.
+               */
+              // LimelightHelpers.setPipelineIndex(limelight, (DriverStation.getAlliance().get() == DriverStation.Alliance.Red) ? 0 : 1);
               LimelightHelpers.setPipelineIndex(limelight, 0);
               LimelightHelpers.SetRobotOrientation(limelight, headingDeg, 0, 0, 0, 0, 0);
               limelightMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue(limelight);
 
               if ((limelightMeasurement != null) && (limelightMeasurement.tagCount > 0) && (Math.abs(omegaRPS) < 2) && (limelightMeasurement.avgTagDist < 2.75)) {
                   measurements.add(limelightMeasurement);
+                  SmartDashboard.putBoolean(limelight + " detecting", true);
+                  detectedFlag = true;
                   m_robotContainer.drivetrain.addVisionMeasurement(limelightMeasurement.pose,
                     limelightMeasurement.timestampSeconds);
                   llestamation.setRobotPose(limelightMeasurement.pose);
+              } else {
+                  SmartDashboard.putBoolean(limelight + " detecting", false);
+              }
+            }
+            if (detectedFlag) {
+              detectedFlag = false;
+              for (String limelightName : Constants.LIMELIGHT_NAMES) {
+                LimelightHelpers.setLEDMode_ForceOn(limelightName);
+              }
+            } else {
+              for (String limelightName : Constants.LIMELIGHT_NAMES) {
+                LimelightHelpers.setLEDMode_ForceOff(limelightName);
               }
             }
 
