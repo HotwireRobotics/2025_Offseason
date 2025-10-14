@@ -1,4 +1,4 @@
-package frc.robot;
+package frc.robotnew;
 
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Inches;
@@ -24,6 +24,7 @@ import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.generated.TunerConstants;
 import edu.wpi.first.units.*;
@@ -68,6 +69,8 @@ public class Constants {
 	public static class Joysticks {
 		
 	}
+
+	public static final Distance MaxDetectionRadius = Meters.of(2.75);
 
 	public static final Distance EXIT_DISTANCE = Meters.of(0.3);
 
@@ -293,6 +296,11 @@ public class Constants {
 		}
 
 		return id;
+	}
+
+	public static Boolean nearestAlgaeTagIsL2(Pose2d robotPose) {
+		int id = nearestAlgaeId(robotPose);
+		return ((id % 2) == (DriverStation.getAlliance().get() == Alliance.Red?1:0));
 	}
 
 	public static Optional<Pose2d> nearestBranchPose(Pose2d robotPose, Tracks types, Distance offset) {

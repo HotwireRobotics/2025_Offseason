@@ -49,10 +49,10 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.Constants;
-import frc.robot.Constants.WristPositions;
 import frc.robot.commands.CommandWrapper;
 import frc.robot.generated.TunerConstants.TunerSwerveDrivetrain;
+import frc.robotnew.Constants;
+import frc.robotnew.Constants.WristPositions;
 
 public class Arm extends SubsystemBase {
 	

@@ -37,19 +37,19 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.Constants;
-import frc.robot.Constants.Dimensions;
-import frc.robot.Constants.Tracks;
 import frc.robot.commands.ArmToPose;
 import frc.robot.commands.CommandGenerator;
 import frc.robot.commands.CommandWrapper;
 import frc.robot.generated.TunerConstants.TunerSwerveDrivetrain;
+import frc.robotnew.Constants;
+import frc.robotnew.Constants.Dimensions;
+import frc.robotnew.Constants.Tracks;
 
 /**
  * Class that extends the Phoenix 6 SwerveDrivetrain class and implements
  * Subsystem so it can easily be used in command-based projects.
  */
-public class DriveTrain extends TunerSwerveDrivetrain implements Subsystem {
+public class SwerveDriveTrain extends TunerSwerveDrivetrain implements Subsystem {
     private static final double kSimLoopPeriod = 0.005; // 5 ms
     private Notifier m_simNotifier = null;
     private double m_lastSimTime;
@@ -193,7 +193,7 @@ public class DriveTrain extends TunerSwerveDrivetrain implements Subsystem {
      * @param drivetrainConstants   Drivetrain-wide constants for the swerve drive
      * @param modules               Constants for each specific module
      */
-    public DriveTrain(
+    public SwerveDriveTrain(
         SwerveDrivetrainConstants drivetrainConstants,
         SwerveModuleConstants<?, ?, ?>... modules
     ) {
@@ -218,7 +218,7 @@ public class DriveTrain extends TunerSwerveDrivetrain implements Subsystem {
      *                                CAN FD, and 100 Hz on CAN 2.0.
      * @param modules                 Constants for each specific module
      */
-    public DriveTrain(
+    public SwerveDriveTrain(
         SwerveDrivetrainConstants drivetrainConstants,
         double odometryUpdateFrequency,
         SwerveModuleConstants<?, ?, ?>... modules
@@ -250,7 +250,7 @@ public class DriveTrain extends TunerSwerveDrivetrain implements Subsystem {
      *                                  and radians
      * @param modules                   Constants for each specific module
      */
-    public DriveTrain(
+    public SwerveDriveTrain(
         SwerveDrivetrainConstants drivetrainConstants,
         double odometryUpdateFrequency,
         Matrix<N3, N1> odometryStandardDeviation,
@@ -347,7 +347,7 @@ public class DriveTrain extends TunerSwerveDrivetrain implements Subsystem {
         applyStates();
     }
 
-    Command drive_command = applyRequest(() -> Constants.drive.withVelocityX(-(Constants.driver.getLeftY()) * (Constants.driver.x().getAsBoolean() ? Constants.MaxSpeed / 2 : Constants.MaxSpeed)) 
+    public Command driveCommand = applyRequest(() -> Constants.drive.withVelocityX(-(Constants.driver.getLeftY()) * (Constants.driver.x().getAsBoolean() ? Constants.MaxSpeed / 2 : Constants.MaxSpeed)) 
                 // Drive forward with
                 // negative Y
                 // (forward)
@@ -431,7 +431,7 @@ public class DriveTrain extends TunerSwerveDrivetrain implements Subsystem {
     private void applyStates() {
         switch (currentState) {
             case TELEOP_DRIVE:
-                drive_command.schedule();
+                driveCommand.schedule();
                 break;
             case STOPPED:
                 idle().schedule();
@@ -509,7 +509,7 @@ public class DriveTrain extends TunerSwerveDrivetrain implements Subsystem {
                 }));
                 break;
             default:
-                return drive_command;
+                return driveCommand;
         }
         return command;
     }

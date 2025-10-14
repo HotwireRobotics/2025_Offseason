@@ -6,7 +6,7 @@ import com.ctre.phoenix6.hardware.CANrange;
 import com.ctre.phoenix6.hardware.TalonFXS;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
+import frc.robotnew.Constants;
 
 public class Intake extends SubsystemBase {
 	
@@ -175,14 +175,14 @@ public class Intake extends SubsystemBase {
 			case STOPPED:
 				break;
 			case INTAKING_CORAL:
-				setLeftIntake(Constants.IntakeSpeeds.EJECT);
-				setRightIntake(Constants.IntakeSpeeds.EJECT);
+				setLeftIntake(Constants.IntakeSpeeds.MAX);
+				setRightIntake(Constants.IntakeSpeeds.MAX);
 				setRollers(0.4);
 
 				break;
 			case INDEXING_CORAL:
-				setLeftIntake(Constants.IntakeSpeeds.EJECT);
-				setRightIntake(-Constants.IntakeSpeeds.EJECT);
+				setLeftIntake(Constants.IntakeSpeeds.MAX);
+				setRightIntake(-Constants.IntakeSpeeds.MAX);
 				setRollers(0.4);
 
 				break;
@@ -205,20 +205,20 @@ public class Intake extends SubsystemBase {
 
 				break;
 			case EJECTING_BACKWARD:
-				setLeftIntake(Constants.IntakeSpeeds.EJECT);
-				setRightIntake(Constants.IntakeSpeeds.EJECT);
+				setLeftIntake(Constants.IntakeSpeeds.MAX);
+				setRightIntake(Constants.IntakeSpeeds.MAX);
 				setRollers(0);
 
 				break;
 			case EJECTING_FORWARD:
-				setLeftIntake(-Constants.IntakeSpeeds.EJECT);
-				setRightIntake(-Constants.IntakeSpeeds.EJECT);
+				setLeftIntake(-Constants.IntakeSpeeds.MAX);
+				setRightIntake(-Constants.IntakeSpeeds.MAX);
 				setRollers(0);
 
 				break;
 			case TAKING_ALGAE_L2:
-				setLeftIntake(-Constants.IntakeSpeeds.EJECT);
-				setRightIntake(-Constants.IntakeSpeeds.EJECT);
+				setLeftIntake(-Constants.IntakeSpeeds.MAX);
+				setRightIntake(-Constants.IntakeSpeeds.MAX);
 				setRollers(-0.45);
 
 				break;

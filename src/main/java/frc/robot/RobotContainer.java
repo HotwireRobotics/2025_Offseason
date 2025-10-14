@@ -34,6 +34,7 @@ import frc.robot.commands.SetTargetPose;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.*;
 import frc.robot.subsystems.Arm.TargetState;
+import frc.robot.subsystems.Superstructure;
 
 import java.lang.annotation.Target;
 import java.nio.file.Path;
@@ -49,7 +50,7 @@ public class RobotContainer {
     /**
 	 * <strong>Drivetrain Subsystem</strong>
 	 */
-    public final DriveTrain drivetrain = TunerConstants.createDrivetrain();
+    public final SwerveDriveTrain drivetrain = TunerConstants.createDrivetrain();
     /**
 	 * <strong>Arm Subsystem</strong>
 	 */
@@ -132,90 +133,7 @@ public class RobotContainer {
         // music.play(); // TODO Make orchestra function.
 
         drivetrain.setDefaultCommand(drivetrain.applyRequest(() -> brake));
-
-        // Constants.driver.leftBumper().onTrue(CommandGenerator.goToNearestBranch(this, Tracks.left));
-        // Constants.driver.rightBumper().onTrue(CommandGenerator.goToNearestBranch(this, Tracks.right));
-
-        // Left POV button navigates right to the righthand branch.
-        // Constants.driver.povRight().onTrue(
-        //     CommandGenerator.goRightTwoBranchWidths(drivetrain)
-        // );
-
-        // Left POV button navigates left to the lefthand branch.
-        // Constants.driver.povLeft().onTrue(
-        //     CommandGenerator.goLeftTwoBranchWidths(drivetrain)
-        // );
-
-        // Right bumper navigates to the nearest lefthand branch.
-        // Constants.driver.leftBumper().onTrue(
-        //     new SetTargetPose(
-        //         superstructure, drivetrain, Constants.nearestBranchPose(drivetrain.getState().Pose, Tracks.left).get(),
-        //         Superstructure.TargetState.SCORE_LEFT
-        //     )
-        // );
-
-        // Right bumper navigates to the nearest righthand branch.
-        // Constants.driver.rightBumper().onTrue(
-        //     new SetTargetPose(
-        //         superstructure, drivetrain, Constants.nearestBranchPose(drivetrain.getState().Pose, Tracks.right).get(),
-        //         Superstructure.TargetState.SCORE_RIGHT
-        //     )
-        // );
-
-        // // Right trigger controls percentage motor voltage.
-        // Constants.driver.rightTrigger().onTrue(
-        //     new InstantCommand(() -> {
-        //         arm.setBaseMotor(Constants.driver.getRightTriggerAxis());
-        //     })
-        // );
-
-        //! ==== Temporary ====
-        // Constants.driver.x().whileTrue(
-        //     new InstantCommand(() -> {
-        //         intake.targetState = Intake.TargetState.COLLECT;
-        //     })
-        // ).onFalse(
-        //     new InstantCommand(() -> {
-        //         intake.targetState = Intake.TargetState.HOLD;
-        //     })
-        // );
-
-        // Constants.driver.povUp().whileTrue(
-        //     new InstantCommand(() -> {
-        //         intake.targetState = Intake.TargetState.EJECT_BACKWARD;
-        //     })
-        // );
-
-        // Constants.driver.y().onTrue(
-        //     new InstantCommand(() -> {
-        //         position_index ++;
-        //         if (position_index >= positions.length) {position_index = 0;}
-        //         arm.setWristMotorPosition(positions[position_index].magnitude());
-        //     })
-        // );
-
-        // Constants.operator.y().onTrue(
-        //     new InstantCommand(() -> {
-        //         arm.setArmMotorPosition(Constants.ArmPositions.LVL2.magnitude());
-        //     })
-        // );
-        // Constants.operator.b().onTrue(
-        //     new InstantCommand(() -> {
-        //         arm.setWristMotorPosition(Constants.WristPositions.LVL2.magnitude());
-        //     })
-        // );
-        // Constants.operator.a().onTrue(
-        //     new InstantCommand(() -> {
-        //         arm.pauseArmMotor();
-        //     })
-        // );
-        // Constants.operator.x().onTrue(
-        //     new InstantCommand(() -> {
-        //         arm.setWristMotorPosition(Constants.WristPositions.INTAKE.magnitude());
-        //     })
-        // );
-        //! ==== Temporary ====
-
+        
         //#####################################INTAKE#########################################
 
         // Lower the intake.
@@ -249,7 +167,7 @@ public class RobotContainer {
         // Run arm up.
         Constants.driver.povUp().whileTrue(
             new InstantCommand(() -> {
-                System.out.println("Arm");
+                System.out.println("Exit Start");
                 superstructure.targetState = Superstructure.TargetState.EXIT_STARTING_POSE;
             })
         ).onFalse(
@@ -260,7 +178,7 @@ public class RobotContainer {
         );
         Constants.operator.povUp().whileTrue(
             new InstantCommand(() -> {
-                System.out.println("Arm");
+                System.out.println("Exit Start");
                 superstructure.targetState = Superstructure.TargetState.EXIT_STARTING_POSE;
             })
         ).onFalse(
@@ -273,7 +191,7 @@ public class RobotContainer {
         // Eject.
         Constants.driver.povRight().whileTrue(
             new InstantCommand(() -> {
-                System.out.println("Arm");
+                System.out.println("Eject");
                 superstructure.targetState = Superstructure.TargetState.EJECT;
             })
         ).onFalse(
@@ -284,7 +202,7 @@ public class RobotContainer {
         );
         Constants.operator.povRight().whileTrue(
             new InstantCommand(() -> {
-                System.out.println("Arm");
+                System.out.println("Eject");
                 superstructure.targetState = Superstructure.TargetState.EJECT;
             })
         ).onFalse(
@@ -338,16 +256,16 @@ public class RobotContainer {
 
         //####################################################################################
 
-        //! Emergency Bootonne
+        // Abort function.
         Constants.operator.back().onTrue(
             new InstantCommand(() -> {
-                System.out.println("Yo, dis bad");
+                System.out.println("Abort");
                 superstructure.targetState = Superstructure.TargetState.DEFAULT;
             })
         );
         Constants.driver.back().onTrue(
             new InstantCommand(() -> {
-                System.out.println("Yo, dis bad");
+                System.out.println("Abort");
                 superstructure.targetState = Superstructure.TargetState.DEFAULT;
             })
         );
