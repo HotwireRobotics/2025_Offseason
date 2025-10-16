@@ -74,7 +74,8 @@ public class Arm extends SubsystemBase {
 
 		TAKE_ALGAE_L3,
 		REMOVE_ALGAE_L3,
-		TAKE_ALGAE_L2
+		TAKE_ALGAE_L2,
+		RUNTOPOSE
 	}
 
 	public TargetState targetState = TargetState.STOP;
@@ -99,7 +100,8 @@ public class Arm extends SubsystemBase {
 
 		TAKING_ALGAE_L3,
 		REMOVING_ALGAE_L3,
-		TAKING_ALGAE_L2
+		TAKING_ALGAE_L2,
+		RUNTOPOSE
 	}
 
 	public boolean IS_ARM_AT_EXIT_STARTING_POSITION;
@@ -136,11 +138,17 @@ public class Arm extends SubsystemBase {
 		
 	}
 
+	public Angle wristTarget = Constants.WristPositions.LVL2;
+	public Angle armTarget = Constants.ArmPositions.LVL2;
+
 	private void handleStateTransitions() {
 
 		switch (targetState) {
 			case STOP:
 				currentState = SystemState.STOPPED;
+				break;
+			case RUNTOPOSE:
+				currentState = SystemState.RUNTOPOSE;
 				break;
 			case PRACTICE:
 				currentState = SystemState.PRACTICING;
@@ -149,7 +157,7 @@ public class Arm extends SubsystemBase {
 				currentState = SystemState.INTAKING;
 				break;
 			case DEFAULT:
-				currentState = (!isArmAtPosition(Constants.ArmPositions.FLOOR, Rotations.of(0.03))) 
+				currentState = (!isArmAtPosition(Constants.ArmPositions.FLOOR, Rotations.of(0.08))) 
 					? SystemState.HOMING : SystemState.HOME;
 				break;
 			case SCORE_LVL2:
@@ -185,9 +193,13 @@ public class Arm extends SubsystemBase {
 				pauseArmMotor();
 				setWristMotorPosition(Constants.WristPositions.INTAKE.magnitude());
 				break;
+			case RUNTOPOSE:
+				setArmMotorPosition(armTarget.magnitude());
+				setWristMotor(wristTarget.magnitude());
+				break;
 			case HOMING:
-				// setArmMotorPosition(Constants.ArmPositions.FLOOR.magnitude());
-				setArmMotorToConstantVoltageBackward();
+				setArmMotorPosition(Constants.ArmPositions.FLOOR.magnitude());
+				// setArmMotorToConstantVoltageBackward();
 				setWristMotorPosition(Constants.WristPositions.STOW.magnitude());
 				break;
 			case HOME:
@@ -311,15 +323,15 @@ public class Arm extends SubsystemBase {
      * @param position Factor from -1 to 1
      */
 	public void setWristMotorPosition(double position) {
-		double feedforward = 0.3349609375 * // Gravity Constant
-		Math.cos(
-			m_arm_wrist.getPosition().getValueAsDouble() + 
-			m_arm_base.getPosition().getValueAsDouble());
-		SmartDashboard.putNumber("feedforward", feedforward);
+		// double feedforward = 0.3349609375 * // Gravity Constant
+		// Math.cos(
+		// 	m_arm_wrist.getPosition().getValueAsDouble() + 
+		// 	m_arm_base.getPosition().getValueAsDouble());
+		// SmartDashboard.putNumber("feedforward", feedforward);
 		
-		m_arm_wrist.setControl(Constants.Requests.MOTIONMAGIC.withPosition(position)
-			.withFeedForward(feedforward));
-		// m_arm_wrist.setControl(Constants.Requests.MOTIONMAGIC);
+		// m_arm_wrist.setControl(Constants.Requests.MOTIONMAGIC.withPosition(position)
+		// 	.withFeedForward(feedforward));
+		m_arm_wrist.setControl(Constants.Requests.MOTIONMAGIC.withPosition(position));
 	}
 
 	public void pauseWristMotor() {

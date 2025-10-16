@@ -22,6 +22,7 @@ public class Superstructure extends SubsystemBase {
 		 * Robot is offline, move to starting positons.
 		 */
 		STOPPED, 
+		TESTING,
 		/**
 		 * Transition to the subsequent state based on current conditions. (This is only a <strong>TARGET</strong> state.)
 		 */
@@ -55,7 +56,8 @@ public class Superstructure extends SubsystemBase {
 		EJECT,
 		ALGAE_L2_AUTO,
 
-		GO_TO_LVL3
+		GO_TO_LVL3,
+		GO_TO_LVL2
 	}
 
 	public TargetState targetState = TargetState.STOPPED;
@@ -65,6 +67,7 @@ public class Superstructure extends SubsystemBase {
 		 * Robot is offline, move to starting positons.
 		 */
 		STOPPED,
+		TESTING,
 		/**
 		 * Robot is in teleop; the driver is in control.
 		 */
@@ -108,9 +111,9 @@ public class Superstructure extends SubsystemBase {
 
 	public SystemState previousSuperState;
 
-	private SwerveDriveTrain drivetrain;
-	private Intake intake;
-	private Arm arm;
+	private final SwerveDriveTrain drivetrain;
+	private final Intake intake;
+	private final Arm arm;
 
 	public enum AutonomousState {
 		RAISE_ARM_L2, LOWER_ARM,
@@ -197,6 +200,9 @@ public class Superstructure extends SubsystemBase {
 				break;
 			case DEFAULT:
 				systemState = SystemState.HOME;
+				break;
+			case TESTING:
+				systemState = SystemState.TESTING;
 				break;
 			case EXIT_STARTING_POSE:
 				systemState = SystemState.EXITING_STARTING_POSE;
@@ -303,6 +309,9 @@ public class Superstructure extends SubsystemBase {
 			case GO_TO_LVL3:
 				systemState = SystemState.GO_TO_LVL3;
 				break;
+			case GO_TO_LVL2:
+				systemState = SystemState.GO_TO_LVL2;
+				break;
 			case AUTONOMOUS:
 				systemState = SystemState.AUTONOMOUS;
 				break;
@@ -319,6 +328,11 @@ public class Superstructure extends SubsystemBase {
 				drivetrain.targetState = SwerveDriveTrain.TargetState.IDLE;
 				intake.targetState = Intake.TargetState.STOPPED;
 				arm.targetState = Arm.TargetState.STOP;
+				break;
+			case TESTING:
+				drivetrain.targetState = SwerveDriveTrain.TargetState.IDLE;
+				intake.targetState = Intake.TargetState.DEFAULT;
+				arm.targetState = Arm.TargetState.RUNTOPOSE;
 				break;
 			case NAVIGATING_EXIT_LVL2:
 				// drivetrain.targetState = DriveTrain.TargetState.NAVIGATE_EXIT_LVL2;

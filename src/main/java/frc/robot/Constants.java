@@ -95,7 +95,7 @@ public class Constants {
 	public class WristPositions {
 		public static final Angle INTAKE = Rotations.of(-0.01);
 		public static final Angle LVL2 = Rotations.of(0.295);
-		public static final Angle LVL3 = Rotations.of(0.252); // Old Position 0.232
+		public static final Angle LVL3 = Rotations.of(0.2); // Old Position 0.232
 		public static final Angle STOW = Rotations.of(0.3);
 		public static final Angle STARTING = Rotations.of(-0.394);
 

@@ -6,6 +6,7 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.Celsius;
 import static edu.wpi.first.units.Units.Fahrenheit;
+import static edu.wpi.first.units.Units.Rotations;
 
 import java.util.ArrayList;
 import java.util.Dictionary;
@@ -92,9 +93,18 @@ public class Robot extends TimedRobot {
         Filesystem.getDeployDirectory() + "/orchestra/mac.chrp"
     );
 
+    double armTargetValue;
+    double wristTargetValue;
+
     @Override
     public void robotInit() {
       PathfindingCommand.warmupCommand().schedule();
+
+      armTargetValue = m_robotContainer.arm.armTarget.magnitude();
+      wristTargetValue = m_robotContainer.arm.wristTarget.magnitude();
+
+      SmartDashboard.putNumber("Wrist Target", wristTargetValue);
+      SmartDashboard.putNumber("Arm Target", armTargetValue);
 
       // var status = m_orchestra.loadMusic("track.chrp");
 
@@ -106,6 +116,8 @@ public class Robot extends TimedRobot {
       // m_orchestra.addInstrument(m_robotContainer.drivetrain.getModule(3).getDriveMotor());
       // m_orchestra.play(); // TODO Make orchestra function.
     }
+
+    
 
     @Override
     public void robotPeriodic() {
@@ -145,6 +157,12 @@ public class Robot extends TimedRobot {
 // 
         SmartDashboard.putBoolean("Is Route Complete", m_robotContainer.superstructure.routeComplete);
 
+        wristTargetValue = SmartDashboard.getNumber("Wrist Target", 0);
+        armTargetValue   = SmartDashboard.getNumber("Arm Target", 0);
+
+        m_robotContainer.arm.armTarget = Rotations.of(armTargetValue);
+        m_robotContainer.arm.wristTarget = Rotations.of(wristTargetValue);
+
         robotPose.setRobotPose(m_robotContainer.drivetrain.getState().Pose);
         
         if (utilizeLimelight) {
@@ -169,9 +187,10 @@ public class Robot extends TimedRobot {
             //     m_robotContainer.arm)
             //   ));
 
+            
 
             /*
-            //  * `limelight-one` is back.
+             * `limelight-one` is back.
              * `limelight-two` is front.
              */
             
@@ -313,6 +332,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void teleopPeriodic() {
+      // m_robotContainer.superstructure.targetState = Superstructure.TargetState.TESTING;
       SmartDashboard.putString("Drivetrain State", 
         m_robotContainer.drivetrain.currentState.toString()
       );
