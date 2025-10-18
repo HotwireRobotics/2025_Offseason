@@ -24,6 +24,7 @@ import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.generated.TunerConstants;
 import edu.wpi.first.units.*;
@@ -52,6 +53,20 @@ import frc.robot.subsystems.drivetrain.SwerveDriveTrain;
 import frc.robotnew.Constants.Tracks;
 
 public class Constants {
+
+	public static final Mode simMode = Mode.SIM;
+	public static final Mode currentMode = RobotBase.isReal() ? Mode.REAL : simMode;
+
+	public static enum Mode {
+		/** Running on a real robot. */
+		REAL,
+
+		/** Running a physics simulator. */
+		SIM,
+
+		/** Replaying from a log file. */
+		REPLAY
+	}
 
 	public static double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
     public static double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second

@@ -24,17 +24,26 @@ import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.Constants.Tracks;
 import frc.robot.commands.CommandGenerator;
+import frc.robot.commands.DriveCommands;
 import frc.robot.commands.SetTargetPose;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.*;
 import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.arm.Arm.TargetState;
+import frc.robot.subsystems.drivetrain.Drive;
+import frc.robot.subsystems.drivetrain.GyroIO;
+import frc.robot.subsystems.drivetrain.GyroIOPigeon2;
+import frc.robot.subsystems.drivetrain.ModuleIO;
+import frc.robot.subsystems.drivetrain.ModuleIOSim;
+import frc.robot.subsystems.drivetrain.ModuleIOTalonFX;
 import frc.robot.subsystems.drivetrain.SwerveDriveTrain;
 import frc.robot.subsystems.intake.Intake;
 import frc.robotnew.subsystems.DriveTrain;
@@ -42,6 +51,8 @@ import frc.robotnew.subsystems.DriveTrain;
 import java.lang.annotation.Target;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+
+import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 public class RobotContainer {
 
@@ -53,7 +64,7 @@ public class RobotContainer {
     /**
 	 * <strong>Drivetrain Subsystem</strong>
 	 */
-    public final SwerveDriveTrain drivetrain;
+    public final Drive drivetrain;
     /**
 	 * <strong>Arm Subsystem</strong>
 	 */
@@ -67,26 +78,56 @@ public class RobotContainer {
 	 */
     public final Superstructure superstructure;
 
-    private final SendableChooser<Command> autoChooser;
+    private final LoggedDashboardChooser<Command> autoChooser;
 
     // TODO
 
-    public RobotContainer(boolean isReal) {
-        if (isReal) {
+    public RobotContainer() {
+        switch (Constants.currentMode) {
+        case REAL:
+            // Real robot, instantiate hardware IO implementations
+            drivetrain =
+                new Drive(
+                    new GyroIOPigeon2(),
+                    new ModuleIOTalonFX(TunerConstants.FrontLeft),
+                    new ModuleIOTalonFX(TunerConstants.FrontRight),
+                    new ModuleIOTalonFX(TunerConstants.BackLeft),
+                    new ModuleIOTalonFX(TunerConstants.BackRight));
             intake =         new Intake();
             arm =            new Arm();
             superstructure = new Superstructure(this);
-            drivetrain =     new SwerveDriveTrain(TunerConstants.DrivetrainConstants, 
-                                                TunerConstants.FrontLeft, TunerConstants.FrontRight, 
-                                                TunerConstants.BackLeft, TunerConstants.BackRight);
-        } else {
+            break;
+
+        case SIM:
+            // Sim robot, instantiate physics sim IO implementations
+            drivetrain =
+                new Drive(
+                    new GyroIO() {},
+                    new ModuleIOSim(TunerConstants.FrontLeft),
+                    new ModuleIOSim(TunerConstants.FrontRight),
+                    new ModuleIOSim(TunerConstants.BackLeft),
+                    new ModuleIOSim(TunerConstants.BackRight));
+
             intake =         new Intake() {};
             arm =            new Arm() {};
             superstructure = new Superstructure(this) {};
-            drivetrain =     new SwerveDriveTrain(TunerConstants.DrivetrainConstants, 
-                                                TunerConstants.FrontLeft, TunerConstants.FrontRight, 
-                                                TunerConstants.BackLeft, TunerConstants.BackRight) {};
+            break;
+
+        default:
+            // Replayed robot, disable IO implementations
+            drivetrain =
+                new Drive(
+                    new GyroIO() {},
+                    new ModuleIO() {},
+                    new ModuleIO() {},
+                    new ModuleIO() {},
+                    new ModuleIO() {});
+            intake =         new Intake() {};
+            arm =            new Arm() {};
+            superstructure = new Superstructure(this) {};
+            break;
         }
+
         SmartDashboard.putString("Auto Step", "None");
         NamedCommands.registerCommand("ExitStart", new InstantCommand(() -> {
             SmartDashboard.putString("Auto Step", "ExitStart");
@@ -133,10 +174,25 @@ public class RobotContainer {
             SmartDashboard.putString("Auto Step", "ToAlgaeL2");
             superstructure.targetState = Superstructure.TargetState.ALGAE_L2_AUTO;
         }));
+        
+        autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
+        // Set up SysId routines
+        autoChooser.addOption(
+            "Drive Wheel Radius Characterization", DriveCommands.wheelRadiusCharacterization(drivetrain));
+        autoChooser.addOption(
+            "Drive Simple FF Characterization", DriveCommands.feedforwardCharacterization(drivetrain));
+        autoChooser.addOption(
+            "Drive SysId (Quasistatic Forward)",
+            drivetrain.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+        autoChooser.addOption(
+            "Drive SysId (Quasistatic Reverse)",
+            drivetrain.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+        autoChooser.addOption(
+            "Drive SysId (Dynamic Forward)", drivetrain.sysIdDynamic(SysIdRoutine.Direction.kForward));
+        autoChooser.addOption(
+            "Drive SysId (Dynamic Reverse)", drivetrain.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+            
         configureBindings();
-        autoChooser = AutoBuilder.buildAutoChooser();
-        SmartDashboard.putData("Selected Auto", autoChooser);
-        // autoChooser.setDefaultOption("Diagonal GGAuto");
     }
 
     // Cycle between positions
@@ -150,7 +206,8 @@ public class RobotContainer {
         // music.addInstrument(arm.getBaseMotor());
         // music.play(); // TODO Make orchestra function.
 
-        drivetrain.setDefaultCommand(drivetrain.applyRequest(() -> brake));
+        // Default command, normal field-relative drive
+        drivetrain.setDefaultCommand(drivetrain.driveCommand);
         
         //#####################################INTAKE#########################################
 
@@ -289,27 +346,30 @@ public class RobotContainer {
         );
 
         final var idle = new SwerveRequest.Idle();
-        RobotModeTriggers.disabled().whileTrue(drivetrain.applyRequest(() -> idle).ignoringDisable(true));
+        RobotModeTriggers.disabled().whileTrue(Commands.runOnce(drivetrain::stop, drivetrain).ignoringDisable(true));
 
-        Constants.driver.a().whileTrue(drivetrain.applyRequest(() -> brake));
-        Constants.driver.b().whileTrue(drivetrain.applyRequest(
-                () -> point.withModuleDirection(new Rotation2d(-Constants.driver.getLeftY(), -Constants.driver.getLeftX()))));
+        // Constants.driver.a().whileTrue(drivetrain.applyRequest(() -> brake));
+        // Constants.driver.b().whileTrue(drivetrain.applyRequest(
+        //         () -> point.withModuleDirection(new Rotation2d(-Constants.driver.getLeftY(), -Constants.driver.getLeftX()))));
 
         // Run SysId routines when holding back/start and X/Y. Note that each routine should be run exactly once in a single log.
-        Constants.driver.back().and(Constants.driver.y()).whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
-        Constants.driver.back().and(Constants.driver.x()).whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
-        Constants.driver.start().and(Constants.driver.y()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
-        Constants.driver.start().and(Constants.driver.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
+        // Constants.driver.back().and(Constants.driver.y()).whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
+        // Constants.driver.back().and(Constants.driver.x()).whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
+        // Constants.driver.start().and(Constants.driver.y()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
+        // Constants.driver.start().and(Constants.driver.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
 
         // reset the field-centric heading on down POV press.
-        Constants.driver.povDown().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
+        // Constants.driver.povDown().onTrue(drivetrain.runOnce(drivetrain::));
 
-        drivetrain.registerTelemetry(logger::telemeterize);
+        // drivetrain.registerTelemetry(logger::telemeterize);
     }
 
+    /**
+     * Use this to pass the autonomous command to the main {@link Robot} class.
+     *
+     * @return the command to run in autonomous
+     */
     public Command getAutonomousCommand() {
-        // return Commands.print("No autonomous command configured");
-        // return new PathPlannerAuto("New Auto");
-        return autoChooser.getSelected();
+        return autoChooser.get();
     }
 }

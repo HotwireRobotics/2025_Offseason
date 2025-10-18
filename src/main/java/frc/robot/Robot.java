@@ -26,6 +26,7 @@ import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.swerve.SwerveDrivetrain.SwerveDriveState;
 import com.pathplanner.lib.commands.PathfindingCommand;
 
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.estimator.PoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -68,7 +69,7 @@ public class Robot extends LoggedRobot {
     private final RobotContainer m_robotContainer;
 
     public Robot() {
-        m_robotContainer = new RobotContainer(isReal());
+        m_robotContainer = new RobotContainer();
         SmartDashboard.putData("Limelight Pose", llestamation);
         SmartDashboard.putData("Robot Pose", robotPose);
         SmartDashboard.putData("Navigate Target Pose", nearestPoseField);
@@ -175,7 +176,7 @@ public class Robot extends LoggedRobot {
         m_robotContainer.arm.armTarget = Rotations.of(armTargetValue);
         m_robotContainer.arm.wristTarget = Rotations.of(wristTargetValue);
 
-        robotPose.setRobotPose(m_robotContainer.drivetrain.getState().Pose);
+        robotPose.setRobotPose(m_robotContainer.drivetrain.getPose());
         
         if (utilizeLimelight) {
             List<PoseEstimate> measurements = new ArrayList<PoseEstimate>();
@@ -209,9 +210,9 @@ public class Robot extends LoggedRobot {
             boolean detectedFlag = false;
             for (String limelight : Constants.LIMELIGHT_NAMES) {
 
-              driveState = m_robotContainer.drivetrain.getState();
-              headingDeg = driveState.Pose.getRotation().getDegrees();
-              omegaRPS = Units.radiansToRotations(driveState.Speeds.omegaRadiansPerSecond);
+              // driveState = m_robotContainer.drivetrain.getState();
+              headingDeg = m_robotContainer.drivetrain.getPose().getRotation().getDegrees();
+              omegaRPS = Units.radiansToRotations(m_robotContainer.drivetrain.getChassisSpeeds().omegaRadiansPerSecond);
               /**
                * Pipeline 0 is for the red side,
                * Pipeline 1 is for the blue side.
@@ -226,7 +227,7 @@ public class Robot extends LoggedRobot {
                   SmartDashboard.putBoolean(limelight + " detecting", true);
                   detectedFlag = true;
                   m_robotContainer.drivetrain.addVisionMeasurement(limelightMeasurement.pose,
-                    limelightMeasurement.timestampSeconds);
+                    limelightMeasurement.timestampSeconds, VecBuilder.fill(0.7, 0.7, Double.POSITIVE_INFINITY));
                   llestamation.setRobotPose(limelightMeasurement.pose);
               } else {
                   SmartDashboard.putBoolean(limelight + " detecting", false);

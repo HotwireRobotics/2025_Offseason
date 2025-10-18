@@ -10,7 +10,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.subsystems.Superstructure;
-import frc.robot.subsystems.drivetrain.SwerveDriveTrain;
+import frc.robot.subsystems.drivetrain.Drive;
 import frc.robot.Constants;
 import frc.robot.Robot;
 import frc.robot.RobotContainer;
@@ -19,7 +19,7 @@ import frc.robot.Constants.Tracks;
 public class CommandGenerator {
 	public static Command goToNearestBranch(RobotContainer container, Tracks types) {
 		return Commands.defer(() -> {
-			Pose2d nearestPose = Constants.nearestBranchPose(container.drivetrain.getState().Pose, types).get();
+			Pose2d nearestPose = Constants.nearestBranchPose(container.drivetrain.getPose(), types).get();
 			Command command = AutoBuilder.pathfindToPose(nearestPose, Constants.constraints);
 
 			Dictionary<Tracks, Superstructure.SystemState> tracksToState = new Hashtable<>();
@@ -38,18 +38,18 @@ public class CommandGenerator {
 		}, Set.of(container.drivetrain));
 	}
 
-	public static Command goToNearestTag(SwerveDriveTrain drivetrain) {
+	public static Command goToNearestTag(Drive drivetrain) {
 		return Commands.defer(() -> {
-			Pose2d nearestPose = Constants.nearestTagPose(drivetrain.getState().Pose).get();
+			Pose2d nearestPose = Constants.nearestTagPose(drivetrain.getPose()).get();
 			Command command = AutoBuilder.pathfindToPose(nearestPose, Constants.constraints);
 
 			return command;
 		}, Set.of(drivetrain));
 	}
 
-	public static Command goRightTwoBranchWidths(SwerveDriveTrain drivetrain) {
+	public static Command goRightTwoBranchWidths(Drive drivetrain) {
 		return Commands.defer(() -> {
-			Pose2d pose = Constants.rightTwoPoleLengths(drivetrain.getState().Pose).get();
+			Pose2d pose = Constants.rightTwoPoleLengths(drivetrain.getPose()).get();
 			Command command = AutoBuilder.pathfindToPose(pose, Constants.constraints);
 
 			// command = new CommandWrapper(command, () -> {
@@ -60,9 +60,9 @@ public class CommandGenerator {
 		}, Set.of(drivetrain));
 	}
 
-	public static Command goLeftTwoBranchWidths(SwerveDriveTrain drivetrain) {
+	public static Command goLeftTwoBranchWidths(Drive drivetrain) {
 		return Commands.defer(() -> {
-			Pose2d pose = Constants.leftTwoPoleLengths(drivetrain.getState().Pose).get();
+			Pose2d pose = Constants.leftTwoPoleLengths(drivetrain.getPose()).get();
 			Command command = AutoBuilder.pathfindToPose(pose, Constants.constraints);
 
 			// command = new CommandWrapper(command, () -> {

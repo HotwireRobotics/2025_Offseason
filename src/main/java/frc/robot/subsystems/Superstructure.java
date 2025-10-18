@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.RobotContainer;
 import frc.robot.subsystems.arm.Arm;
+import frc.robot.subsystems.drivetrain.Drive;
 import frc.robot.subsystems.drivetrain.SwerveDriveTrain;
 import frc.robot.subsystems.intake.Intake;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -114,7 +115,7 @@ public class Superstructure extends SubsystemBase {
 
 	public SystemState previousSuperState;
 
-	private final SwerveDriveTrain drivetrain;
+	private final Drive drivetrain;
 	private final Intake intake;
 	private final Arm arm;
 
@@ -178,9 +179,9 @@ public class Superstructure extends SubsystemBase {
 				return false;
 			}
 		} else {
-			// if ((drivetrain.nearestPose != null) && (drivetrain.getState().Pose != null)) {
+			// if ((drivetrain.nearestPose != null) && (drivetrain.getPose() != null)) {
 			// 	routeComplete = drivetrain.nearestPose.getTranslation().getDistance(
-			// 		drivetrain.getState().Pose.getTranslation()
+			// 		drivetrain.getPose().getTranslation()
 			// ) > 0.25;
 			// 	targetSuperState = TargetState.DEFAULT;
 			// 	return false;
@@ -274,9 +275,9 @@ public class Superstructure extends SubsystemBase {
 				} else if (LVL3Processes()) {systemState = SystemState.SCORING_UP_LEFT;}
 				break;
 			case NAVIGATE_EXIT_LVL2:
-				if ((drivetrain.nearestPose != null) && (drivetrain.getState().Pose != null)) {
+				if ((drivetrain.nearestPose != null) && (drivetrain.getPose() != null)) {
 					SmartDashboard.putNumber("Distance from nearestPose", drivetrain.nearestPose.getTranslation().getDistance(
-						drivetrain.getState().Pose.getTranslation()
+						drivetrain.getPose().getTranslation()
 					));
 					systemState = SystemState.NAVIGATING_EXIT_LVL2;
 				}
@@ -299,7 +300,7 @@ public class Superstructure extends SubsystemBase {
 				}
 				break;
 			case REMOVE_ALGAE:
-				drivetrain.targetState = SwerveDriveTrain.TargetState.TELEOP_DRIVE;
+				drivetrain.targetState = Drive.TargetState.TELEOP_DRIVE;
 				if (drivetrain.getAlgaePose()) {
 					systemState = SystemState.REMOVING_ALGAE_L3;
 				} else {
@@ -328,28 +329,28 @@ public class Superstructure extends SubsystemBase {
 
 		switch (systemState) {
 			case STOPPED:
-				drivetrain.targetState = SwerveDriveTrain.TargetState.IDLE;
+				drivetrain.targetState = Drive.TargetState.IDLE;
 				intake.targetState = Intake.TargetState.STOPPED;
 				arm.targetState = Arm.TargetState.STOP;
 				break;
 			case TESTING:
-				drivetrain.targetState = SwerveDriveTrain.TargetState.IDLE;
+				drivetrain.targetState = Drive.TargetState.IDLE;
 				intake.targetState = Intake.TargetState.DEFAULT;
 				arm.targetState = Arm.TargetState.RUNTOPOSE;
 				break;
 			case NAVIGATING_EXIT_LVL2:
 				// drivetrain.targetState = DriveTrain.TargetState.NAVIGATE_EXIT_LVL2;
-				drivetrain.targetState = SwerveDriveTrain.TargetState.TELEOP_DRIVE;
+				drivetrain.targetState = Drive.TargetState.TELEOP_DRIVE;
 				intake.targetState = Intake.TargetState.DEFAULT;
 				arm.targetState = Arm.TargetState.SCORE_LVL2;
 				break;
 			case HOME:
-				drivetrain.targetState = SwerveDriveTrain.TargetState.TELEOP_DRIVE;
+				drivetrain.targetState = Drive.TargetState.TELEOP_DRIVE;
 				intake.targetState = Intake.TargetState.DEFAULT;
 				arm.targetState = Arm.TargetState.DEFAULT;
 				break;
 			case AUTONOMOUS:
-				drivetrain.targetState = SwerveDriveTrain.TargetState.AUTONOMOUS;
+				drivetrain.targetState = Drive.TargetState.AUTONOMOUS;
 				intake.targetState = Intake.TargetState.DEFAULT;
 				arm.targetState = Arm.TargetState.DEFAULT;
 				break;
@@ -391,11 +392,11 @@ public class Superstructure extends SubsystemBase {
 				break;
 			case SCORING_UP_LEFT: 
 				arm.targetState = Arm.TargetState.SCORE_LVL3;
-				drivetrain.targetState = SwerveDriveTrain.TargetState.STOP;
+				drivetrain.targetState = Drive.TargetState.STOP;
 				break;
 			case SCORING_UP_RIGHT:
 				arm.targetState = Arm.TargetState.SCORE_LVL3;
-				drivetrain.targetState = SwerveDriveTrain.TargetState.STOP;
+				drivetrain.targetState = Drive.TargetState.STOP;
 				break;
 			case REMOVING_ALGAE_L2:
 				intake.targetState = Intake.TargetState.TAKE_ALGAE_L2;
@@ -424,25 +425,25 @@ public class Superstructure extends SubsystemBase {
 				arm.targetState = Arm.TargetState.SCORE_LVL2;
 				break;
 			case NAVIGATING_UP_LEFT:
-				drivetrain.targetState = SwerveDriveTrain.TargetState.NAVIGATE_UP_LEFT;
+				drivetrain.targetState = Drive.TargetState.NAVIGATE_UP_LEFT;
 				break;
 			case NAVIGATING_UP_RIGHT:
-				drivetrain.targetState = SwerveDriveTrain.TargetState.NAVIGATE_UP_RIGHT;
+				drivetrain.targetState = Drive.TargetState.NAVIGATE_UP_RIGHT;
 				break;
 			case NAVIGATING_DOWN_LEFT:
-				drivetrain.targetState = SwerveDriveTrain.TargetState.NAVIGATE_DOWN_LEFT;
+				drivetrain.targetState = Drive.TargetState.NAVIGATE_DOWN_LEFT;
 				break;
 			case NAVIGATING_DOWN_RIGHT:
-				drivetrain.targetState = SwerveDriveTrain.TargetState.NAVIGATE_DOWN_RIGHT;
+				drivetrain.targetState = Drive.TargetState.NAVIGATE_DOWN_RIGHT;
 				break;
 			case NAVIGATING_ALGAE:
 				arm.targetState = drivetrain.getAlgaePose() ? 
 					Arm.TargetState.TAKE_ALGAE_L3 : Arm.TargetState.TAKE_ALGAE_L2;
 				
-				drivetrain.targetState = SwerveDriveTrain.TargetState.NAVIGATE_ALGAE;
+				drivetrain.targetState = Drive.TargetState.NAVIGATE_ALGAE;
 				break;
 			case EXITING_LVL3:
-				drivetrain.targetState = SwerveDriveTrain.TargetState.TELEOP_DRIVE;
+				drivetrain.targetState = Drive.TargetState.TELEOP_DRIVE;
 				intake.targetState = Intake.TargetState.EJECT_FORWARD;
 				arm.targetState = Arm.TargetState.DEFAULT;
 				break;
