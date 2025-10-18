@@ -14,6 +14,13 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 
+import org.littletonrobotics.junction.LogFileUtil;
+import org.littletonrobotics.junction.LoggedRobot;
+import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.networktables.NT4Publisher;
+import org.littletonrobotics.junction.wpilog.WPILOGReader;
+import org.littletonrobotics.junction.wpilog.WPILOGWriter;
+
 import com.ctre.phoenix6.Orchestra;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.swerve.SwerveDrivetrain.SwerveDriveState;
@@ -45,7 +52,7 @@ import frc.robot.LimelightHelpers.PoseEstimate;
 
 // https://prod.liveshare.vsengsaas.visualstudio.com/join?A272BB5848034C8CE6F916D34B585613FF9F
 
-public class Robot extends TimedRobot {
+public class Robot extends LoggedRobot {
 
     private Command m_autonomousCommand;
     public boolean utilizeLimelight = true;
@@ -66,25 +73,28 @@ public class Robot extends TimedRobot {
         SmartDashboard.putData("Navigate Target Pose", nearestPoseField);
 
         for (String limelight : Constants.LIMELIGHT_NAMES) {
-          SmartDashboard.putBoolean(limelight + " detecting", false);
+            SmartDashboard.putBoolean(limelight + " detecting", false);
         }
 
-        // ! Memory Error; implement when ur system doesn't suck.
-        // Logger.recordMetadata("Hotwire Project", "2026"); // Set a metadata value
+        Logger.recordMetadata("Hotwire Project", "2026"); // Set a metadata value
 
-        // if (isReal()) {
-        // Logger.addDataReceiver(new WPILOGWriter()); // Log to a USB stick ("/U/logs")
-        // Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
-        // } else {
-        // setUseTiming(false); // Run as fast as possible
-        // String logPath = LogFileUtil.findReplayLog(); // Pull the replay log from
-        // AdvantageScope (or prompt the user)
-        // Logger.setReplaySource(new WPILOGReader(logPath)); // Read replay log
-        // Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath,
-        // "_sim"))); // Save outputs to a new log
-        // }
+        if (isReal()) {
+            Logger.addDataReceiver(new WPILOGWriter()); // Log to a USB stick ("/U/logs")
+            Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
+        } else {
+            setUseTiming(false); // Run as fast as possible
+            String logPath = LogFileUtil.findReplayLog(); // Pull the replay log from
+            // AdvantageScope (or prompt the user)
+            Logger.setReplaySource(new WPILOGReader(logPath)); // Read replay log
+            Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath,
+            "_sim"))); // Save outputs to a new log
+        }
 
-        // Logger.start(); // Start logging! No more data receivers, replay sources, or
+        Logger.recordMetadata("GitSHA", BuildConstants.GIT_SHA);
+
+        Logger.recordOutput("Intake Target State", m_robotContainer.intake.targetState);
+
+        Logger.start(); // Start logging! No more data receivers, replay sources, or
         // metadata values may be added.
     }
 
