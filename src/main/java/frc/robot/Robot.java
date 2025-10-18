@@ -227,7 +227,7 @@ public class Robot extends LoggedRobot {
                   SmartDashboard.putBoolean(limelight + " detecting", true);
                   detectedFlag = true;
                   m_robotContainer.drivetrain.addVisionMeasurement(limelightMeasurement.pose,
-                    limelightMeasurement.timestampSeconds, VecBuilder.fill(0.0, 0.0, 0.0));
+                    limelightMeasurement.timestampSeconds, VecBuilder.fill(1.0, 1.0, Double.POSITIVE_INFINITY));
                   llestamation.setRobotPose(limelightMeasurement.pose);
               } else {
                   SmartDashboard.putBoolean(limelight + " detecting", false);
