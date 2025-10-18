@@ -1,4 +1,4 @@
-package frc.robot;
+package frc.robotnew;
 
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Inches;
@@ -24,6 +24,7 @@ import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.generated.TunerConstants;
 import edu.wpi.first.units.*;
@@ -69,6 +70,8 @@ public class Constants {
 		
 	}
 
+	public static final Distance MaxDetectionRadius = Meters.of(2.75);
+
 	public static final Distance EXIT_DISTANCE = Meters.of(0.3);
 
 	public static final CommandXboxController driver   = new CommandXboxController(0);
@@ -95,7 +98,7 @@ public class Constants {
 	public class WristPositions {
 		public static final Angle INTAKE = Rotations.of(-0.01);
 		public static final Angle LVL2 = Rotations.of(0.295);
-		public static final Angle LVL3 = Rotations.of(0.2); // Old Position 0.232
+		public static final Angle LVL3 = Rotations.of(0.252); // Old Position 0.232
 		public static final Angle STOW = Rotations.of(0.3);
 		public static final Angle STARTING = Rotations.of(-0.394);
 
@@ -115,7 +118,7 @@ public class Constants {
 	public class ArmPositions {
 		public static final Angle LVL2 = Rotations.of(0.048); // Old Position is 0.048
 		public static final Angle LVL3 = Rotations.of(0.271); // Old Position is 0.251
-		public static final Angle START = Rotations.of(0); //! Change me
+		// public static final Angle START = Rotations.of(0); //! Change me
 		public static final Angle FLOOR = Rotations.of(-0.0762); // Old Position: -0.0695
 		public static final Angle EXIT_STARTING = Rotations.of(0.21); // Start is 0.114
 
@@ -293,6 +296,11 @@ public class Constants {
 		}
 
 		return id;
+	}
+
+	public static Boolean nearestAlgaeTagIsL2(Pose2d robotPose) {
+		int id = nearestAlgaeId(robotPose);
+		return ((id % 2) == (DriverStation.getAlliance().get() == Alliance.Red?1:0));
 	}
 
 	public static Optional<Pose2d> nearestBranchPose(Pose2d robotPose, Tracks types, Distance offset) {

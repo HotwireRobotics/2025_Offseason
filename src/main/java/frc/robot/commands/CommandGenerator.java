@@ -9,12 +9,12 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import frc.robot.subsystems.SwerveDriveTrain;
+import frc.robot.subsystems.Superstructure;
 import frc.robot.Constants;
 import frc.robot.Robot;
 import frc.robot.RobotContainer;
 import frc.robot.Constants.Tracks;
-import frc.robot.subsystems.DriveTrain;
-import frc.robot.subsystems.Superstructure;
 
 public class CommandGenerator {
 	public static Command goToNearestBranch(RobotContainer container, Tracks types) {
@@ -38,7 +38,7 @@ public class CommandGenerator {
 		}, Set.of(container.drivetrain));
 	}
 
-	public static Command goToNearestTag(DriveTrain drivetrain) {
+	public static Command goToNearestTag(SwerveDriveTrain drivetrain) {
 		return Commands.defer(() -> {
 			Pose2d nearestPose = Constants.nearestTagPose(drivetrain.getState().Pose).get();
 			Command command = AutoBuilder.pathfindToPose(nearestPose, Constants.constraints);
@@ -47,7 +47,7 @@ public class CommandGenerator {
 		}, Set.of(drivetrain));
 	}
 
-	public static Command goRightTwoBranchWidths(DriveTrain drivetrain) {
+	public static Command goRightTwoBranchWidths(SwerveDriveTrain drivetrain) {
 		return Commands.defer(() -> {
 			Pose2d pose = Constants.rightTwoPoleLengths(drivetrain.getState().Pose).get();
 			Command command = AutoBuilder.pathfindToPose(pose, Constants.constraints);
@@ -60,7 +60,7 @@ public class CommandGenerator {
 		}, Set.of(drivetrain));
 	}
 
-	public static Command goLeftTwoBranchWidths(DriveTrain drivetrain) {
+	public static Command goLeftTwoBranchWidths(SwerveDriveTrain drivetrain) {
 		return Commands.defer(() -> {
 			Pose2d pose = Constants.leftTwoPoleLengths(drivetrain.getState().Pose).get();
 			Command command = AutoBuilder.pathfindToPose(pose, Constants.constraints);

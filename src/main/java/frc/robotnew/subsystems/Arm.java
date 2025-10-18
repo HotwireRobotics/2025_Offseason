@@ -1,4 +1,4 @@
-package frc.robot.subsystems;
+package frc.robotnew.subsystems;
 
 import static edu.wpi.first.units.Units.*;
 
@@ -7,14 +7,14 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
+import frc.robotnew.Constants;
 
 /**
  * Example subsystem class.
  */
-public class ExampleArm extends SubsystemBase {
+public class Arm extends SubsystemBase {
 
-	// -------- Hardware --------
+	//* -------- Hardware --------
 
 	/**
 	 * Arm base motor.
@@ -25,17 +25,19 @@ public class ExampleArm extends SubsystemBase {
 	 */
 	TalonFX m_wrist;
 
-	// ----- Initialization -----
+	//* ----- Initialization -----
 
 	/**
 	 * Constructor for the subsystem.
 	 */
-	public ExampleArm() {
+	public Arm() {
 		m_base = new TalonFX(Constants.MotorIDs.arm_base_id);
 		m_wrist = new TalonFX(Constants.MotorIDs.arm_wrist_id);
 	}
 
-	// ----- Periodic -----
+	Command command;
+
+	//* ----- Periodic -----
 
 	/**
 	 * Periodic method for the subsystem.
@@ -45,40 +47,43 @@ public class ExampleArm extends SubsystemBase {
 		
 	}
 
-	// ----- State Management -----
+	//* ----- State Management -----
 	
 	/**
 	 * Subsystem state options.
 	 */
 	public enum State {
+		STOPPED,
 		TRANSIT,
 
 		FLOOR,
 		L2,L3,
+		AGEL2,
+		AGEL3,
 	}
 
 	/** 
 	 * Active subsystem state.
 	*/
-	private State state = State.FLOOR;
+	private State state = State.STOPPED;
 
 	/**
 	 * Returns the active subsystem state.	
 	 *
 	 * @return <code>state</code>
 	 */
-	public State getState() {
+	public State getSysState() {
 		return state;
 	}
 
 	/**
 	 * Sets the active subsystem state.
 	 */
-	public void setState(State newState) {
+	public void setSysState(State newState) {
 		state = newState;
 	}
 
-	// ----- Private Methods -----
+	//* ----- Private Methods -----
 
 	/**
 	 * Sets the target position of <code>m_base</code>.
@@ -96,6 +101,14 @@ public class ExampleArm extends SubsystemBase {
 	 */
 	private void setWristPose(Angle angle) {
 		m_wrist.setControl(Constants.Requests.MOTIONMAGIC.withPosition(angle));
+	}
+
+	private void killArm() {
+		m_base.setControl(Constants.Requests.ZERO);
+	}
+
+	private void killWrist() {
+		m_wrist.setControl(Constants.Requests.ZERO);
 	}
 
 	/**
@@ -120,7 +133,7 @@ public class ExampleArm extends SubsystemBase {
 		return Math.abs(m_wrist.getPosition().getValueAsDouble() - target.in(Rotations)) <= tolerance.in(Rotations);
 	}
 
-	// ------- Commands -------
+	//* ------- Commands -------
 
 	/**
 	 * Brings the arm from its' current position to a target position.
@@ -140,10 +153,13 @@ public class ExampleArm extends SubsystemBase {
 		State endState;
 
 		public ArmToPose(Angle armTarget, Angle wristTarget, State endState) {
+			super();
 			this.armTarget = armTarget;
 			this.wristTarget = wristTarget;
 
 			this.endState = endState;
+
+			addRequirements(Arm.this);
 		}
 
 		/**
@@ -151,7 +167,7 @@ public class ExampleArm extends SubsystemBase {
 		 */
 		@Override
 		public void initialize() {
-			setState(State.TRANSIT);
+			setSysState(State.TRANSIT);
 			
 			setArmPose(armTarget);
 			setWristPose(wristTarget);
@@ -162,7 +178,7 @@ public class ExampleArm extends SubsystemBase {
 		 */
 		@Override
 		public void execute() {
-			setState(State.TRANSIT);
+			setSysState(State.TRANSIT);
 		}
 
 		/**
@@ -181,7 +197,22 @@ public class ExampleArm extends SubsystemBase {
 		 */
 		@Override
 		public void end(boolean interrupted) {
-			setState(State.FLOOR);
+			setSysState(State.FLOOR);
+		}
+	}
+
+	/**
+	 * Moves the arm to the intake position.
+	 */
+	public class ArmToIntake extends ArmToPose {
+		public ArmToIntake() {
+			super(Constants.ArmPositions.FLOOR, Constants.WristPositions.INTAKE, State.FLOOR);
+		}
+
+		@Override
+		public void end(boolean interrupted) {
+			super.end(interrupted);
+			killArm();
 		}
 	}
 
@@ -191,6 +222,12 @@ public class ExampleArm extends SubsystemBase {
 	public class ArmToFloor extends ArmToPose {
 		public ArmToFloor() {
 			super(Constants.ArmPositions.FLOOR, Constants.WristPositions.STOW, State.FLOOR);
+		}
+
+		@Override
+		public void end(boolean interrupted) {
+			super.end(interrupted);
+			killArm();
 		}
 	}
 
@@ -209,6 +246,24 @@ public class ExampleArm extends SubsystemBase {
 	public class ArmToL3 extends ArmToPose {
 		public ArmToL3() {
 			super(Constants.ArmPositions.LVL3, Constants.WristPositions.LVL3, State.L3);
+		}
+	}
+
+	/**
+	 * Moves the arm to the Algae L3 position.
+	 */
+	public class ArmAGEL3 extends ArmToPose {
+		public ArmAGEL3() {
+			super(Constants.ArmPositions.TAKE_ALGAE_L3, Constants.WristPositions.TAKE_L2, State.L3);
+		}
+	}
+
+	/**
+	 * Moves the arm to the Algae L2 position.
+	 */
+	public class ArmAGEL2 extends ArmToPose {
+		public ArmAGEL2() {
+			super(Constants.ArmPositions.TAKE_ALGAE_L2, Constants.WristPositions.TAKE_ALGAE_L3, State.L3);
 		}
 	}
 }

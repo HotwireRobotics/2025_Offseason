@@ -4,28 +4,28 @@
     {
       "anchor": {
         "x": 5.802049180327868,
-        "y": 4.1748463114754095
+        "y": 3.865
       },
       "prevControl": null,
       "nextControl": {
         "x": 6.802049180327868,
-        "y": 4.1748463114754095
+        "y": 3.865
       },
       "isLocked": false,
       "linkedName": "Center End Point"
     },
     {
       "anchor": {
-        "x": 6.5,
-        "y": 4.175
+        "x": 7.024795081967212,
+        "y": 4.318698770491803
       },
       "prevControl": {
-        "x": 5.5,
-        "y": 4.175
+        "x": 6.024795081967212,
+        "y": 4.318698770491803
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "StartAlgaeRemove"
     }
   ],
   "rotationTargets": [],
@@ -48,7 +48,7 @@
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 180.0
   },
   "useDefaultConstraints": true
 }

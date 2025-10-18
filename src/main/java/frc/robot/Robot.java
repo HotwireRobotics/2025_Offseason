@@ -6,6 +6,7 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.Celsius;
 import static edu.wpi.first.units.Units.Fahrenheit;
+import static edu.wpi.first.units.Units.Rotations;
 
 import java.util.ArrayList;
 import java.util.Dictionary;
@@ -13,11 +14,19 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 
+import org.littletonrobotics.junction.LogFileUtil;
+import org.littletonrobotics.junction.LoggedRobot;
+import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.networktables.NT4Publisher;
+import org.littletonrobotics.junction.wpilog.WPILOGReader;
+import org.littletonrobotics.junction.wpilog.WPILOGWriter;
+
 import com.ctre.phoenix6.Orchestra;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.swerve.SwerveDrivetrain.SwerveDriveState;
 import com.pathplanner.lib.commands.PathfindingCommand;
 
+import edu.wpi.first.math.estimator.PoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
@@ -34,15 +43,16 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Subsystem;
-import frc.robot.Constants.Tracks;
 import frc.robot.LimelightHelpers.PoseEstimate;
 import frc.robot.commands.ArmToPose;
 import edu.wpi.first.units.BaseUnits.*;
 import frc.robot.subsystems.*;
+import frc.robotnew.Constants.Tracks;
+import frc.robot.LimelightHelpers.PoseEstimate;
 
 // https://prod.liveshare.vsengsaas.visualstudio.com/join?A272BB5848034C8CE6F916D34B585613FF9F
 
-public class Robot extends TimedRobot {
+public class Robot extends LoggedRobot {
 
     private Command m_autonomousCommand;
     public boolean utilizeLimelight = true;
@@ -62,22 +72,29 @@ public class Robot extends TimedRobot {
         SmartDashboard.putData("Robot Pose", robotPose);
         SmartDashboard.putData("Navigate Target Pose", nearestPoseField);
 
-        // ! Memory Error; implement when ur system doesn't suck.
-        // Logger.recordMetadata("Hotwire Project", "2026"); // Set a metadata value
+        for (String limelight : Constants.LIMELIGHT_NAMES) {
+            SmartDashboard.putBoolean(limelight + " detecting", false);
+        }
 
-        // if (isReal()) {
-        // Logger.addDataReceiver(new WPILOGWriter()); // Log to a USB stick ("/U/logs")
-        // Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
-        // } else {
-        // setUseTiming(false); // Run as fast as possible
-        // String logPath = LogFileUtil.findReplayLog(); // Pull the replay log from
-        // AdvantageScope (or prompt the user)
-        // Logger.setReplaySource(new WPILOGReader(logPath)); // Read replay log
-        // Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath,
-        // "_sim"))); // Save outputs to a new log
-        // }
+        Logger.recordMetadata("Hotwire Project", "2026"); // Set a metadata value
 
-        // Logger.start(); // Start logging! No more data receivers, replay sources, or
+        if (isReal()) {
+            Logger.addDataReceiver(new WPILOGWriter()); // Log to a USB stick ("/U/logs")
+            Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
+        } else {
+            setUseTiming(false); // Run as fast as possible
+            String logPath = LogFileUtil.findReplayLog(); // Pull the replay log from
+            // AdvantageScope (or prompt the user)
+            Logger.setReplaySource(new WPILOGReader(logPath)); // Read replay log
+            Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath,
+            "_sim"))); // Save outputs to a new log
+        }
+
+        Logger.recordMetadata("GitSHA", BuildConstants.GIT_SHA);
+
+        Logger.recordOutput("Intake Target State", m_robotContainer.intake.targetState);
+
+        Logger.start(); // Start logging! No more data receivers, replay sources, or
         // metadata values may be added.
     }
 
@@ -86,9 +103,18 @@ public class Robot extends TimedRobot {
         Filesystem.getDeployDirectory() + "/orchestra/mac.chrp"
     );
 
+    double armTargetValue;
+    double wristTargetValue;
+
     @Override
     public void robotInit() {
       PathfindingCommand.warmupCommand().schedule();
+
+      armTargetValue = m_robotContainer.arm.armTarget.magnitude();
+      wristTargetValue = m_robotContainer.arm.wristTarget.magnitude();
+
+      SmartDashboard.putNumber("Wrist Target", wristTargetValue);
+      SmartDashboard.putNumber("Arm Target", armTargetValue);
 
       // var status = m_orchestra.loadMusic("track.chrp");
 
@@ -100,6 +126,8 @@ public class Robot extends TimedRobot {
       // m_orchestra.addInstrument(m_robotContainer.drivetrain.getModule(3).getDriveMotor());
       // m_orchestra.play(); // TODO Make orchestra function.
     }
+
+    
 
     @Override
     public void robotPeriodic() {
@@ -139,6 +167,12 @@ public class Robot extends TimedRobot {
 // 
         SmartDashboard.putBoolean("Is Route Complete", m_robotContainer.superstructure.routeComplete);
 
+        wristTargetValue = SmartDashboard.getNumber("Wrist Target", 0);
+        armTargetValue   = SmartDashboard.getNumber("Arm Target", 0);
+
+        m_robotContainer.arm.armTarget = Rotations.of(armTargetValue);
+        m_robotContainer.arm.wristTarget = Rotations.of(wristTargetValue);
+
         robotPose.setRobotPose(m_robotContainer.drivetrain.getState().Pose);
         
         if (utilizeLimelight) {
@@ -163,27 +197,47 @@ public class Robot extends TimedRobot {
             //     m_robotContainer.arm)
             //   ));
 
+            
 
             /*
-            //  * `limelight-one` is back.
+             * `limelight-one` is back.
              * `limelight-two` is front.
              */
-            String[] limelightNames = {"limelight-two", "limelight-one"};
-
-            for (String limelight : limelightNames) {
+            
+            boolean detectedFlag = false;
+            for (String limelight : Constants.LIMELIGHT_NAMES) {
 
               driveState = m_robotContainer.drivetrain.getState();
               headingDeg = driveState.Pose.getRotation().getDegrees();
               omegaRPS = Units.radiansToRotations(driveState.Speeds.omegaRadiansPerSecond);
+              /**
+               * Pipeline 0 is for the red side,
+               * Pipeline 1 is for the blue side.
+               */
+              // LimelightHelpers.setPipelineIndex(limelight, (DriverStation.getAlliance().get() == DriverStation.Alliance.Red) ? 0 : 1);
               LimelightHelpers.setPipelineIndex(limelight, 0);
               LimelightHelpers.SetRobotOrientation(limelight, headingDeg, 0, 0, 0, 0, 0);
               limelightMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue(limelight);
 
               if ((limelightMeasurement != null) && (limelightMeasurement.tagCount > 0) && (Math.abs(omegaRPS) < 2) && (limelightMeasurement.avgTagDist < 2.75)) {
                   measurements.add(limelightMeasurement);
+                  SmartDashboard.putBoolean(limelight + " detecting", true);
+                  detectedFlag = true;
                   m_robotContainer.drivetrain.addVisionMeasurement(limelightMeasurement.pose,
                     limelightMeasurement.timestampSeconds);
                   llestamation.setRobotPose(limelightMeasurement.pose);
+              } else {
+                  SmartDashboard.putBoolean(limelight + " detecting", false);
+              }
+            }
+            if (detectedFlag) {
+              detectedFlag = false;
+              for (String limelightName : Constants.LIMELIGHT_NAMES) {
+                LimelightHelpers.setLEDMode_ForceOn(limelightName);
+              }
+            } else {
+              for (String limelightName : Constants.LIMELIGHT_NAMES) {
+                LimelightHelpers.setLEDMode_ForceOff(limelightName);
               }
             }
 
@@ -288,6 +342,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void teleopPeriodic() {
+      // m_robotContainer.superstructure.targetState = Superstructure.TargetState.TESTING;
       SmartDashboard.putString("Drivetrain State", 
         m_robotContainer.drivetrain.currentState.toString()
       );

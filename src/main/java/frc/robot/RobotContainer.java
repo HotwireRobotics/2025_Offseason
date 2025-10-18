@@ -17,6 +17,7 @@ import edu.wpi.first.units.measure.Distance;
 
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 import edu.wpi.first.wpilibj.Filesystem;
@@ -32,7 +33,10 @@ import frc.robot.commands.CommandGenerator;
 import frc.robot.commands.SetTargetPose;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.*;
+import frc.robot.subsystems.Arm.TargetState;
+import frc.robot.subsystems.Superstructure;
 
+import java.lang.annotation.Target;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -46,7 +50,7 @@ public class RobotContainer {
     /**
 	 * <strong>Drivetrain Subsystem</strong>
 	 */
-    public final DriveTrain drivetrain = TunerConstants.createDrivetrain();
+    public final SwerveDriveTrain drivetrain = TunerConstants.createDrivetrain();
     /**
 	 * <strong>Arm Subsystem</strong>
 	 */
@@ -65,14 +69,51 @@ public class RobotContainer {
     // TODO
 
     public RobotContainer() {
+        SmartDashboard.putString("Auto Step", "None");
         NamedCommands.registerCommand("ExitStart", new InstantCommand(() -> {
+            SmartDashboard.putString("Auto Step", "ExitStart");
             superstructure.targetState = Superstructure.TargetState.EXIT_STARTING_POSE;
         }));
+        class ScoreL3 extends Command {
+            @Override
+            public void initialize() {
+                SmartDashboard.putString("Auto Step", "GoToL3");
+                superstructure.targetState = Superstructure.TargetState.GO_TO_LVL3;
+            }
+
+            @Override
+            public void execute() {
+                if (
+                    arm.isArmAtPosition(Constants.ArmPositions.LVL3, Rotations.of(0.025)) &&
+                    arm.isWristAtPosition(Constants.WristPositions.LVL3, Rotations.of(0.025))
+                ) {
+                    intake.targetState = Intake.TargetState.EJECT_FORWARD;
+                    arm.targetState = Arm.TargetState.DEFAULT;
+                }
+            }
+
+            @Override
+            public void end(boolean interrupted) {
+                superstructure.targetState = Superstructure.TargetState.AUTONOMOUS;
+            }
+
+            @Override
+            public boolean isFinished() {
+                return !intake.hasCoral();
+            }
+        }
+        NamedCommands.registerCommand("GoToL3", new ScoreL3());
         NamedCommands.registerCommand("EjectCoral", new InstantCommand(() -> {
+            SmartDashboard.putString("Auto Step", "EjectCoral");
             superstructure.targetState = Superstructure.TargetState.EJECT;
         }));
         NamedCommands.registerCommand("ToDefault", new InstantCommand(() -> {
+            SmartDashboard.putString("Auto Step", "ToDefault");
             superstructure.targetState = Superstructure.TargetState.DEFAULT;
+        }));
+        NamedCommands.registerCommand("ToAlgaeL2", new InstantCommand(() -> {
+            SmartDashboard.putString("Auto Step", "ToAlgaeL2");
+            superstructure.targetState = Superstructure.TargetState.ALGAE_L2_AUTO;
         }));
         configureBindings();
         autoChooser = AutoBuilder.buildAutoChooser();
@@ -92,90 +133,7 @@ public class RobotContainer {
         // music.play(); // TODO Make orchestra function.
 
         drivetrain.setDefaultCommand(drivetrain.applyRequest(() -> brake));
-
-        // Constants.driver.leftBumper().onTrue(CommandGenerator.goToNearestBranch(this, Tracks.left));
-        // Constants.driver.rightBumper().onTrue(CommandGenerator.goToNearestBranch(this, Tracks.right));
-
-        // Left POV button navigates right to the righthand branch.
-        // Constants.driver.povRight().onTrue(
-        //     CommandGenerator.goRightTwoBranchWidths(drivetrain)
-        // );
-
-        // Left POV button navigates left to the lefthand branch.
-        // Constants.driver.povLeft().onTrue(
-        //     CommandGenerator.goLeftTwoBranchWidths(drivetrain)
-        // );
-
-        // Right bumper navigates to the nearest lefthand branch.
-        // Constants.driver.leftBumper().onTrue(
-        //     new SetTargetPose(
-        //         superstructure, drivetrain, Constants.nearestBranchPose(drivetrain.getState().Pose, Tracks.left).get(),
-        //         Superstructure.TargetState.SCORE_LEFT
-        //     )
-        // );
-
-        // Right bumper navigates to the nearest righthand branch.
-        // Constants.driver.rightBumper().onTrue(
-        //     new SetTargetPose(
-        //         superstructure, drivetrain, Constants.nearestBranchPose(drivetrain.getState().Pose, Tracks.right).get(),
-        //         Superstructure.TargetState.SCORE_RIGHT
-        //     )
-        // );
-
-        // // Right trigger controls percentage motor voltage.
-        // Constants.driver.rightTrigger().onTrue(
-        //     new InstantCommand(() -> {
-        //         arm.setBaseMotor(Constants.driver.getRightTriggerAxis());
-        //     })
-        // );
-
-        //! ==== Temporary ====
-        // Constants.driver.x().whileTrue(
-        //     new InstantCommand(() -> {
-        //         intake.targetState = Intake.TargetState.COLLECT;
-        //     })
-        // ).onFalse(
-        //     new InstantCommand(() -> {
-        //         intake.targetState = Intake.TargetState.HOLD;
-        //     })
-        // );
-
-        // Constants.driver.povUp().whileTrue(
-        //     new InstantCommand(() -> {
-        //         intake.targetState = Intake.TargetState.EJECT_BACKWARD;
-        //     })
-        // );
-
-        // Constants.driver.y().onTrue(
-        //     new InstantCommand(() -> {
-        //         position_index ++;
-        //         if (position_index >= positions.length) {position_index = 0;}
-        //         arm.setWristMotorPosition(positions[position_index].magnitude());
-        //     })
-        // );
-
-        // Constants.operator.y().onTrue(
-        //     new InstantCommand(() -> {
-        //         arm.setArmMotorPosition(Constants.ArmPositions.LVL2.magnitude());
-        //     })
-        // );
-        // Constants.operator.b().onTrue(
-        //     new InstantCommand(() -> {
-        //         arm.setWristMotorPosition(Constants.WristPositions.LVL2.magnitude());
-        //     })
-        // );
-        // Constants.operator.a().onTrue(
-        //     new InstantCommand(() -> {
-        //         arm.pauseArmMotor();
-        //     })
-        // );
-        // Constants.operator.x().onTrue(
-        //     new InstantCommand(() -> {
-        //         arm.setWristMotorPosition(Constants.WristPositions.INTAKE.magnitude());
-        //     })
-        // );
-        //! ==== Temporary ====
-
+        
         //#####################################INTAKE#########################################
 
         // Lower the intake.
@@ -209,7 +167,18 @@ public class RobotContainer {
         // Run arm up.
         Constants.driver.povUp().whileTrue(
             new InstantCommand(() -> {
-                System.out.println("Arm");
+                System.out.println("Exit Start");
+                superstructure.targetState = Superstructure.TargetState.EXIT_STARTING_POSE;
+            })
+        ).onFalse(
+            new InstantCommand(() -> {
+                System.out.println("Default");
+                superstructure.targetState = Superstructure.TargetState.DEFAULT;
+            })
+        );
+        Constants.operator.povUp().whileTrue(
+            new InstantCommand(() -> {
+                System.out.println("Exit Start");
                 superstructure.targetState = Superstructure.TargetState.EXIT_STARTING_POSE;
             })
         ).onFalse(
@@ -222,7 +191,18 @@ public class RobotContainer {
         // Eject.
         Constants.driver.povRight().whileTrue(
             new InstantCommand(() -> {
-                System.out.println("Arm");
+                System.out.println("Eject");
+                superstructure.targetState = Superstructure.TargetState.EJECT;
+            })
+        ).onFalse(
+            new InstantCommand(() -> {
+                System.out.println("Default");
+                superstructure.targetState = Superstructure.TargetState.DEFAULT;
+            })
+        );
+        Constants.operator.povRight().whileTrue(
+            new InstantCommand(() -> {
+                System.out.println("Eject");
                 superstructure.targetState = Superstructure.TargetState.EJECT;
             })
         ).onFalse(
@@ -254,11 +234,10 @@ public class RobotContainer {
         // Remove Algae
         Constants.operator.povDown().onTrue(
             new InstantCommand(() -> {
-                System.out.println("Up-Left");
                 superstructure.targetState = Superstructure.TargetState.NAVIGATE_ALGAE;
             })
         );
-
+        
         //####################################################################################
 
         Constants.operator.rightTrigger().onTrue(
@@ -277,16 +256,16 @@ public class RobotContainer {
 
         //####################################################################################
 
-        //! Emergency Bootonne
+        // Abort function.
         Constants.operator.back().onTrue(
             new InstantCommand(() -> {
-                System.out.println("Yo, dis bad");
+                System.out.println("Abort");
                 superstructure.targetState = Superstructure.TargetState.DEFAULT;
             })
         );
         Constants.driver.back().onTrue(
             new InstantCommand(() -> {
-                System.out.println("Yo, dis bad");
+                System.out.println("Abort");
                 superstructure.targetState = Superstructure.TargetState.DEFAULT;
             })
         );
