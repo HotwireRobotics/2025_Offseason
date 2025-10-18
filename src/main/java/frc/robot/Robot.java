@@ -47,6 +47,7 @@ import frc.robot.LimelightHelpers.PoseEstimate;
 import frc.robot.commands.ArmToPose;
 import edu.wpi.first.units.BaseUnits.*;
 import frc.robot.subsystems.*;
+import frc.robot.subsystems.intake.Intake;
 import frc.robotnew.Constants.Tracks;
 import frc.robot.LimelightHelpers.PoseEstimate;
 
@@ -67,7 +68,7 @@ public class Robot extends LoggedRobot {
     private final RobotContainer m_robotContainer;
 
     public Robot() {
-        m_robotContainer = new RobotContainer();
+        m_robotContainer = new RobotContainer(isReal());
         SmartDashboard.putData("Limelight Pose", llestamation);
         SmartDashboard.putData("Robot Pose", robotPose);
         SmartDashboard.putData("Navigate Target Pose", nearestPoseField);
@@ -86,8 +87,9 @@ public class Robot extends LoggedRobot {
             String logPath = LogFileUtil.findReplayLog(); // Pull the replay log from
             // AdvantageScope (or prompt the user)
             Logger.setReplaySource(new WPILOGReader(logPath)); // Read replay log
-            Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath,
-            "_sim"))); // Save outputs to a new log
+            Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim"))); // Save outputs to a new log
+
+
         }
 
         Logger.recordMetadata("GitSHA", BuildConstants.GIT_SHA);

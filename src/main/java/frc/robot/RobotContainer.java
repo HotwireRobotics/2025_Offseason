@@ -33,8 +33,11 @@ import frc.robot.commands.CommandGenerator;
 import frc.robot.commands.SetTargetPose;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.*;
-import frc.robot.subsystems.Arm.TargetState;
-import frc.robot.subsystems.Superstructure;
+import frc.robot.subsystems.arm.Arm;
+import frc.robot.subsystems.arm.Arm.TargetState;
+import frc.robot.subsystems.drivetrain.SwerveDriveTrain;
+import frc.robot.subsystems.intake.Intake;
+import frc.robotnew.subsystems.DriveTrain;
 
 import java.lang.annotation.Target;
 import java.nio.file.Path;
@@ -50,25 +53,40 @@ public class RobotContainer {
     /**
 	 * <strong>Drivetrain Subsystem</strong>
 	 */
-    public final SwerveDriveTrain drivetrain = TunerConstants.createDrivetrain();
+    public final SwerveDriveTrain drivetrain;
     /**
 	 * <strong>Arm Subsystem</strong>
 	 */
-    public final Arm arm = new Arm();
+    public final Arm arm;
     /**
 	 * <strong>Intake Subsystem</strong>
 	 */
-    public final Intake intake = new Intake();
+    public final Intake intake;
     /**
 	 * <strong>State Superstructure</strong>
 	 */
-    public final Superstructure superstructure = new Superstructure(this);
+    public final Superstructure superstructure;
 
     private final SendableChooser<Command> autoChooser;
 
     // TODO
 
-    public RobotContainer() {
+    public RobotContainer(boolean isReal) {
+        if (isReal) {
+            intake =         new Intake();
+            arm =            new Arm();
+            superstructure = new Superstructure(this);
+            drivetrain =     new SwerveDriveTrain(TunerConstants.DrivetrainConstants, 
+                                                TunerConstants.FrontLeft, TunerConstants.FrontRight, 
+                                                TunerConstants.BackLeft, TunerConstants.BackRight);
+        } else {
+            intake =         new Intake() {};
+            arm =            new Arm() {};
+            superstructure = new Superstructure(this) {};
+            drivetrain =     new SwerveDriveTrain(TunerConstants.DrivetrainConstants, 
+                                                TunerConstants.FrontLeft, TunerConstants.FrontRight, 
+                                                TunerConstants.BackLeft, TunerConstants.BackRight) {};
+        }
         SmartDashboard.putString("Auto Step", "None");
         NamedCommands.registerCommand("ExitStart", new InstantCommand(() -> {
             SmartDashboard.putString("Auto Step", "ExitStart");

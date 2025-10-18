@@ -20,7 +20,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Subsystem;
-import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.intake.Intake;
 import frc.robotnew.LimelightHelpers.PoseEstimate;
 import frc.robotnew.subsystems.DriveTrain;
 import frc.robotnew.subsystems.Superstructure;
