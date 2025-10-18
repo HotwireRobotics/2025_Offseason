@@ -57,7 +57,7 @@ import frc.robot.LimelightHelpers.PoseEstimate;
 public class Robot extends LoggedRobot {
 
     private Command m_autonomousCommand;
-    public boolean utilizeLimelight = true;
+    public boolean utilizeLimelight = false;
 
     Field2d llestamation = new Field2d();
     Field2d robotPose = new Field2d();
