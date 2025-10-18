@@ -220,14 +220,14 @@ public class Robot extends LoggedRobot {
               // LimelightHelpers.setPipelineIndex(limelight, (DriverStation.getAlliance().get() == DriverStation.Alliance.Red) ? 0 : 1);
               LimelightHelpers.setPipelineIndex(limelight, 0);
               LimelightHelpers.SetRobotOrientation(limelight, headingDeg, 0, 0, 0, 0, 0);
-              limelightMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue(limelight);
+              limelightMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelight);
 
               if ((limelightMeasurement != null) && (limelightMeasurement.tagCount > 0) && (Math.abs(omegaRPS) < 2) && (limelightMeasurement.avgTagDist < 2.75)) {
                   measurements.add(limelightMeasurement);
                   SmartDashboard.putBoolean(limelight + " detecting", true);
                   detectedFlag = true;
                   m_robotContainer.drivetrain.addVisionMeasurement(limelightMeasurement.pose,
-                    limelightMeasurement.timestampSeconds, VecBuilder.fill(Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY));
+                    limelightMeasurement.timestampSeconds, VecBuilder.fill(1.0, 1.0, Double.POSITIVE_INFINITY));
                   llestamation.setRobotPose(limelightMeasurement.pose);
               } else {
                   SmartDashboard.putBoolean(limelight + " detecting", false);
