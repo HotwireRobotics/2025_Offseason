@@ -167,11 +167,11 @@ public class Robot extends LoggedRobot {
 // 
         SmartDashboard.putBoolean("Is Route Complete", m_robotContainer.superstructure.routeComplete);
 
-        wristTargetValue = SmartDashboard.getNumber("Wrist Target", 0);
-        armTargetValue   = SmartDashboard.getNumber("Arm Target", 0);
+        // wristTargetValue = SmartDashboard.getNumber("Wrist Target", 0);
+        // armTargetValue   = SmartDashboard.getNumber("Arm Target", 0);
 
-        m_robotContainer.arm.armTarget = Rotations.of(armTargetValue);
-        m_robotContainer.arm.wristTarget = Rotations.of(wristTargetValue);
+        // m_robotContainer.arm.armTarget = Rotations.of(armTargetValue);
+        // m_robotContainer.arm.wristTarget = Rotations.of(wristTargetValue);
 
         robotPose.setRobotPose(m_robotContainer.drivetrain.getState().Pose);
         

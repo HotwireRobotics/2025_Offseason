@@ -143,8 +143,8 @@ public class Superstructure extends SubsystemBase {
 	public boolean LVL3Processes() {
 		if (intake.hasCoral()) {
 			if (
-				arm.isArmAtPosition(Constants.ArmPositions.LVL3, Rotations.of(0.025)) &&
-				arm.isWristAtPosition(Constants.WristPositions.LVL3, Rotations.of(0.025))
+				arm.isArmAtPosition(Constants.ArmPositions.LVL3, Rotations.of(0.025))
+				// arm.isWristAtPosition(Constants.WristPositions.LVL3, Rotations.of(0.025))
 			) {
 				System.out.println("Arm is in position");
 				systemState = SystemState.EJECTING_FORWARD;
@@ -167,8 +167,8 @@ public class Superstructure extends SubsystemBase {
 	public boolean LVL2Processes() {
 		if (intake.hasCoral()) {
 			if (
-				arm.isArmAtPosition(Constants.ArmPositions.LVL2, Rotations.of(0.025)) &&
-				arm.isWristAtPosition(Constants.WristPositions.LVL2, Rotations.of(0.025))
+				arm.isArmAtPosition(Constants.ArmPositions.LVL2, Rotations.of(0.025))
+				// arm.isWristAtPosition(Constants.WristPositions.LVL2, Rotations.of(0.025))
 			) {
 				System.out.println("Arm is in position");
 				systemState = SystemState.EJECTING_BACKWARD;

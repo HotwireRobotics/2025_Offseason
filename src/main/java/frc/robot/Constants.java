@@ -87,8 +87,8 @@ public class Constants {
 
 	public static final String[] LIMELIGHT_NAMES = {"limelight-two", "limelight-one"};
 
-	public static final PathConstraints constraints = new PathConstraints(3.0, 4.0, Units.degreesToRadians(540),
-			Units.degreesToRadians(720));
+	public static final PathConstraints constraints = new PathConstraints(3.0, 2.5, Units.degreesToRadians(540),
+			Units.degreesToRadians(540));
 
 	public static final Distance poleOffset = Inches.of(6.5);
 
@@ -113,7 +113,7 @@ public class Constants {
 	}
 
 	public class ArmPositions {
-		public static final Angle LVL2 = Rotations.of(0.048); // Old Position is 0.048
+		public static final Angle LVL2 = Rotations.of(0.056); // Old Position is 0.048
 		public static final Angle LVL3 = Rotations.of(0.271); // Old Position is 0.251
 		public static final Angle START = Rotations.of(0); //! Change me
 		public static final Angle FLOOR = Rotations.of(-0.0762); // Old Position: -0.0695

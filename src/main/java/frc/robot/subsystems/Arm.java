@@ -331,6 +331,7 @@ public class Arm extends SubsystemBase {
 		
 		// m_arm_wrist.setControl(Constants.Requests.MOTIONMAGIC.withPosition(position)
 		// 	.withFeedForward(feedforward));
+		SmartDashboard.putNumber("Arm Target", position);
 		m_arm_wrist.setControl(Constants.Requests.MOTIONMAGIC.withPosition(position));
 	}
 
