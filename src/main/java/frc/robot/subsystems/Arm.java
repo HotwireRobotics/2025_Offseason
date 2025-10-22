@@ -62,6 +62,7 @@ public class Arm extends SubsystemBase {
 		 */
 		STOP, 
 		IDLE,
+		AUTO,
 		EXIT_STARTING_POSE,
 		PRACTICE,
 
@@ -94,6 +95,7 @@ public class Arm extends SubsystemBase {
 		INTAKING,
 		HOMING,
 		HOME,
+		AUTO,
 
 		SCORING_LVL2,
 		SCORING_LVL3,
@@ -147,6 +149,9 @@ public class Arm extends SubsystemBase {
 			case STOP:
 				currentState = SystemState.STOPPED;
 				break;
+			case AUTO:
+				currentState = SystemState.AUTO;
+				break;
 			case RUNTOPOSE:
 				currentState = SystemState.RUNTOPOSE;
 				break;
@@ -188,6 +193,8 @@ public class Arm extends SubsystemBase {
 
 		switch (currentState) {
 			case STOPPED:
+				break;
+			case AUTO:
 				break;
 			case INTAKING:
 				pauseArmMotor();

@@ -28,6 +28,7 @@ public class Superstructure extends SubsystemBase {
 		 */
 		DEFAULT,
 		EXIT_STARTING_POSE,
+		EXIT_STARTING_POSE_TO_L2,
 		AUTONOMOUS, 
 		// Move arm and intake into scoring position.
 		SCORE_DOWN_LEFT,
@@ -73,6 +74,7 @@ public class Superstructure extends SubsystemBase {
 		 */
 		HOME,
 		EXITING_STARTING_POSE,
+		EXITING_STARTING_POSE_TO_L2,
 		AUTONOMOUS,
 		SCORING_DOWN_LEFT,
 		SCORING_UP_LEFT,
@@ -135,7 +137,11 @@ public class Superstructure extends SubsystemBase {
 			drivetrain.GO_HOME = !drivetrain.GO_HOME;
 		}
 		if (arm.IS_ARM_AT_EXIT_STARTING_POSITION) {
-			targetState = TargetState.AUTONOMOUS;
+			if (systemState == SystemState.EXITING_STARTING_POSE) {
+				targetState = TargetState.AUTONOMOUS;
+			} else if (systemState == SystemState.EXITING_STARTING_POSE) {
+				targetState = TargetState.AUTONOMOUS;
+			}
 		}
 		handleStateTransitions(); applyStates();
 	}
@@ -203,6 +209,9 @@ public class Superstructure extends SubsystemBase {
 				break;
 			case TESTING:
 				systemState = SystemState.TESTING;
+				break;
+			case EXIT_STARTING_POSE_TO_L2:
+				systemState = SystemState.EXITING_STARTING_POSE_TO_L2;
 				break;
 			case EXIT_STARTING_POSE:
 				systemState = SystemState.EXITING_STARTING_POSE;
@@ -347,8 +356,8 @@ public class Superstructure extends SubsystemBase {
 				break;
 			case AUTONOMOUS:
 				drivetrain.targetState = SwerveDriveTrain.TargetState.AUTONOMOUS;
-				intake.targetState = Intake.TargetState.DEFAULT;
-				arm.targetState = Arm.TargetState.DEFAULT;
+				intake.targetState = Intake.TargetState.AUTO;
+				arm.targetState = Arm.TargetState.AUTO;
 				break;
 			// case AUTONOMOUS:
 			// 	drivetrain.targetState = DriveTrain.TargetState.AUTONOMOUS;
@@ -401,7 +410,7 @@ public class Superstructure extends SubsystemBase {
 			case REMOVING_ALGAE_L3:
 				intake.targetState = Intake.TargetState.TAKE_ALGAE_L3;
 						
-				if (intake.getMeasurement(Intake.Range.FRONT)) {
+				if (intake.getRange(Intake.Range.FRONT)) {
 					arm.targetState = Arm.TargetState.DEFAULT;
 				} else if (
 					arm.isArmAtPosition(Constants.ArmPositions.TAKE_ALGAE_L3, Rotations.of(0.015)) &&
@@ -451,6 +460,7 @@ public class Superstructure extends SubsystemBase {
 			case GOING_TO_ALGAE_L2:
 				arm.targetState = Arm.TargetState.TAKE_ALGAE_L2;
 				break;
+			case EXITING_STARTING_POSE_TO_L2:
 			case EXITING_STARTING_POSE:
 				intake.targetState = Intake.TargetState.DEFAULT;
 				arm.targetState = Arm.TargetState.EXIT_STARTING_POSE;

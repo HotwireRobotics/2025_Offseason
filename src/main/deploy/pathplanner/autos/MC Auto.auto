@@ -1,0 +1,86 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "named",
+          "data": {
+            "name": "ExitStartToL2"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.1
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "MC Auto Exit"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "EjectCoralReverse"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.12
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "MC Auto ToAlgae"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "GoToL3"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "RemoveAlgae"
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "MC Auto ToFirstPole"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "ArmToIntake"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "CutIntake"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": null,
+  "choreoAuto": false
+}

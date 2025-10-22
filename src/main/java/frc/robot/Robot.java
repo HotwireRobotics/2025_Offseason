@@ -157,7 +157,7 @@ public class Robot extends LoggedRobot {
         SmartDashboard.putNumber("Nearest ID", m_robotContainer.drivetrain.nearestId);
 
         for (Intake.Range range : Intake.Range.values()) {
-          Boolean measurement = m_robotContainer.intake.getMeasurement(range);
+          Boolean measurement = m_robotContainer.intake.getRange(range);
           SmartDashboard.putBoolean(range.toString() + " CANrange", measurement);
         }
 

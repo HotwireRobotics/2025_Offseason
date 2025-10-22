@@ -21,7 +21,8 @@ public class Intake extends SubsystemBase {
 		EJECT_BACKWARD,
 
 		TAKE_ALGAE_L3,
-		TAKE_ALGAE_L2
+		TAKE_ALGAE_L2,
+		AUTO
 	}
 
 	public TargetState targetState = TargetState.STOPPED;
@@ -43,7 +44,8 @@ public class Intake extends SubsystemBase {
 		HOLDING_CORAL,
 
 		TAKING_ALGAE_L3,
-		TAKING_ALGAE_L2
+		TAKING_ALGAE_L2,
+		AUTO
 	}
 
 	public SystemState currentState = SystemState.STOPPED;
@@ -98,10 +100,10 @@ public class Intake extends SubsystemBase {
 	}
 
 	public void periodic() {
-		left =  getMeasurement(Range.LEFT);
-		right = getMeasurement(Range.RIGHT);
-		stop =  getMeasurement(Range.STOP);
-		front = getMeasurement(Range.FRONT);
+		left =  getRange(Range.LEFT);
+		right = getRange(Range.RIGHT);
+		stop =  getRange(Range.STOP);
+		front = getRange(Range.FRONT);
 
 		handleStateTransitions(); applyStates();
 
@@ -116,6 +118,9 @@ public class Intake extends SubsystemBase {
 		switch (targetState) {
 			case STOPPED:
 				currentState = SystemState.STOPPED;
+				break;
+			case AUTO:
+				currentState = SystemState.AUTO;
 				break;
 			case COLLECT:
 				currentState = SystemState.INTAKING_CORAL;
@@ -173,6 +178,8 @@ public class Intake extends SubsystemBase {
 
 		switch (currentState) {
 			case STOPPED:
+				break;
+			case AUTO:
 				break;
 			case INTAKING_CORAL:
 				setLeftIntake(Constants.IntakeSpeeds.MAX);
@@ -239,7 +246,7 @@ public class Intake extends SubsystemBase {
      * @param range 
 	 * Get from the <code>Range</code> enum.
      */
-	public Boolean getMeasurement(Range range) {
+	public Boolean getRange(Range range) {
 		CANrange range_obj;
 		switch (range) {
 			case RIGHT: range_obj = r_right; break;
