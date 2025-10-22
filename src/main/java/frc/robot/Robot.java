@@ -148,6 +148,14 @@ public class Robot extends LoggedRobot {
         SmartDashboard.putString("Arm TargetState", (m_robotContainer.arm.targetState).toString());
         SmartDashboard.putString("Arm SystemState", (m_robotContainer.arm.currentState).toString());
 
+        /*
+        * We should switch over to use the shuffleboard API instead of using smartdashboard- then we wont have to worry about saving configs and we wont have as much problem with shuffleboard. Here is an example:
+        * Shuffleboard.getTab("Drivetrain") // We could have multiple tabs that show different things for each subsystem and such- even a tab for the operator or driver.
+        *     .addString("Drivetrain Current State", () -> m_robotContainer.drivetrain.currentState.toString()); // Example adding a string
+        * Shuffleboard.getTab("Drivetrain")
+        *     .add("Nearest ID", m_robotContainer.drivetrain.nearestId); // Example for adding a number
+        */
+
         SmartDashboard.putString("Drivetrain TargetState", (m_robotContainer.drivetrain.targetState).toString());
         SmartDashboard.putString("Drivetrain SystemState", (m_robotContainer.drivetrain.currentState).toString());
 
