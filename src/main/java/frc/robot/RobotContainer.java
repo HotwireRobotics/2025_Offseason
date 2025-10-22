@@ -156,6 +156,14 @@ public class RobotContainer {
             public ArmExitStart() {
                 super(Constants.ArmPositions.EXIT_STARTING, Constants.WristPositions.STOW);
             }
+
+            //! Josiah's suggested changes:
+            // @Override
+            // public boolean isFinished() {
+            //     return (
+            //         arm.getBaseMotor() > Constants.ArmPositions.EXIT_STARTING + Rotations.of(0.03)
+            //     );
+            // }
         }
 
         /**
@@ -206,6 +214,9 @@ public class RobotContainer {
                 return !intake.hasCoral();
             }
         }
+        //! You have two registered commands about moving the arm to L3, one here and one farther down.
+        // This one is the one that calls `ScoreL3()` and is the one that gets called in the pathplanner auto before getting Algae
+        // Consider renaming this one and moving it down with the others.
         NamedCommands.registerCommand("GoToL3", new ScoreL3());
         
         class EjectCoral extends Command {
@@ -259,6 +270,22 @@ public class RobotContainer {
             }
         }
 
+        // BTW (i think) this is equivalent to:
+        // new RunCommand(() -> {
+        //     intake.targetState = Intake.TargetState.AUTO;
+        //     intake.setLeftIntake(1);
+        //     intake.setRightIntake(1);
+        //     intake.setRollers(1);
+        // }).until((intake.getRange(Range.STOP) || intake.getRange(Range.FRONT)));
+        // or
+        // private Command removeAlgae() {
+        //     return this.run(() -> {
+        //         intake.targetState = Intake.TargetState.AUTO;
+        //         intake.setLeftIntake(1);
+        //         intake.setRightIntake(1);
+        //         intake.setRollers(1);
+        //     }).until((intake.getRange(Range.STOP) || intake.getRange(Range.FRONT)));
+        // }
         class RemoveAlgae extends Command {
             /**
              * Run intake motors in reverse to eject coral.
@@ -277,6 +304,20 @@ public class RobotContainer {
             }
         }
 
+        // This also should be equivalent to:
+        // new InstantCommand(() -> {
+        //     intake.setLeftIntake(0);
+        //     intake.setRightIntake(0);
+        //     intake.setRollers(0);
+        // })
+        // or
+        // private Command cutIntake() {
+        //    return this.runOnce(() -> {
+        //     intake.setLeftIntake(0);
+        //     intake.setRightIntake(0);
+        //     intake.setRollers(0);
+        // });
+        //}
         class CutIntake extends Command {
             @Override
             public void initialize() {
@@ -299,6 +340,8 @@ public class RobotContainer {
         NamedCommands.registerCommand("EjectCoralForward", new EjectCoral(EjectDirection.FORWARD));
         NamedCommands.registerCommand("RemoveAlgae", new RemoveAlgae());
         NamedCommands.registerCommand("ArmToL3", new ArmToL3());
+        //! For the Algae removal, consider:
+        // NamedCommands.registerCommand("RemoveHighAlgae", new ArmToL3.andThen(new RemoveAlgae));
         NamedCommands.registerCommand("ArmToL2", new ArmToL2());
         NamedCommands.registerCommand("ArmToIntake", new ArmToIntake());
         NamedCommands.registerCommand("CutIntake", new CutIntake());
