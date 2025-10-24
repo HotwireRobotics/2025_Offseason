@@ -122,9 +122,22 @@
           }
         },
         {
-          "type": "path",
+          "type": "parallel",
           "data": {
-            "pathName": "MC Auto ScoreFirstPole"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "MC Auto ScoreFirstPole"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "ReadyScoreL3"
+                }
+              }
+            ]
           }
         },
         {

@@ -160,6 +160,26 @@ public class RobotContainer {
             }
         }
 
+        class ReadyScoreL3 extends ArmToPose {
+            public ReadyScoreL3() {
+                super(Constants.ArmPositions.FLOOR, Constants.WristPositions.LVL3);
+            }
+
+            @Override
+            public void end(boolean interrupted) {
+                super.end(interrupted);
+                arm.pauseArmMotor();
+            }
+
+            @Override
+            public boolean isFinished() {
+                return (
+                    arm.isArmAtPosition(armTarget, Rotations.of(0.055)) &&
+                    arm.isWristAtPosition(wristTarget, Rotations.of(0.055))
+                );
+            }
+        }
+
         class ArmToPunch extends ArmToPose {
             public ArmToPunch() {
                 super(Constants.ArmPositions.PUNCH, Constants.WristPositions.PUNCH);
@@ -364,6 +384,7 @@ public class RobotContainer {
         NamedCommands.registerCommand("ExitStartToL2", voltageExitStart.andThen(new ArmToL2()));
 
         NamedCommands.registerCommand("IntakeCoral", new IntakeCoral());
+        NamedCommands.registerCommand("ReadyScoreL3", new ReadyScoreL3());
 
         NamedCommands.registerCommand("ScoreL3Coral", new ArmToL3().andThen(new EjectCoral(EjectDirection.FORWARD)).andThen(new ArmToPunch()));
 
