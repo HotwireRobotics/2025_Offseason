@@ -94,6 +94,7 @@ public class Constants {
 
 	public class WristPositions {
 		public static final Angle INTAKE = Rotations.of(-0.01);
+		public static final Angle PUNCH = Rotations.of(-0.01);
 		public static final Angle LVL2 = Rotations.of(0.295);
 		public static final Angle LVL3 = Rotations.of(0.2); // Old Position 0.232
 		public static final Angle STOW = Rotations.of(0.3);
@@ -115,9 +116,10 @@ public class Constants {
 	public class ArmPositions {
 		public static final Angle LVL2 = Rotations.of(0.056); // Old Position is 0.048
 		public static final Angle LVL3 = Rotations.of(0.271); // Old Position is 0.251
+		public static final Angle PUNCH = Rotations.of(-0.04);
 		public static final Angle START = Rotations.of(0); //! Change me
 		public static final Angle FLOOR = Rotations.of(-0.0762); // Old Position: -0.0695
-		public static final Angle EXIT_STARTING = Rotations.of(0.21); // Start is 0.114
+		public static final Angle EXIT_STARTING = Rotations.of(0.15); // Start is 0.114 | Old: 0.21
 
 
 		public static final Angle TAKE_ALGAE_L2 = Rotations.of(0.0175);

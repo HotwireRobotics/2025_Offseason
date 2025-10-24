@@ -5,21 +5,22 @@
     "data": {
       "commands": [
         {
-          "type": "named",
+          "type": "parallel",
           "data": {
-            "name": "ExitStartToL2"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 0.1
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "MC Auto Exit"
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "ExitStartToL2"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "MC Auto Exit"
+                }
+              }
+            ]
           }
         },
         {
@@ -37,19 +38,31 @@
         {
           "type": "path",
           "data": {
-            "pathName": "MC Auto ToAlgae"
+            "pathName": "MC Auto ToAlgaePartOne"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "MC Auto ToAlgaePartTwo"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "GoToL3"
+            "name": "ArmToL3"
           }
         },
         {
           "type": "named",
           "data": {
             "name": "RemoveAlgae"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.1
           }
         },
         {
@@ -65,7 +78,7 @@
               {
                 "type": "named",
                 "data": {
-                  "name": "ArmToIntake"
+                  "name": "ArmToPunch"
                 }
               },
               {
@@ -75,6 +88,49 @@
                 }
               }
             ]
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.25
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ArmToIntake"
+          }
+        },
+        {
+          "type": "race",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "MC Auto CollectFirstPole"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "IntakeCoral"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "MC Auto ScoreFirstPole"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ScoreL3Coral"
           }
         }
       ]

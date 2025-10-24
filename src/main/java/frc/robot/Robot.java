@@ -133,8 +133,8 @@ public class Robot extends LoggedRobot {
     public void robotPeriodic() {
         CommandScheduler.getInstance().run();
 
-        Angle value = m_robotContainer.arm.arm_encoder.getPosition().getValue();
-        SmartDashboard.putString("Arm Position", value.toString());
+        Angle value = m_robotContainer.arm.getBaseMotor();
+        SmartDashboard.putNumber("Arm Position", value.magnitude());
 
         // Temperature temp = m_robotContainer.arm.getBaseMotor().getDeviceTemp().getValue();
         // SmartDashboard.putNumber("Arm base Motor Temperature", (temp.in(Fahrenheit)));
