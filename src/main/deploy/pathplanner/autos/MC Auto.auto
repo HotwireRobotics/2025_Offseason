@@ -1,0 +1,163 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "ExitStartToL2"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "MC Auto Exit"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "EjectCoralReverse"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.12
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "MC Auto ToAlgaePartOne"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "MC Auto ToAlgaePartTwo"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ArmToL3"
+          }
+        },
+        {
+          "type": "race",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "RemoveAlgae"
+                }
+              },
+              {
+                "type": "wait",
+                "data": {
+                  "waitTime": 2.0
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.1
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "MC Auto ToFirstPole"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "ArmToPunch"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "CutIntake"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ArmToIntake"
+          }
+        },
+        {
+          "type": "race",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "MC Auto CollectFirstPole"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "IntakeCoral"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "sequential",
+                "data": {
+                  "commands": [
+                    {
+                      "type": "path",
+                      "data": {
+                        "pathName": "MC Auto ScoreFirstPolePartOne"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "ScoreL3Coral"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": null,
+  "choreoAuto": false
+}
