@@ -19,6 +19,7 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.Seconds;
 
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -27,6 +28,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
@@ -386,7 +388,8 @@ public class RobotContainer {
         NamedCommands.registerCommand("IntakeCoral", new IntakeCoral());
         NamedCommands.registerCommand("ReadyScoreL3", new ReadyScoreL3());
 
-        NamedCommands.registerCommand("ScoreL3Coral", new ArmToL3().andThen(new EjectCoral(EjectDirection.FORWARD)).andThen(new ArmToPunch()));
+        NamedCommands.registerCommand("ScoreL3Coral", new ArmToL3().andThen(new WaitCommand(Seconds.of(0.6)))
+                                                            .andThen(new EjectCoral(EjectDirection.FORWARD)).andThen(new ArmToIntake()));
 
         NamedCommands.registerCommand("ToDefault", new InstantCommand(() -> {
             SmartDashboard.putString("Auto Step", "ToDefault");

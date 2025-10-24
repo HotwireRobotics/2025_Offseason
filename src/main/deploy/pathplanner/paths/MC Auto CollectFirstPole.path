@@ -3,24 +3,24 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 1.9180327868852458,
-        "y": 2.25
+        "x": 1.9597500000000003,
+        "y": 2.2504999999999997
       },
       "prevControl": null,
       "nextControl": {
-        "x": 0.9180327868852456,
-        "y": 2.25
+        "x": 0.9597500000000001,
+        "y": 2.2504999999999997
       },
       "isLocked": false,
       "linkedName": "@MCAutoToFirstPole"
     },
     {
       "anchor": {
-        "x": 0.7605000000000001,
+        "x": 0.6630000000000001,
         "y": 2.25
       },
       "prevControl": {
-        "x": 1.7604999999999997,
+        "x": 1.6629999999999998,
         "y": 2.25
       },
       "nextControl": null,
@@ -33,7 +33,7 @@
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
-    "maxVelocity": 0.8,
+    "maxVelocity": 1.12,
     "maxAcceleration": 3.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
