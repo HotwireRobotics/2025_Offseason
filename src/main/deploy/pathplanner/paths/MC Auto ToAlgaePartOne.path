@@ -4,12 +4,12 @@
     {
       "anchor": {
         "x": 5.031000000000001,
-        "y": 2.855
+        "y": 2.845
       },
       "prevControl": null,
       "nextControl": {
         "x": 5.11875,
-        "y": 1.3047499999999992
+        "y": 1.2947499999999992
       },
       "isLocked": false,
       "linkedName": "@MCAutoExit"

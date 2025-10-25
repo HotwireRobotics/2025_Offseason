@@ -174,6 +174,8 @@ public class Robot extends LoggedRobot {
         // m_robotContainer.arm.wristTarget = Rotations.of(wristTargetValue);
 
         robotPose.setRobotPose(m_robotContainer.drivetrain.getState().Pose);
+
+        SmartDashboard.putString("Alliance", DriverStation.getAlliance().toString());
         
         if (utilizeLimelight) {
             List<PoseEstimate> measurements = new ArrayList<PoseEstimate>();
@@ -214,8 +216,12 @@ public class Robot extends LoggedRobot {
                * Pipeline 0 is for the red side,
                * Pipeline 1 is for the blue side.
                */
-              LimelightHelpers.setPipelineIndex(limelight, (DriverStation.getAlliance().get() == DriverStation.Alliance.Red) ? 0 : 1);
-              // LimelightHelpers.setPipelineIndex(limelight, 0);
+              // LimelightHelpers.setPipelineIndex(limelight, 
+                // (DriverStation.getAlliance().get() == DriverStation.Alliance.Red) ? 0 : 1
+                // ? (m_robotContainer.drivetrain.getState().Pose.getY() < 4.02 ? 0 : 2) : 
+                //   (m_robotContainer.drivetrain.getState().Pose.getY() < 4.02 ? 1 : 3)
+              // );
+              LimelightHelpers.setPipelineIndex(limelight, 0);
               LimelightHelpers.SetRobotOrientation(limelight, headingDeg, 0, 0, 0, 0, 0);
               limelightMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue(limelight);
 

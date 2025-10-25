@@ -114,7 +114,7 @@ public class Constants {
 	}
 
 	public class ArmPositions {
-		public static final Angle LVL2 = Rotations.of(0.056); // Old Position is 0.048
+		public static final Angle LVL2 = Rotations.of(0.05); // Old Position is 0.048 Old 0.056
 		public static final Angle LVL3 = Rotations.of(0.271); // Old Position is 0.251
 		public static final Angle START = Rotations.of(0); //! Change me
 		public static final Angle FLOOR = Rotations.of(-0.0762); // Old Position: -0.0695
