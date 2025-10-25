@@ -46,6 +46,7 @@ import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -75,7 +76,8 @@ public class Arm extends SubsystemBase {
 		TAKE_ALGAE_L3,
 		REMOVE_ALGAE_L3,
 		TAKE_ALGAE_L2,
-		RUNTOPOSE
+		RUNTOPOSE,
+		AUTO
 	}
 
 	public TargetState targetState = TargetState.STOP;
@@ -101,7 +103,8 @@ public class Arm extends SubsystemBase {
 		TAKING_ALGAE_L3,
 		REMOVING_ALGAE_L3,
 		TAKING_ALGAE_L2,
-		RUNTOPOSE
+		RUNTOPOSE,
+		AUTO
 	}
 
 	public boolean IS_ARM_AT_EXIT_STARTING_POSITION;
@@ -147,6 +150,9 @@ public class Arm extends SubsystemBase {
 			case STOP:
 				currentState = SystemState.STOPPED;
 				break;
+			case AUTO:
+				currentState = SystemState.AUTO;
+				break;
 			case RUNTOPOSE:
 				currentState = SystemState.RUNTOPOSE;
 				break;
@@ -187,6 +193,7 @@ public class Arm extends SubsystemBase {
 	private void applyStates() {
 
 		switch (currentState) {
+			case AUTO:
 			case STOPPED:
 				break;
 			case INTAKING:
@@ -284,6 +291,10 @@ public class Arm extends SubsystemBase {
      */
 	public void setBaseMotor(double speed) {
 		m_arm_base.set(speed);
+	}
+
+	public Command runArmVoltage(double volts) {
+		return new RunCommand(() -> m_arm_base.setControl(new VoltageOut(volts)));
 	}
 
 	/**

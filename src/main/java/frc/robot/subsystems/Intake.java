@@ -21,7 +21,8 @@ public class Intake extends SubsystemBase {
 		EJECT_BACKWARD,
 
 		TAKE_ALGAE_L3,
-		TAKE_ALGAE_L2
+		TAKE_ALGAE_L2,
+		AUTO
 	}
 
 	public TargetState targetState = TargetState.STOPPED;
@@ -43,7 +44,8 @@ public class Intake extends SubsystemBase {
 		HOLDING_CORAL,
 
 		TAKING_ALGAE_L3,
-		TAKING_ALGAE_L2
+		TAKING_ALGAE_L2,
+		AUTO
 	}
 
 	public SystemState currentState = SystemState.STOPPED;
@@ -117,6 +119,9 @@ public class Intake extends SubsystemBase {
 			case STOPPED:
 				currentState = SystemState.STOPPED;
 				break;
+			case AUTO:
+				currentState = SystemState.AUTO;
+				break;
 			case COLLECT:
 				currentState = SystemState.INTAKING_CORAL;
 
@@ -172,6 +177,7 @@ public class Intake extends SubsystemBase {
 	private void applyStates() {
 
 		switch (currentState) {
+			case AUTO:
 			case STOPPED:
 				break;
 			case INTAKING_CORAL:

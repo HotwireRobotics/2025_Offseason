@@ -19,12 +19,15 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.Seconds;
 
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
@@ -34,7 +37,8 @@ import frc.robot.commands.SetTargetPose;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.*;
 import frc.robot.subsystems.Arm.TargetState;
-import frc.robot.subsystems.Superstructure;
+import frc.robot.subsystems.Intake.Range;
+import frc.robotnew.subsystems.Intake.EjectDirection;
 
 import java.lang.annotation.Target;
 import java.nio.file.Path;
@@ -70,19 +74,202 @@ public class RobotContainer {
 
     public RobotContainer() {
         SmartDashboard.putString("Auto Step", "None");
-        NamedCommands.registerCommand("ExitStart", new InstantCommand(() -> {
-            SmartDashboard.putString("Auto Step", "ExitStart");
-            superstructure.targetState = Superstructure.TargetState.EXIT_STARTING_POSE;
-        }));
+
+        /**
+         * Brings the arm from its' current position to a target position.
+         * 
+         * @param armTarget The target position for the arm base.
+         * @param wristTarget The target position for the wrist.
+         * 
+         * @param endState The state to set the subsystem to when the command ends.
+         */
+        class ArmToPose extends Command {
+
+            // Target positions
+            Angle wristTarget;
+            Angle armTarget;
+
+            public ArmToPose(Angle armTarget, Angle wristTarget) {
+                super();
+                this.armTarget = armTarget;
+                this.wristTarget = wristTarget;
+
+                addRequirements(arm);
+            }
+
+            /**
+             * Called when the command is scheduled.
+             */
+            @Override
+            public void initialize() {
+                arm.targetState = Arm.TargetState.AUTO;
+                
+                arm.setArmMotorPosition(armTarget.magnitude());
+                arm.setWristMotorPosition(wristTarget.magnitude());
+            }
+
+            /**
+             * Called during execution of the command.
+             */
+            @Override
+            public void execute() {
+                arm.targetState = Arm.TargetState.AUTO;
+            }
+
+            /**
+             * Returns true when the command should end.
+             */
+            @Override
+            public boolean isFinished() {
+                return (
+                    arm.isArmAtPosition(armTarget, Rotations.of(0.03)) &&
+                    arm.isWristAtPosition(wristTarget, Rotations.of(0.03))
+                );
+            }
+
+            /**
+             * Called when the command ends.
+             */
+            @Override
+            public void end(boolean interrupted) {
+                arm.targetState = Arm.TargetState.AUTO;
+            }
+        }
+
+        /**
+         * Moves the arm to the intake position.
+         */
+        class ArmToIntake extends ArmToPose {
+            public ArmToIntake() {
+                super(Constants.ArmPositions.FLOOR, Constants.WristPositions.INTAKE);
+            }
+
+            @Override
+            public void end(boolean interrupted) {
+                super.end(interrupted);
+                arm.pauseArmMotor();
+            }
+
+            @Override
+            public boolean isFinished() {
+                return (
+                    arm.isArmAtPosition(armTarget, Rotations.of(0.055)) &&
+                    arm.isWristAtPosition(wristTarget, Rotations.of(0.055))
+                );
+            }
+        }
+
+        class ReadyScoreL3 extends ArmToPose {
+            public ReadyScoreL3() {
+                super(Constants.ArmPositions.FLOOR, Constants.WristPositions.LVL3);
+            }
+
+            @Override
+            public void end(boolean interrupted) {
+                super.end(interrupted);
+                arm.pauseArmMotor();
+            }
+
+            @Override
+            public boolean isFinished() {
+                return (
+                    arm.isArmAtPosition(armTarget, Rotations.of(0.055)) &&
+                    arm.isWristAtPosition(wristTarget, Rotations.of(0.055))
+                );
+            }
+        }
+
+        class ArmToPunch extends ArmToPose {
+            public ArmToPunch() {
+                super(Constants.ArmPositions.PUNCH, Constants.WristPositions.PUNCH);
+            }
+        }
+
+        class IntakeCoral extends Command {
+
+            public IntakeCoral() {
+                addRequirements(intake);
+            }
+
+            @Override
+            public void execute() {
+                intake.setLeftIntake(
+                    intake.getMeasurement(Range.LEFT) && intake.getMeasurement(Range.RIGHT) ?
+                    - Constants.IntakeSpeeds.MAX :
+                      Constants.IntakeSpeeds.MAX
+                );
+                intake.setRightIntake(
+                      Constants.IntakeSpeeds.MAX
+                );
+                intake.setRollers(
+                      Constants.IntakeSpeeds.MAX
+                );
+            }
+    
+            /**
+             * Turn off intake and set final state.
+             */
+            @Override
+            public void end(boolean interrupted) {
+                intake.setLeftIntake(0);
+                intake.setRightIntake(0);
+                intake.setRollers(0);
+            }
+    
+            /**
+             * Finish when the stop range is triggered by coral.
+             */
+            @Override
+            public boolean isFinished() {
+                return intake.getMeasurement(Range.STOP) && intake.getMeasurement(Range.FRONT);
+            }
+        }
+
+        /**
+         * Moves the arm to the intake position.
+         */
+        class ArmExitStart extends ArmToPose {
+            public ArmExitStart() {
+                super(Constants.ArmPositions.EXIT_STARTING, Constants.WristPositions.STOW);
+            }
+
+            @Override
+            public boolean isFinished() {
+                return (
+                    arm.getBaseMotor().gt(Constants.ArmPositions.EXIT_STARTING.plus(Rotations.of(0.03)))
+                );
+            }
+        }
+
+        /**
+         * Moves the arm to the intake position.
+         */
+        class ArmToL3 extends ArmToPose {
+            public ArmToL3() {
+                super(Constants.ArmPositions.LVL3, Constants.WristPositions.LVL3);
+            }
+        }
+
+        /**
+         * Moves the arm to the intake position.
+         */
+        class ArmToL2 extends ArmToPose {
+            public ArmToL2() {
+                super(Constants.ArmPositions.LVL2, Constants.WristPositions.LVL2);
+            }
+        }
+
         class ScoreL3 extends Command {
             @Override
             public void initialize() {
+                arm.targetState = Arm.TargetState.AUTO;
                 SmartDashboard.putString("Auto Step", "GoToL3");
                 superstructure.targetState = Superstructure.TargetState.GO_TO_LVL3;
             }
 
             @Override
             public void execute() {
+                arm.targetState = Arm.TargetState.AUTO;
                 if (
                     arm.isArmAtPosition(Constants.ArmPositions.LVL3, Rotations.of(0.025)) &&
                     arm.isWristAtPosition(Constants.WristPositions.LVL3, Rotations.of(0.025))
@@ -102,6 +289,121 @@ public class RobotContainer {
                 return !intake.hasCoral();
             }
         }
+
+        
+        
+        class EjectCoral extends Command {
+
+            private double speed;
+
+            public EjectCoral(EjectDirection direction) {
+                switch (direction) {
+                    case FORWARD:
+                        speed = -Constants.IntakeSpeeds.MAX;
+                        break;
+                    case REVERSE:
+                        speed = Constants.IntakeSpeeds.MAX;
+                        break;
+                    default:
+                        speed = -Constants.IntakeSpeeds.MAX;
+                        break;
+                }
+
+                addRequirements(intake);
+            }
+
+            /**
+             * Run intake motors in reverse to eject coral.
+             */
+            @Override
+            public void execute() {
+                intake.targetState = Intake.TargetState.AUTO;
+                intake.setLeftIntake(speed);
+                intake.setRightIntake(speed);
+                intake.setRollers(speed);
+            }
+
+            /**
+             * Turn off intake and set final state.
+             */
+            @Override
+            public void end(boolean interrupted) {
+                intake.targetState = Intake.TargetState.DEFAULT;
+                intake.setLeftIntake(0);
+                intake.setRightIntake(0);
+                intake.setRollers(0);
+            }
+
+            /**
+             * Finish when the stop range and the front range are no longer triggered.
+             */
+            @Override
+            public boolean isFinished() {
+                return !(intake.getMeasurement(Range.STOP) && intake.getMeasurement(Range.FRONT));
+            }
+        }
+
+        // This also should be equivalent to:
+        Command cutIntake = new InstantCommand(() -> {
+            intake.setLeftIntake(0);
+            intake.setRightIntake(0);
+            intake.setRollers(0);
+        });
+
+        Command removeAlgae = new RunCommand(() -> {
+            intake.targetState = Intake.TargetState.AUTO;
+            intake.setLeftIntake(1);
+            intake.setRightIntake(1);
+            intake.setRollers(1);
+        }).until(() -> {
+            return (intake.getMeasurement(Range.STOP) || intake.getMeasurement(Range.FRONT));
+        });
+
+        Command voltageExitStart = new InstantCommand(() -> arm.setWristMotorPosition(Constants.WristPositions.LVL2.magnitude()), arm)
+            .alongWith(arm.runArmVoltage(0.75).until(() ->
+             {return arm.getBaseMotor().gt(Constants.ArmPositions.EXIT_STARTING.plus(Rotations.of(0.03)));})
+             .andThen(arm.runArmVoltage(-1.5).until(() ->
+             {return arm.getBaseMotor().lt(Constants.ArmPositions.LVL2.plus(Rotations.of(0.03)));})));
+        
+        NamedCommands.registerCommand("GoToL3", new ScoreL3());
+
+        NamedCommands.registerCommand("EjectCoral", new InstantCommand(() -> {
+            SmartDashboard.putString("Auto Step", "EjectCoral");
+            superstructure.targetState = Superstructure.TargetState.EJECT;
+        }));
+        NamedCommands.registerCommand("EjectCoralReverse", new EjectCoral(EjectDirection.REVERSE));
+        NamedCommands.registerCommand("EjectCoralForward", new EjectCoral(EjectDirection.FORWARD));
+        NamedCommands.registerCommand("RemoveAlgae", removeAlgae);
+        NamedCommands.registerCommand("ArmToL3", new ArmToL3());
+        NamedCommands.registerCommand("RemoveHighAlgae", new ArmToL3().andThen(removeAlgae));
+        NamedCommands.registerCommand("ArmToL2", new ArmToL2());
+        NamedCommands.registerCommand("ArmToIntake", new ArmToIntake());
+        NamedCommands.registerCommand("ArmToPunch", new ArmToPunch());
+        NamedCommands.registerCommand("CutIntake", cutIntake);
+
+        NamedCommands.registerCommand("ExitStart", new ArmExitStart().andThen(new ArmToIntake()));
+        NamedCommands.registerCommand("ExitStartToL2", voltageExitStart.andThen(new ArmToL2()));
+
+        NamedCommands.registerCommand("IntakeCoral", new IntakeCoral());
+        NamedCommands.registerCommand("ReadyScoreL3", new ReadyScoreL3());
+
+        NamedCommands.registerCommand("ScoreL3Coral", new ArmToL3().andThen(new WaitCommand(Seconds.of(0.6)))
+                                                            .andThen(new EjectCoral(EjectDirection.FORWARD)).andThen(new ArmToIntake()));
+
+        NamedCommands.registerCommand("ToDefault", new InstantCommand(() -> {
+            SmartDashboard.putString("Auto Step", "ToDefault");
+            superstructure.targetState = Superstructure.TargetState.DEFAULT;
+        }));
+        NamedCommands.registerCommand("ToAlgaeL2", new InstantCommand(() -> {
+            SmartDashboard.putString("Auto Step", "ToAlgaeL2");
+            superstructure.targetState = Superstructure.TargetState.ALGAE_L2_AUTO;
+        }));
+
+        NamedCommands.registerCommand("ExitStart", new InstantCommand(() -> {
+            SmartDashboard.putString("Auto Step", "ExitStart");
+            superstructure.targetState = Superstructure.TargetState.EXIT_STARTING_POSE;
+        }));
+        
         NamedCommands.registerCommand("GoToL3", new ScoreL3());
         NamedCommands.registerCommand("EjectCoral", new InstantCommand(() -> {
             SmartDashboard.putString("Auto Step", "EjectCoral");
