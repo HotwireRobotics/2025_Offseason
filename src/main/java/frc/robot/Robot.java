@@ -246,67 +246,14 @@ public class Robot extends LoggedRobot {
                 LimelightHelpers.setLEDMode_ForceOff(limelightName);
               }
             }
-
-            // if (measurements.size() > 0) {
-            //   int bestTagCount = 0;  
-            //   PoseEstimate bestMeasurement = measurements.get(0);
-            //   for (PoseEstimate measurement : measurements) {
-            //     if (measurement.tagCount > bestTagCount) {
-            //       bestTagCount = measurement.tagCount;
-            //       bestMeasurement = measurement;
-            //     }
-            //   }
-            //   m_robotContainer.drivetrain.addVisionMeasurement(bestMeasurement.pose,
-            //     bestMeasurement.timestampSeconds);
-            //   llestamation.setRobotPose(bestMeasurement.pose);
-            // }
-            // Pose2d poseSum = new Pose2d();
-            // for (PoseEstimate measurement : measurements) {
-            //   poseSum = poseSum.plus(new Transform2d(measurement.pose.getTranslation(), new Rotation2d()));
-            // }
-            // poseSum = poseSum.div(measurements.size());
-
-            // llestamation.setRobotPose(poseSum);
-
       }
 
       Translation2d end = new Translation2d(0, 0);
 
-      // SmartDashboard.putNumber("Distance to Score",
-      //     end.getDistance(m_robotContainer.drivetrain.getState().Pose.getTranslation()));
-
-      // nearestPoseField.setRobotPose(Constants.nearestTagPose(m_robotContainer.drivetrain.getState().Pose).get());
       if (m_robotContainer.drivetrain.nearestPose != null) {
         nearestPoseField.setRobotPose(m_robotContainer.drivetrain.nearestPose);
       }
     }
-
-    // Command pfc = AutoBuilder.pathfindToPose(new Pose2d(0, 0, new Rotation2d(0,
-    // 0)), constraints);
-
-    // public double getClosestTag(int[] IDs) {
-    // Translation2d end = new Translation2d(0, 0); // None Pose
-
-    // // red = 6 - 11
-    // // blue =
-
-    // for (int ID = 0; ID < IDs.length; ID++) {
-    // int id = IDs[ID];
-
-    // Translation2d tag = taglayout.getTagPose(id).orElse(new Pose3d(end.getX(),
-    // end.getY(), 0, new Rotation3d(0, 0, 0))).getTranslation().toTranslation2d();
-    // }
-
-    // TODO
-    // return
-    // tag.getDistance(m_robotContainer.drivetrain.getState().Pose.getTranslation());
-    // var apriltags = taglayout.getTags();
-    // Pose2d[] tag_poses = new Pose2d[apriltags.size()];
-    // for (var tag : apriltags) {
-    // tag_poses = tag.pose;
-    // }
-    // return m_robotContainer.drivetrain.getState().Pose.nearest(apriltags);
-    // }
 
     @Override
     public void disabledInit() {

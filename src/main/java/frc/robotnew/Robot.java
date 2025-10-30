@@ -74,8 +74,8 @@ public class Robot extends TimedRobot {
                  * Pipeline 0 is for the red side,
                  * Pipeline 1 is for the blue side.
                  */
-                LimelightHelpers.setPipelineIndex(limelight, (DriverStation.getAlliance().get() == DriverStation.Alliance.Red) ? 0 : 1);
-                // LimelightHelpers.setPipelineIndex(limelight, 0);
+                // LimelightHelpers.setPipelineIndex(limelight, (DriverStation.getAlliance().get() == DriverStation.Alliance.Red) ? 0 : 1);
+                LimelightHelpers.setPipelineIndex(limelight, 0);
                 LimelightHelpers.SetRobotOrientation(limelight, headingDeg, 0, 0, 0, 0, 0);
 
                 PoseEstimate limelightMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue(limelight);

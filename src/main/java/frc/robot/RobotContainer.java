@@ -70,8 +70,6 @@ public class RobotContainer {
 
     private final SendableChooser<Command> autoChooser;
 
-    // TODO
-
     public RobotContainer() {
         SmartDashboard.putString("Auto Step", "None");
 
