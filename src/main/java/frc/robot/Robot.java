@@ -200,6 +200,7 @@ public class Robot extends LoggedRobot {
               driveState = m_robotContainer.drivetrain.getState();
               headingDeg = driveState.Pose.getRotation().getDegrees();
               omegaRPS = Units.radiansToRotations(driveState.Speeds.omegaRadiansPerSecond);
+              LimelightHelpers.SetIMUMode(limelight, 3);
               /**
                * Pipeline 0 is for the red side,
                * Pipeline 1 is for the blue side.
