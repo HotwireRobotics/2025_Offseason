@@ -69,7 +69,7 @@ public class Constants {
 		
 	}
 
-	public static Distance UP_OFFSET = Inches.of(0);
+	public static Distance UP_OFFSET = Inches.of(-4.8);
 	public static Distance DOWN_OFFSET = Inches.of(2);
 
 	public static final Distance EXIT_DISTANCE = Meters.of(0.3);
@@ -90,7 +90,7 @@ public class Constants {
 
 	public static final String[] LIMELIGHT_NAMES = {"limelight-two", "limelight-one"};
 
-	public static final PathConstraints constraints = new PathConstraints(3.0, 4.0, Units.degreesToRadians(540),
+	public static final PathConstraints constraints = new PathConstraints(2.9, 2.9, Units.degreesToRadians(540),
 			Units.degreesToRadians(720));
 
 	public static final Distance poleOffset = Inches.of(6.5);
