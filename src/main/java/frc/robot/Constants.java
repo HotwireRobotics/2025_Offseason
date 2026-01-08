@@ -69,6 +69,9 @@ public class Constants {
 		
 	}
 
+	public static Distance UP_OFFSET = Inches.of(0);
+	public static Distance DOWN_OFFSET = Inches.of(2);
+
 	public static final Distance EXIT_DISTANCE = Meters.of(0.3);
 
 	public static final CommandXboxController driver   = new CommandXboxController(0);
@@ -113,8 +116,8 @@ public class Constants {
 	}
 
 	public class ArmPositions {
-		public static final Angle LVL2 = Rotations.of(0.048); // Old Position is 0.048
-		public static final Angle LVL3 = Rotations.of(0.265); // Old Position is 0.251
+		public static final Angle LVL2 = Rotations.of(0.0575); // Old Position is 0.048
+		public static final Angle LVL3 = Rotations.of(0.255); // Old Position is 0.251
 		public static final Angle START = Rotations.of(0); //! Change me
 		public static final Angle FLOOR = Rotations.of(-0.0762); // Old Position: -0.0695
 		public static final Angle EXIT_STARTING = Rotations.of(0.21); // Start is 0.114

@@ -211,7 +211,7 @@ public class Arm extends SubsystemBase {
 				setWristMotorPosition(Constants.WristPositions.STOW.magnitude());
 				break;
 			case SCORING_LVL2:
-				setArmMotorPosition(Constants.ArmPositions.LVL2.magnitude()-0.015);
+				setArmMotorPosition(Constants.ArmPositions.LVL2.magnitude());
 				setWristMotorPosition(Constants.WristPositions.LVL2.magnitude());
 				break;
 			case SCORING_LVL3:

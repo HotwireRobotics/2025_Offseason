@@ -177,13 +177,13 @@ public class Intake extends SubsystemBase {
 			case INTAKING_CORAL:
 				setLeftIntake(Constants.IntakeSpeeds.MAX);
 				setRightIntake(Constants.IntakeSpeeds.MAX);
-				setRollers(0.4);
+				setRollers(0.3);
 
 				break;
 			case INDEXING_CORAL:
 				setLeftIntake(Constants.IntakeSpeeds.MAX);
 				setRightIntake(-Constants.IntakeSpeeds.MAX);
-				setRollers(0.4);
+				setRollers(0.43);
 
 				break;
 			case HOLDING_CORAL: case NO_CORAL:
