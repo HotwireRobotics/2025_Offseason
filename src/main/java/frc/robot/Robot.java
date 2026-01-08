@@ -76,25 +76,25 @@ public class Robot extends LoggedRobot {
             SmartDashboard.putBoolean(limelight + " detecting", false);
         }
 
-        Logger.recordMetadata("Hotwire Project", "2026"); // Set a metadata value
+        // Logger.recordMetadata("Hotwire Project", "2026"); // Set a metadata value
 
-        if (isReal()) {
-            Logger.addDataReceiver(new WPILOGWriter()); // Log to a USB stick ("/U/logs")
-            Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
-        } else {
-            setUseTiming(false); // Run as fast as possible
-            String logPath = LogFileUtil.findReplayLog(); // Pull the replay log from
-            // AdvantageScope (or prompt the user)
-            Logger.setReplaySource(new WPILOGReader(logPath)); // Read replay log
-            Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath,
-            "_sim"))); // Save outputs to a new log
-        }
+        // if (isReal()) {
+        //     Logger.addDataReceiver(new WPILOGWriter()); // Log to a USB stick ("/U/logs")
+        //     Logger.addDataReceiver(new NT4Publisher()); // Publish data to NetworkTables
+        // } else {
+        //     setUseTiming(false); // Run as fast as possible
+        //     String logPath = LogFileUtil.findReplayLog(); // Pull the replay log from
+        //     // AdvantageScope (or prompt the user)
+        //     Logger.setReplaySource(new WPILOGReader(logPath)); // Read replay log
+        //     Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath,
+        //     "_sim"))); // Save outputs to a new log
+        // }
 
-        Logger.recordMetadata("GitSHA", BuildConstants.GIT_SHA);
+        // Logger.recordMetadata("GitSHA", BuildConstants.GIT_SHA);
 
-        Logger.recordOutput("Intake Target State", m_robotContainer.intake.targetState);
+        // Logger.recordOutput("Intake Target State", m_robotContainer.intake.targetState);
 
-        Logger.start(); // Start logging! No more data receivers, replay sources, or
+        // Logger.start(); // Start logging! No more data receivers, replay sources, or
         // metadata values may be added.
     }
 
@@ -115,16 +115,6 @@ public class Robot extends LoggedRobot {
 
       SmartDashboard.putNumber("Wrist Target", wristTargetValue);
       SmartDashboard.putNumber("Arm Target", armTargetValue);
-
-      // var status = m_orchestra.loadMusic("track.chrp");
-
-      // m_orchestra.addInstrument(m_robotContainer.arm.baseMotor());
-      // m_orchestra.addInstrument(m_robotContainer.arm.wristMotor());
-      // m_orchestra.addInstrument(m_robotContainer.drivetrain.getModule(0).getDriveMotor());
-      // m_orchestra.addInstrument(m_robotContainer.drivetrain.getModule(1).getDriveMotor());
-      // m_orchestra.addInstrument(m_robotContainer.drivetrain.getModule(2).getDriveMotor());
-      // m_orchestra.addInstrument(m_robotContainer.drivetrain.getModule(3).getDriveMotor());
-      // m_orchestra.play(); // TODO Make orchestra function.
     }
 
     
@@ -217,7 +207,7 @@ public class Robot extends LoggedRobot {
               // LimelightHelpers.setPipelineIndex(limelight, (DriverStation.getAlliance().get() == DriverStation.Alliance.Red) ? 0 : 1);
               LimelightHelpers.setPipelineIndex(limelight, 0);
               LimelightHelpers.SetRobotOrientation(limelight, headingDeg, 0, 0, 0, 0, 0);
-              limelightMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue(limelight);
+              limelightMeasurement = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(limelight);
 
               if ((limelightMeasurement != null) && (limelightMeasurement.tagCount > 0) && (Math.abs(omegaRPS) < 2) && (limelightMeasurement.avgTagDist < 2.75)) {
                   measurements.add(limelightMeasurement);
