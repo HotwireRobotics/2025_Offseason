@@ -40,6 +40,8 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.ArmToPose;
 import frc.robot.commands.CommandGenerator;
 import frc.robot.commands.CommandWrapper;
+import frc.robot.commands.Pathfind;
+import frc.robot.commands.Pathfind;
 import frc.robot.generated.TunerConstants.TunerSwerveDrivetrain;
 import frc.robotnew.Constants;
 import frc.robotnew.Constants.Dimensions;
@@ -454,19 +456,20 @@ public class SwerveDriveTrain extends TunerSwerveDrivetrain implements Subsystem
     public Pose2d nearestPose;
     public Command navigate() {
         Command command;
+        Pose2d start = getState().Pose;
         switch (targetState) {
             case NAVIGATE_UP_LEFT: 
                 nearestPose = Constants.nearestBranchPose(getState().Pose, Tracks.left).get();
-                command = AutoBuilder.pathfindToPose(nearestPose, Constants.constraints);
+                command = new Pathfind(start, nearestPose, Constants.constraints);
                 break;
             case NAVIGATE_DOWN_LEFT:
                 nearestPose = Constants.nearestBranchPose(getState().Pose, Tracks.left).get();
                 nearestPose = nearestPose.rotateAround(nearestPose.getTranslation(), new Rotation2d(Radians.of(Math.PI)));
-                command = AutoBuilder.pathfindToPose(nearestPose, Constants.constraints);
+                command = new Pathfind(start, nearestPose, Constants.constraints);
                 break;
             case NAVIGATE_UP_RIGHT: 
                 nearestPose = Constants.nearestBranchPose(getState().Pose, Tracks.right).get();
-                command = AutoBuilder.pathfindToPose(nearestPose, Constants.constraints);
+                command = new Pathfind(start, nearestPose, Constants.constraints);
                 break;
             case NAVIGATE_ALGAE:
                 nearestId = Constants.nearestAlgaeId(getState().Pose);
@@ -493,18 +496,18 @@ public class SwerveDriveTrain extends TunerSwerveDrivetrain implements Subsystem
                 Transform2d offset = new Transform2d(
 				    new Translation2d(Dimensions.bumperLength.magnitude() / 2, new Rotation2d()), rot);
 		        nearestPose = nearestPose.plus(offset);
-                command = AutoBuilder.pathfindToPose(nearestPose, Constants.constraints);
+                command = new Pathfind(start, nearestPose, Constants.constraints);
                 break;
             case NAVIGATE_DOWN_RIGHT:
                 nearestPose = Constants.nearestBranchPose(getState().Pose, Tracks.right).get();
                 nearestPose = nearestPose.rotateAround(nearestPose.getTranslation(), new Rotation2d(Radians.of(Math.PI)));
-                command = AutoBuilder.pathfindToPose(nearestPose, Constants.constraints);
+                command = new Pathfind(start, nearestPose, Constants.constraints);
                 break;
             case NAVIGATE_EXIT_LVL2:
                 nearestPose = getState().Pose;
                 Transform2d backwards = new Transform2d(new Translation2d(Constants.EXIT_DISTANCE.magnitude(), new Rotation2d()), new Rotation2d());
                 nearestPose = nearestPose.plus(backwards);
-                command = AutoBuilder.pathfindToPose(nearestPose, Constants.constraints).andThen(new InstantCommand(() -> {
+                command = new Pathfind(start, nearestPose, Constants.constraints).andThen(new InstantCommand(() -> {
                     GO_HOME = true;
                 }));
                 break;
