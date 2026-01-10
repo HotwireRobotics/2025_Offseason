@@ -69,8 +69,8 @@ public class Constants {
 		
 	}
 
-	public static Distance UP_OFFSET = Inches.of(-5.8);
-	public static Distance DOWN_OFFSET = Inches.of(2);
+	public static Distance UP_OFFSET = Inches.of(5.5);
+	public static Distance DOWN_OFFSET = Inches.of(0);
 
 	public static final Distance EXIT_DISTANCE = Meters.of(0.3);
 
@@ -342,11 +342,11 @@ public class Constants {
 				pose = robotPose.nearest(rights);
 		}
 
-		Transform2d offset1 = new Transform2d(
-				new Translation2d((Dimensions.bumperLength.magnitude() / 2) + offset.magnitude() + 0.15, new Rotation2d()), Rotation2d.k180deg);
-		pose = pose.plus(offset1);
+		// Transform2d offset1 = new Transform2d(
+		// 		new Translation2d((Dimensions.bumperLength.magnitude() / 2) + offset.magnitude() + 0.15, new Rotation2d()), Rotation2d.k180deg);
+		// pose = pose.plus(offset1);
 
-		pose = pose.plus(new Transform2d(new Translation2d(Inches.of(-1), Inches.of(-1)), Rotation2d.kZero));
+		pose = pose.plus(new Transform2d(new Translation2d(Inches.of(1), offset), Rotation2d.k180deg));
 
 		return Optional.of(pose);
 	}

@@ -46,9 +46,9 @@ import frc.robot.commands.ArmToPose;
 import frc.robot.commands.CommandGenerator;
 import frc.robot.commands.CommandWrapper;
 import frc.robot.generated.TunerConstants.TunerSwerveDrivetrain;
-import frc.robotnew.Constants;
-import frc.robotnew.Constants.Dimensions;
-import frc.robotnew.Constants.Tracks;
+import frc.robot.Constants;
+import frc.robot.Constants.Dimensions;
+import frc.robot.Constants.Tracks;
 
 /**
  * Class that extends the Phoenix 6 SwerveDrivetrain class and implements
@@ -479,19 +479,18 @@ public class SwerveDriveTrain extends TunerSwerveDrivetrain implements Subsystem
     }
     public Command navigate() {
         Command command;
-        Pose2d start = getState().Pose;
         switch (targetState) {
             case NAVIGATE_UP_LEFT: 
-                nearestPose = Constants.nearestBranchPose(getState().Pose, Tracks.left).get();
+                nearestPose = Constants.nearestBranchPose(getState().Pose, Tracks.left, Constants.UP_OFFSET).get();
                 command = pathfind(nearestPose, Constants.constraints);
                 break;
             case NAVIGATE_DOWN_LEFT:
-                nearestPose = Constants.nearestBranchPose(getState().Pose, Tracks.left).get();
+                nearestPose = Constants.nearestBranchPose(getState().Pose, Tracks.left, Constants.DOWN_OFFSET).get();
                 nearestPose = nearestPose.rotateAround(nearestPose.getTranslation(), new Rotation2d(Radians.of(Math.PI)));
                 command = pathfind(nearestPose, Constants.constraints);
                 break;
             case NAVIGATE_UP_RIGHT: 
-                nearestPose = Constants.nearestBranchPose(getState().Pose, Tracks.right).get();
+                nearestPose = Constants.nearestBranchPose(getState().Pose, Tracks.right, Constants.UP_OFFSET).get();
                 command = pathfind(nearestPose, Constants.constraints);
                 break;
             case NAVIGATE_ALGAE:
@@ -522,7 +521,7 @@ public class SwerveDriveTrain extends TunerSwerveDrivetrain implements Subsystem
                 command = pathfind(nearestPose, Constants.constraints);
                 break;
             case NAVIGATE_DOWN_RIGHT:
-                nearestPose = Constants.nearestBranchPose(getState().Pose, Tracks.right).get();
+                nearestPose = Constants.nearestBranchPose(getState().Pose, Tracks.right, Constants.DOWN_OFFSET).get();
                 nearestPose = nearestPose.rotateAround(nearestPose.getTranslation(), new Rotation2d(Radians.of(Math.PI)));
                 command = pathfind(nearestPose, Constants.constraints);
                 break;
@@ -535,7 +534,7 @@ public class SwerveDriveTrain extends TunerSwerveDrivetrain implements Subsystem
                 }));
                 break;
             default:
-                return driveCommand;
+                return idle();
         }
         return command;
     }
